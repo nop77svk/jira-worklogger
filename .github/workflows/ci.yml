@@ -21,6 +21,6 @@ jobs:
         dotnet nuget add source --name NoP77svk --username anyone --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text "https://nuget.pkg.github.com/nop77svk/index.json" \
         || dotnet nuget update source NoP77svk --username anyone --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --source "https://nuget.pkg.github.com/nop77svk/index.json"
     - name: Build
-      run: dotnet build --configuration Release
+      run: dotnet build -c Release
     - name: Test
-      run: dotnet test --configuration Release
+      run: dotnet test -c Release
