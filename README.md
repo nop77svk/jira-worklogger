@@ -1,2 +1,2 @@
 # jira-worklogger
-Jira worlog/tempo batch-filler
+Jira worklog/tempo batch-filler
