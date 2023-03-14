@@ -1,5 +1,7 @@
 ﻿namespace jwl;
 using System.Net;
+using jwl.core;
+using jwl.inputs;
 using NoP77svk.Console;
 
 internal class Program
@@ -31,5 +33,7 @@ internal class Program
         };
         httpClientHandler.ServerCertificateCustomValidationCallback = (_, _, _, _) => config.ServerConfig.SkipSslCertificateCheck;
         using HttpClient httpClient = new HttpClient(httpClientHandler);
+
+        using WorklogCsvReader reader = new WorklogCsvReader(Console.In);
     }
 }

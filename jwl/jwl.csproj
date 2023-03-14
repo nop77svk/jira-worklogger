@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
     <ProjectReference Include="..\jwl.core\jwl.core.csproj" />
+    <ProjectReference Include="..\jwl.inputs\jwl.inputs.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="NoP77svk.Console" Version="2022.8.3" />

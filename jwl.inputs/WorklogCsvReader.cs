@@ -3,27 +3,19 @@ using System.Globalization;
 using CsvHelper;
 using jwl.core;
 
-public class CsvReader : IDisposable
+public class WorklogCsvReader : IDisposable
 {
-    private StreamReader _streamReader;
-    private CsvHelper.CsvConfiguration _csvConfig;
-    private CsvHelper.CsvReader _csvReader;
+    private CsvReader _csvReader;
 
-    public CsvReader(Stream inputFile)
+    public WorklogCsvReader(TextReader inputFile)
     {
-        _streamReader = new StreamReader(inputFile, detectEncodingFromByteOrderMarks: true);
-
-        _csvConfig = new CsvConfiguration(CultureInfo.InvariantCulture)
-        {
-            HasHeaderRecord = false
-        };
-
-        _csvReader = new CsvReader(_streamReader, _csvConfig);
+        _csvReader = new CsvReader(inputFile, CultureInfo.InvariantCulture);
     }
 
     public IEnumerable<JiraWorklog> AsEnumerable()
     {
-        string[] dateFormats = {
+        string[] dateFormats =
+        {
             @"yyyy-MM-dd",
             @"yyyy-MM-dd hh:mm:ss",
             @"yyyy/MM/dd",
@@ -32,7 +24,8 @@ public class CsvReader : IDisposable
             @"dd.MM.YYYY hh:mm:ss"
         };
 
-        string[] timespanTimeFormats = {
+        string[] timespanTimeFormats =
+        {
             @"hh\:mm",
             @"mm",
             @"hh'h'mm",
@@ -46,10 +39,14 @@ public class CsvReader : IDisposable
         while (_csvReader.Read())
         {
             currentRowNo++;
-            JiraWorklogRawCsv row = _csvReader.GetRecord<JiraWorklogRawCsv>();
+            JiraWorklog result;
 
             try
             {
+                JiraWorklogRawCsv? row = _csvReader.GetRecord<JiraWorklogRawCsv>();
+                if (row == null)
+                    throw new FormatException("Empty row on input");
+
                 JiraIssueKey worklogIssueKey = new JiraIssueKey(row.IssueKey);
 
                 if (!DateTime.TryParseExact(row.Date, dateFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime worklogDate))
@@ -57,19 +54,20 @@ public class CsvReader : IDisposable
 
                 TimeSpan worklogTimeSpent = LiberalParseTimeSpan(row.TimeSpent, timespanTimeFormats);
 
-                yield return new JiraWorklog(worklogIssueKey, worklogDate, worklogTimeSpent, row.WorklogType, row.Comment);
+                result = new JiraWorklog(worklogIssueKey, worklogDate, worklogTimeSpent, row.WorklogType, row.Comment);
             }
             catch (Exception e)
             {
-                throw new InputRowException(currentRowNo);
+                throw new InputRowException(currentRowNo, e);
             }
+
+            yield return result;
         }
     }
 
     public void Dispose()
     {
         _csvReader.Dispose();
-        _streamReader.Dispose();
     }
 
     private TimeSpan LiberalParseTimeSpan(string timeSpanStr, string[] timespanTimeFormats)
@@ -86,13 +84,12 @@ public class CsvReader : IDisposable
                 {
                     if (!double.TryParse(timeSpanStr.Replace(',', '.'), numberStyles, CultureInfo.InvariantCulture, out timeSpanInNumberOfHours))
                     {
-                        throw new FormatException($"Invalid time spent value \"{row.TimeSpent}\"");
+                        throw new FormatException($"Invalid timespan value \"{timeSpanStr}\"");
                     }
                 }
             }
-            
+
             result = TimeSpan.FromHours(timeSpanInNumberOfHours);
-            result.Seconds = 0;
         }
 
         return result;
@@ -100,6 +97,6 @@ public class CsvReader : IDisposable
 
     private void ParseHeader()
     {
-        
+        // 2do!
     }
 }
