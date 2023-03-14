@@ -30,6 +30,9 @@
     </PackageReference>
     <Compile Include="..\GlobalSuppressions.cs" Link="GlobalSuppressions.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\jwl.core\jwl.core.csproj" />
+  </ItemGroup>
   <Target Name="PostClean" AfterTargets="Clean">
     <RemoveDir Directories="$(BaseIntermediateOutputPath)" />
     <!-- obj -->
