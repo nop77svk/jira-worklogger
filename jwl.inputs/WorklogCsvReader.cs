@@ -54,7 +54,7 @@ public class WorklogCsvReader : IDisposable
 
                 TimeSpan worklogTimeSpent = LiberalParseTimeSpan(row.TimeSpent, timespanTimeFormats);
 
-                result = new JiraWorklog(worklogIssueKey, worklogDate, worklogTimeSpent, row.WorklogType, row.Comment);
+                result = new JiraWorklog(worklogIssueKey, worklogDate, worklogTimeSpent, row.TempoWorklogType, row.Comment);
             }
             catch (Exception e)
             {

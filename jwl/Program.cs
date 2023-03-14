@@ -1,5 +1,6 @@
 ﻿namespace jwl;
 using System.Net;
+using System.Text;
 using jwl.core;
 using jwl.inputs;
 using NoP77svk.Console;
@@ -10,10 +11,10 @@ internal class Program
     {
         Config config = new Config();
 
-        Console.Error.Write($"Enter password for {config.ServerConfig.JiraUserName}: ");
         string jiraPassword;
         if (string.IsNullOrEmpty(config.ServerConfig.JiraUserPassword))
         {
+            Console.Error.Write($"Enter password for {config.ServerConfig.JiraUserName}: ");
             jiraPassword = SecretConsoleExt.ReadLineInSecret(_ => '*', true);
         }
         else
@@ -34,6 +35,10 @@ internal class Program
         httpClientHandler.ServerCertificateCustomValidationCallback = (_, _, _, _) => config.ServerConfig.SkipSslCertificateCheck;
         using HttpClient httpClient = new HttpClient(httpClientHandler);
 
-        using WorklogCsvReader reader = new WorklogCsvReader(Console.In);
+        using StreamReader fileReader = new StreamReader(@"d:\x.csv", Encoding.UTF8);
+        using WorklogCsvReader csvReader = new WorklogCsvReader(fileReader);
+        JiraWorklog[] worklogs = csvReader.AsEnumerable().ToArray();
+
+        Console.Out.WriteLine($"{worklogs.Length} lines on input");
     }
 }

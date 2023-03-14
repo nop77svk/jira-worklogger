@@ -5,7 +5,7 @@ public record JiraWorklogRawCsv(
     string IssueKey,
     string Date,
     string TimeSpent,
-    string WorklogType,
+    string TempoWorklogType,
     string Comment
 )
 { }

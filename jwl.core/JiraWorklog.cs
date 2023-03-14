@@ -5,7 +5,7 @@ public record JiraWorklog(
     JiraIssueKey IssueKey,
     DateTime Date,
     TimeSpan TimeSpent,
-    string WorklogType,
+    string TempoWorklogType,
     string Comment
 )
 { }
