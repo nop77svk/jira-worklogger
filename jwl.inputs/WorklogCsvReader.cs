@@ -3,7 +3,7 @@ using System.Globalization;
 using CsvHelper;
 using jwl.core;
 
-public class WorklogCsvReader : IDisposable
+public class WorklogCsvReader : IWorklogReader
 {
     private CsvReader _csvReader;
 

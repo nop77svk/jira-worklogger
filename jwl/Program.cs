@@ -35,9 +35,8 @@ internal class Program
         httpClientHandler.ServerCertificateCustomValidationCallback = (_, _, _, _) => config.ServerConfig.SkipSslCertificateCheck;
         using HttpClient httpClient = new HttpClient(httpClientHandler);
 
-        using StreamReader fileReader = new StreamReader(@"d:\x.csv", Encoding.UTF8);
-        using WorklogCsvReader csvReader = new WorklogCsvReader(fileReader);
-        JiraWorklog[] worklogs = csvReader.AsEnumerable().ToArray();
+        using IWorklogReader worklogReader = WorklogReaderFactory.GetReaderFromFilePath(@"d:\x.csv");
+        JiraWorklog[] worklogs = worklogReader.AsEnumerable().ToArray();
 
         Console.Out.WriteLine($"{worklogs.Length} lines on input");
     }
