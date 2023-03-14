@@ -1,5 +1,6 @@
 namespace jwl.inputs;
 using System.Globalization;
+using CsvHelper;
 using jwl.core;
 
 public class CsvReader : IDisposable
@@ -12,12 +13,12 @@ public class CsvReader : IDisposable
     {
         _streamReader = new StreamReader(inputFile, detectEncodingFromByteOrderMarks: true);
 
-        _csvConfig = new CsvHelper.CsvConfiguration(CultureInfo.InvariantCulture)
+        _csvConfig = new CsvConfiguration(CultureInfo.InvariantCulture)
         {
             HasHeaderRecord = false
         };
 
-        _csvReader = new CsvHelper.CsvReader(_streamReader, _csvConfig);
+        _csvReader = new CsvReader(_streamReader, _csvConfig);
     }
 
     public IEnumerable<JiraWorklog> AsEnumerable()
