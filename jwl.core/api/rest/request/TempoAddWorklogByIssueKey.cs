@@ -1,4 +1,5 @@
 namespace jwl.core.api.rest.request;
+using commons = jwl.core.api.rest.common;
 
 public struct TempoAddWorklogByIssueKey
 {
@@ -9,5 +10,5 @@ public struct TempoAddWorklogByIssueKey
     public string Started;
     public string EndDate;
     public bool IncludeNonWorkingDays;
-    public Dictionary<string, TempoWorklogAttribute> Attributes;
+    public Dictionary<string, commons.TempoWorklogAttribute> Attributes;
 }

@@ -1,4 +1,4 @@
-namespace jwl.core.api.rest.request;
+namespace jwl.core.api.rest.common;
 
 public enum TempoWorklogAttributeType
 {

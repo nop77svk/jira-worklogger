@@ -14,14 +14,14 @@ public static class TempoTimesheetsPluginApiExt
             TimeSpentSeconds = timeSpentSeconds,
             BillableSeconds = timeSpentSeconds,
             IncludeNonWorkingDays = false,
-            Attributes = new Dictionary<string, api.rest.request.TempoWorklogAttribute>()
+            Attributes = new Dictionary<string, api.rest.common.TempoWorklogAttribute>()
             {
-                [@"_WorklogType_"] = new api.rest.request.TempoWorklogAttribute()
+                [@"_WorklogType_"] = new api.rest.common.TempoWorklogAttribute()
                     {
                         WorkAttributeId = 1,
                         Key = @"_WorklogType_",
                         Name = @"Worklog Type",
-                        Type = api.rest.request.TempoWorklogAttributeType.StaticList,
+                        Type = api.rest.common.TempoWorklogAttributeType.StaticList,
                         Value = tempoWorklogType
                     }
             }
