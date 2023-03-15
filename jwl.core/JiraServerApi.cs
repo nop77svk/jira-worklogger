@@ -43,4 +43,18 @@ public class JiraServerApi
 
         return await response.FirstAsync();
     }
+
+    public async Task DeleteWorklog(int issueId, int worklogId, bool notifyUsers = false)
+    {
+        await _wsClient.EndpointCall(new JsonRestWsEndpoint(HttpMethod.Delete)
+            .AddResourceFolder(@"rest")
+            .AddResourceFolder(@"api")
+            .AddResourceFolder(@"2")
+            .AddResourceFolder(@"issue")
+            .AddResourceFolder(issueId.ToString())
+            .AddResourceFolder(@"worklog")
+            .AddResourceFolder(worklogId.ToString())
+            .AddQuery(@"notifyUsers", notifyUsers.ToString().ToLower())
+        );
+    }
 }
