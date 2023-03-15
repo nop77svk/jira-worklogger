@@ -7,19 +7,17 @@ public class JiraServerApi
 {
     public Uri BaseUrl { get; }
 
-    private HttpClient _httpClient;
-    private HttpWebServiceClient _wsClient;
+    internal HttpWebServiceClient WsClient { get; }
 
     public JiraServerApi(HttpClient httpClient, string baseUrl)
     {
         BaseUrl = new Uri(baseUrl, UriKind.Absolute);
-        _httpClient = httpClient;
-        _wsClient = new HttpWebServiceClient(_httpClient, BaseUrl.Host, BaseUrl.Port, BaseUrl.Scheme);
+        WsClient = new HttpWebServiceClient(httpClient, BaseUrl.Host, BaseUrl.Port, BaseUrl.Scheme);
     }
 
     public async Task<api.rest.common.JiraUserInfo> GetUserInfo(string userName)
     {
-        IAsyncEnumerable<api.rest.common.JiraUserInfo> response = _wsClient.EndpointGetObject<api.rest.common.JiraUserInfo>(new JsonRestWsEndpoint(HttpMethod.Get)
+        IAsyncEnumerable<api.rest.common.JiraUserInfo> response = WsClient.EndpointGetObject<api.rest.common.JiraUserInfo>(new JsonRestWsEndpoint(HttpMethod.Get)
             .AddResourceFolder(@"rest")
             .AddResourceFolder(@"api")
             .AddResourceFolder(@"2")
@@ -39,14 +37,14 @@ public class JiraServerApi
             .AddResourceFolder(issueKey)
             .AddResourceFolder(@"worklog");
 
-        IAsyncEnumerable<api.rest.response.JiraIssueWorklogs> response = _wsClient.EndpointGetObject<api.rest.response.JiraIssueWorklogs>(wsep);
+        IAsyncEnumerable<api.rest.response.JiraIssueWorklogs> response = WsClient.EndpointGetObject<api.rest.response.JiraIssueWorklogs>(wsep);
 
         return await response.FirstAsync();
     }
 
     public async Task DeleteWorklog(int issueId, int worklogId, bool notifyUsers = false)
     {
-        await _wsClient.EndpointCall(new JsonRestWsEndpoint(HttpMethod.Delete)
+        await WsClient.EndpointCall(new JsonRestWsEndpoint(HttpMethod.Delete)
             .AddResourceFolder(@"rest")
             .AddResourceFolder(@"api")
             .AddResourceFolder(@"2")
@@ -67,7 +65,7 @@ public class JiraServerApi
             Comment = comment
         };
 
-        await _wsClient.EndpointCall(new JsonRestWsEndpoint(HttpMethod.Post)
+        await WsClient.EndpointCall(new JsonRestWsEndpoint(HttpMethod.Post)
             .AddResourceFolder(@"rest")
             .AddResourceFolder(@"api")
             .AddResourceFolder(@"2")
