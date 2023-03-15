@@ -3,17 +3,17 @@ using NoP77svk.Web.WS;
 
 public static class TempoTimesheetsPluginApiExt
 {
-    public static async Task AddWorklog(this JiraServerApi self, string issueKey, string userKey, DateTime day, int timeSpentSeconds, TempoWorklogType tempoWorklogType, string comment)
+    public static async Task AddWorklogPeriod(this JiraServerApi self, string issueKey, string userKey, DateTime dayFrom, DateTime dayTo, int timeSpentSeconds, TempoWorklogType tempoWorklogType, string comment, bool includeNonWorkingDays = false)
     {
         var request = new api.rest.request.TempoAddWorklogByIssueKey()
         {
             IssueKey = issueKey,
             Worker = userKey,
-            Started = day.ToString("yyyy-MM-dd"),
-            EndDate = day.ToString("yyyy-MM-dd"),
+            Started = dayFrom.ToString("yyyy-MM-dd"),
+            EndDate = dayTo.ToString("yyyy-MM-dd"),
             TimeSpentSeconds = timeSpentSeconds,
             BillableSeconds = timeSpentSeconds,
-            IncludeNonWorkingDays = false,
+            IncludeNonWorkingDays = includeNonWorkingDays,
             Attributes = new Dictionary<string, api.rest.common.TempoWorklogAttribute>()
             {
                 [@"_WorklogType_"] = new api.rest.common.TempoWorklogAttribute()
@@ -34,5 +34,10 @@ public static class TempoTimesheetsPluginApiExt
             .AddResourceFolder(@"worklogs")
             .WithContent(request)
         );
+    }
+
+    public static async Task AddWorklog(this JiraServerApi self, string issueKey, string userKey, DateTime day, int timeSpentSeconds, TempoWorklogType tempoWorklogType, string comment)
+    {
+        await self.AddWorklogPeriod(issueKey, userKey, day, day, timeSpentSeconds, tempoWorklogType, comment);
     }
 }
