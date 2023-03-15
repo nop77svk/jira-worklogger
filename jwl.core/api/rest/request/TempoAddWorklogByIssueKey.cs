@@ -1,6 +1,6 @@
 namespace jwl.core.api.rest.request;
 
-public struct TempoAdWorklogByIssueKey
+public struct TempoAddWorklogByIssueKey
 {
     public string IssueKey;
     public int TimeSpentSeconds;

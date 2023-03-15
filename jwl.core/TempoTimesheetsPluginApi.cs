@@ -5,7 +5,7 @@ public static class TempoTimesheetsPluginApiExt
 {
     public static async Task AddWorklog(this JiraServerApi self, string issueKey, string userKey, DateTime day, int timeSpentSeconds, TempoWorklogType tempoWorklogType, string comment)
     {
-        var request = new api.rest.request.TempoAdWorklogByIssueKey()
+        var request = new api.rest.request.TempoAddWorklogByIssueKey()
         {
             IssueKey = issueKey,
             Worker = userKey,
