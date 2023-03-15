@@ -30,7 +30,7 @@ public class JiraServerApi
         return await response.FirstAsync();
     }
 
-    public async Task<api.rest.response.JiraIssueWorklogs> GetIssueWorklog(string issueKey, DateTime? from = null, DateTime? to = null)
+    public async Task<api.rest.response.JiraIssueWorklogs> GetIssueWorklogs(string issueKey)
     {
         JsonRestWsEndpoint wsep = new JsonRestWsEndpoint(HttpMethod.Get)
             .AddResourceFolder(@"rest")
@@ -38,18 +38,6 @@ public class JiraServerApi
             .AddResourceFolder(@"2")
             .AddResourceFolder(Uri.EscapeDataString(issueKey))
             .AddResourceFolder(@"worklog");
-
-        if (from != null)
-        {
-            DateTimeOffset fromOffset = new DateTimeOffset(from?.ToUniversalTime() ?? DateTime.UtcNow);
-            wsep.AddQuery(@"startedAfter", fromOffset.ToUnixTimeMilliseconds().ToString());
-        }
-
-        if (to != null)
-        {
-            DateTimeOffset toOffset = new DateTimeOffset(to?.ToUniversalTime() ?? DateTime.UtcNow);
-            wsep.AddQuery(@"startedBefore", toOffset.ToUnixTimeMilliseconds().ToString());
-        }
 
         IAsyncEnumerable<api.rest.response.JiraIssueWorklogs> response = _wsClient.EndpointGetObject<api.rest.response.JiraIssueWorklogs>(wsep);
 
