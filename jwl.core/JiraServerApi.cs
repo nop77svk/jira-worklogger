@@ -36,7 +36,7 @@ public class JiraServerApi
             .AddResourceFolder(@"rest")
             .AddResourceFolder(@"api")
             .AddResourceFolder(@"2")
-            .AddResourceFolder(Uri.EscapeDataString(issueKey))
+            .AddResourceFolder(issueKey)
             .AddResourceFolder(@"worklog");
 
         IAsyncEnumerable<api.rest.response.JiraIssueWorklogs> response = _wsClient.EndpointGetObject<api.rest.response.JiraIssueWorklogs>(wsep);
@@ -55,6 +55,26 @@ public class JiraServerApi
             .AddResourceFolder(@"worklog")
             .AddResourceFolder(worklogId.ToString())
             .AddQuery(@"notifyUsers", notifyUsers.ToString().ToLower())
+        );
+    }
+
+    public async Task AddWorklog(string issueKey, DateTime day, int timeSpentSeconds, string comment)
+    {
+        var request = new api.rest.request.JiraAddWorklogByIssueKey()
+        {
+            Started = day.ToString(@"yyyy-MM-dd""T""hh"";""mm"";""ss.fffzzzz").Replace(":", string.Empty).Replace(';', ':'),
+            TimeSpentSeconds = timeSpentSeconds,
+            Comment = comment
+        };
+
+        await _wsClient.EndpointCall(new JsonRestWsEndpoint(HttpMethod.Post)
+            .AddResourceFolder(@"rest")
+            .AddResourceFolder(@"api")
+            .AddResourceFolder(@"2")
+            .AddResourceFolder(@"issue")
+            .AddResourceFolder(issueKey)
+            .AddResourceFolder(@"worklog")
+            .WithContent(request)
         );
     }
 }
