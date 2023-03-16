@@ -1,6 +1,6 @@
 namespace jwl.core.api.rest.common;
 
-public enum TempoWorklogAttributeType
+public enum TempoWorklogAttributeTypeIdentifier
 {
     StaticList // value = "STATIC_LIST"
 }

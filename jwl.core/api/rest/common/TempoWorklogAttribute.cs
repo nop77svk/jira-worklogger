@@ -5,6 +5,6 @@ public struct TempoWorklogAttribute
     public int WorkAttributeId;
     public string Key;
     public string Name;
-    public TempoWorklogAttributeType Type;
+    public TempoWorklogAttributeTypeIdentifier Type;
     public TempoWorklogType Value;
 }

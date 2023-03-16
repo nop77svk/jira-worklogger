@@ -7,7 +7,7 @@ using NoP77svk.Console;
 
 internal class Program
 {
-    internal static void Main(string[] args)
+    internal static async Task Main(string[] args)
     {
         Config config = new Config();
 
@@ -35,9 +35,12 @@ internal class Program
         httpClientHandler.ServerCertificateCustomValidationCallback = (_, _, _, _) => config.ServerConfig.SkipSslCertificateCheck;
         using HttpClient httpClient = new HttpClient(httpClientHandler);
 
+        JiraServerApi jira = new JiraServerApi(httpClient, config.ServerConfig.BaseUrl);
+        var attrEnum = await jira.GetWorklogAttributesEnum();
+/*
         using IWorklogReader worklogReader = WorklogReaderFactory.GetReaderFromFilePath(@"d:\x.csv");
         JiraWorklog[] worklogs = worklogReader.AsEnumerable().ToArray();
-
         Console.Out.WriteLine($"{worklogs.Length} lines on input");
+*/
     }
 }

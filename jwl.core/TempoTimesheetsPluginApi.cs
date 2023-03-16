@@ -21,7 +21,7 @@ public static class TempoTimesheetsPluginApiExt
                         WorkAttributeId = 1,
                         Key = @"_WorklogType_",
                         Name = @"Worklog Type",
-                        Type = api.rest.common.TempoWorklogAttributeType.StaticList,
+                        Type = api.rest.common.TempoWorklogAttributeTypeIdentifier.StaticList,
                         Value = tempoWorklogType
                     }
             }
@@ -39,5 +39,17 @@ public static class TempoTimesheetsPluginApiExt
     public static async Task AddWorklog(this JiraServerApi self, string issueKey, string userKey, DateTime day, int timeSpentSeconds, TempoWorklogType tempoWorklogType, string comment)
     {
         await self.AddWorklogPeriod(issueKey, userKey, day, day, timeSpentSeconds, tempoWorklogType, comment);
+    }
+
+    public static async Task<api.rest.response.TempoWorklogAttributeDefinition[]> GetWorklogAttributesEnum(this JiraServerApi self)
+    {
+        IAsyncEnumerable<api.rest.response.TempoWorklogAttributeDefinition[]> response = self.WsClient.EndpointGetObject<api.rest.response.TempoWorklogAttributeDefinition[]>(new JsonRestWsEndpoint(HttpMethod.Get)
+            .AddResourceFolder(@"rest")
+            .AddResourceFolder(@"tempo-core")
+            .AddResourceFolder(@"1")
+            .AddResourceFolder(@"work-attribute")
+        );
+
+        return await response.FirstAsync();
     }
 }
