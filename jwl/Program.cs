@@ -1,10 +1,10 @@
 ﻿namespace jwl;
-using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 using jwl.core;
 using jwl.inputs;
 using NoP77svk.Console;
+using NoP77svk.Linq;
 
 internal class Program
 {
@@ -34,12 +34,31 @@ internal class Program
         httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(@"Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes(config.ServerConfig.JiraUserName + ":" + jiraPassword)));
 
         JiraServerApi jira = new JiraServerApi(httpClient, config.ServerConfig.BaseUrl);
-        var attrEnums = await jira.GetWorklogAttributesEnum();
-/*
+        IEnumerable<core.api.rest.response.TempoWorklogAttributeDefinition> attrEnumDefs = await jira.GetWorklogAttributesEnum();
+        Dictionary<string, core.api.rest.common.TempoWorklogAttributeStaticListValue> availableWorklogTypes = attrEnumDefs
+            .Where(attrDef => attrDef.Key == @"_WorklogType_")
+            .Where(attrDef => attrDef.Type.Value == core.api.rest.common.TempoWorklogAttributeTypeIdentifier.StaticList)
+            .Unnest(
+                retrieveNestedCollection: attrDef => attrDef.StaticListValues ?? new core.api.rest.common.TempoWorklogAttributeStaticListValue[] { },
+                resultSelector: (outer, inner) => inner
+            )
+            .ToDictionary(staticListItem => staticListItem.Value);
+
         using IWorklogReader worklogReader = WorklogReaderFactory.GetReaderFromFilePath(@"d:\x.csv");
         JiraWorklog[] worklogs = worklogReader.AsEnumerable().ToArray();
-        Console.Out.WriteLine($"{worklogs.Length} lines on input");
-*/
+
+        foreach (var worklog in worklogs)
+        {
+            if (availableWorklogTypes.ContainsKey(worklog.TempWorklogType))
+            {
+                Console.Out.WriteLine($"{worklog.TempWorklogType} is a valid worklog type");
+            }
+            else
+            {
+                throw new ArgumentOutOfRangeException($"Invalid worklog type on input - {worklog.TempWorklogType}");
+            }
+        }
+
         Console.ReadKey();
     }
 }
