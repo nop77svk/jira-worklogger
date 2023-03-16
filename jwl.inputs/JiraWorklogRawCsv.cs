@@ -1,11 +1,11 @@
 #pragma warning disable SA1313
 namespace jwl.inputs;
 
-public record JiraWorklogRawCsv(
-    string IssueKey,
-    string Date,
-    string TimeSpent,
-    string TempoWorklogType,
-    string Comment
-)
-{ }
+public struct JiraWorklogRawCsv
+{
+    public string IssueKey;
+    public string Date;
+    public string TimeSpent;
+    public string TempoWorklogType; // 2do? rework to more generic "Tempo worklog attributes"
+    public string Comment;
+}

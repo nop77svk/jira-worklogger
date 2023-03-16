@@ -43,9 +43,7 @@ public class WorklogCsvReader : IWorklogReader
 
             try
             {
-                JiraWorklogRawCsv? row = _csvReader.GetRecord<JiraWorklogRawCsv>();
-                if (row == null)
-                    throw new FormatException("Empty row on input");
+                JiraWorklogRawCsv row = _csvReader.GetRecord<JiraWorklogRawCsv>();
 
                 JiraIssueKey worklogIssueKey = new JiraIssueKey(row.IssueKey);
 
@@ -54,7 +52,14 @@ public class WorklogCsvReader : IWorklogReader
 
                 TimeSpan worklogTimeSpent = LiberalParseTimeSpan(row.TimeSpent, timespanTimeFormats);
 
-                result = new JiraWorklog(worklogIssueKey, worklogDate, worklogTimeSpent, row.TempoWorklogType, row.Comment);
+                result = new JiraWorklog()
+                {
+                    IssueKey = worklogIssueKey,
+                    Date = worklogDate,
+                    TimeSpent = worklogTimeSpent,
+                    TempWorklogType = row.TempoWorklogType,
+                    Comment = row.Comment
+                };
             }
             catch (Exception e)
             {
