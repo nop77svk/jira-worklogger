@@ -1,5 +1,6 @@
 ﻿namespace jwl;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Text;
 using jwl.core;
 using jwl.inputs;
@@ -22,18 +23,15 @@ internal class Program
             jiraPassword = config.ServerConfig.JiraUserPassword;
         }
 
-        CredentialCache credentialCache = new CredentialCache();
-        credentialCache.Add(new Uri(config.ServerConfig.BaseUrl), "Basic", new NetworkCredential(config.ServerConfig.JiraUserName, jiraPassword));
-
         using HttpClientHandler httpClientHandler = new HttpClientHandler()
         {
             UseProxy = config.ServerConfig.UseProxy,
             UseDefaultCredentials = false,
-            Credentials = credentialCache,
-            MaxConnectionsPerServer = config.ServerConfig.MaxConnectionsPerServer
+            MaxConnectionsPerServer = config.ServerConfig.MaxConnectionsPerServer,
+            ServerCertificateCustomValidationCallback = (_, _, _, _) => config.ServerConfig.SkipSslCertificateCheck
         };
-        httpClientHandler.ServerCertificateCustomValidationCallback = (_, _, _, _) => config.ServerConfig.SkipSslCertificateCheck;
         using HttpClient httpClient = new HttpClient(httpClientHandler);
+        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(@"Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes(config.ServerConfig.JiraUserName + ":" + jiraPassword)));
 
         JiraServerApi jira = new JiraServerApi(httpClient, config.ServerConfig.BaseUrl);
         var attrEnum = await jira.GetWorklogAttributesEnum();
