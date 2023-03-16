@@ -5,7 +5,7 @@ public struct TempoWorklogAttributeStaticListValue
 {
     public int Id;
     public string Name;
-    public TempoWorklogType Value;
+    public string Value;
     [JsonPropertyName("removed")]
     public bool IsRemoved;
     public int Sequence;

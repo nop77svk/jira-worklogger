@@ -3,7 +3,7 @@ using NoP77svk.Web.WS;
 
 public static class TempoTimesheetsPluginApiExt
 {
-    public static async Task AddWorklogPeriod(this JiraServerApi self, string issueKey, string userKey, DateTime dayFrom, DateTime dayTo, int timeSpentSeconds, api.rest.common.TempoWorklogType tempoWorklogType, string comment, bool includeNonWorkingDays = false)
+    public static async Task AddWorklogPeriod(this JiraServerApi self, string issueKey, string userKey, DateTime dayFrom, DateTime dayTo, int timeSpentSeconds, string tempoWorklogType, string comment, bool includeNonWorkingDays = false)
     {
         var request = new api.rest.request.TempoAddWorklogByIssueKey()
         {
@@ -36,7 +36,7 @@ public static class TempoTimesheetsPluginApiExt
         );
     }
 
-    public static async Task AddWorklog(this JiraServerApi self, string issueKey, string userKey, DateTime day, int timeSpentSeconds, api.rest.common.TempoWorklogType tempoWorklogType, string comment)
+    public static async Task AddWorklog(this JiraServerApi self, string issueKey, string userKey, DateTime day, int timeSpentSeconds, string tempoWorklogType, string comment)
     {
         await self.AddWorklogPeriod(issueKey, userKey, day, day, timeSpentSeconds, tempoWorklogType, comment);
     }
