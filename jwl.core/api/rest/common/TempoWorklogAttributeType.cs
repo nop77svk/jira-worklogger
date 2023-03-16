@@ -1,6 +1,10 @@
 namespace jwl.core.api.rest.common;
+using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 
+[JsonConverter(typeof(JsonStringEnumMemberConverter))]
 public enum TempoWorklogAttributeTypeIdentifier
 {
-    StaticList // value = "STATIC_LIST"
+    [EnumMember(Value = "STATIC_LIST")]
+    StaticList
 }

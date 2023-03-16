@@ -34,11 +34,12 @@ internal class Program
         httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(@"Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes(config.ServerConfig.JiraUserName + ":" + jiraPassword)));
 
         JiraServerApi jira = new JiraServerApi(httpClient, config.ServerConfig.BaseUrl);
-        var attrEnum = await jira.GetWorklogAttributesEnum();
+        var attrEnums = await jira.GetWorklogAttributesEnum();
 /*
         using IWorklogReader worklogReader = WorklogReaderFactory.GetReaderFromFilePath(@"d:\x.csv");
         JiraWorklog[] worklogs = worklogReader.AsEnumerable().ToArray();
         Console.Out.WriteLine($"{worklogs.Length} lines on input");
 */
+        Console.ReadKey();
     }
 }

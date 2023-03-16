@@ -1,4 +1,5 @@
 namespace jwl.core.api.rest.response;
+using System.Text.Json.Serialization;
 
 public struct TempoWorklogAttributeDefinition
 {
@@ -6,7 +7,8 @@ public struct TempoWorklogAttributeDefinition
     public string Key;
     public string Name;
     public common.TempoWorklogAttributeTypeDefinition Type;
-    public bool Required;
+    [JsonPropertyName("required")]
+    public bool IsRequired;
     public int Sequence;
-    public common.TempoWorklogAttributeStaticListValue[] StaticListValues;
+    public common.TempoWorklogAttributeStaticListValue[]? StaticListValues;
 }
