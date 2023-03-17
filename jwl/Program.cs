@@ -27,9 +27,12 @@ internal class Program
         {
             UseProxy = config.ServerConfig.UseProxy,
             UseDefaultCredentials = false,
-            MaxConnectionsPerServer = config.ServerConfig.MaxConnectionsPerServer,
-            ServerCertificateCustomValidationCallback = (_, _, _, _) => config.ServerConfig.SkipSslCertificateCheck
+            MaxConnectionsPerServer = config.ServerConfig.MaxConnectionsPerServer
         };
+
+        if (config.ServerConfig.SkipSslCertificateCheck)
+            httpClientHandler.ServerCertificateCustomValidationCallback = (_, _, _, _) => true;
+
         using HttpClient httpClient = new HttpClient(httpClientHandler);
         httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(@"Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes(config.ServerConfig.JiraUserName + ":" + jiraPassword)));
 
@@ -45,19 +48,13 @@ internal class Program
             .ToDictionary(staticListItem => staticListItem.Value);
 
         using IWorklogReader worklogReader = WorklogReaderFactory.GetReaderFromFilePath(@"d:\x.csv");
-        JiraWorklog[] worklogs = worklogReader.AsEnumerable().ToArray();
-
-        foreach (var worklog in worklogs)
-        {
-            if (availableWorklogTypes.ContainsKey(worklog.TempWorklogType))
+        JiraWorklog[] worklogs = worklogReader
+            .AsEnumerable(inputWorklog =>
             {
-                Console.Out.WriteLine($"{worklog.TempWorklogType} is a valid worklog type");
-            }
-            else
-            {
-                throw new ArgumentOutOfRangeException($"Invalid worklog type on input - {worklog.TempWorklogType}");
-            }
-        }
+                if (!availableWorklogTypes.ContainsKey(inputWorklog.TempWorklogType))
+                    throw new InvalidDataException($"Invalid worklog type - {inputWorklog.TempWorklogType}");
+            })
+            .ToArray();
 
         Console.ReadKey();
     }

@@ -12,7 +12,7 @@ public class WorklogCsvReader : IWorklogReader
         _csvReader = new CsvReader(inputFile, CultureInfo.InvariantCulture);
     }
 
-    public IEnumerable<JiraWorklog> AsEnumerable()
+    public IEnumerable<JiraWorklog> AsEnumerable(Action<JiraWorklog>? assertCorrectResult = null)
     {
         string[] dateFormats =
         {
@@ -60,6 +60,8 @@ public class WorklogCsvReader : IWorklogReader
                     TempWorklogType = row.TempoWorklogType,
                     Comment = row.Comment
                 };
+
+                assertCorrectResult?.Invoke(result);
             }
             catch (Exception e)
             {
