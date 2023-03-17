@@ -10,9 +10,20 @@ using ShellProgressBar;
 
 internal class Program
 {
+    internal const int TotalProcessSteps = 3;
+    internal const string ProgressBarMsg = @"Filling Jira worklogs for you";
+
     internal static async Task Main(string[] args)
     {
         Config config = new Config();
+        using ProgressBar overallProgress = new ProgressBar(TotalProcessSteps, ProgressBarMsg, new ProgressBarOptions()
+        {
+            ShowEstimatedDuration = true,
+            CollapseWhenFinished = true,
+            EnableTaskBarProgress = true,
+            ProgressBarOnBottom = true,
+            ProgressCharacter = '.'
+        });
 
         string jiraPassword;
         if (string.IsNullOrEmpty(config.ServerConfig.JiraUserPassword))
@@ -40,9 +51,11 @@ internal class Program
 
         JiraServerApi jiraClient = new JiraServerApi(httpClient, config.ServerConfig.BaseUrl);
 
+        overallProgress.Tick(ProgressBarMsg + " :: Retrieving available worklog types from server");
         Dictionary<string, jira.api.rest.common.TempoWorklogAttributeStaticListValue> availableWorklogTypes = await GetAvailableWorklogTypesDictionary(jiraClient);
         Console.Out.WriteLine($"There are {availableWorklogTypes.Count} worklog types available on the server");
 
+        overallProgress.Tick(ProgressBarMsg + " :: Reading your input CSV");
         using IWorklogReader worklogReader = WorklogReaderFactory.GetReaderFromFilePath(@"d:\x.csv");
         JiraWorklog[] worklogs = worklogReader
             .Read(row =>
@@ -54,9 +67,12 @@ internal class Program
 
         Console.Out.WriteLine($"There are {worklogs.Length} worklogs on input");
 
+        overallProgress.Tick(ProgressBarMsg + " :: Retrieving list of worklogs to be deleted");
+        using IProgressBar worklogsToBeDeletedProgress = overallProgress.Spawn(0, "Retrieving list of worklogs to be deleted");
+
         string[] inputIssueKeys = worklogs
             .Select(worklog => worklog.IssueKey.ToString())
-//            .Where(issueKey => !issueKey.StartsWith("ADMIN-")) // 2do! remove
+            .Where(issueKey => !issueKey.StartsWith("ADMIN-")) // 2do! remove
             .Distinct()
             .OrderByDescending(x => x)
             .ToArray();
@@ -67,9 +83,10 @@ internal class Program
         DateTime minInputWorklogDay = inputWorklogDays.First().Date;
         DateTime supInputWorklogDay = inputWorklogDays.Last().Date.AddDays(1);
 
-        using ProgressBar worklogsToBeDeletedProgress = new ProgressBar(0, "Retrieving list of worklogs to be deleted");
         (string, jira.api.rest.response.JiraIssueWorklogsWorklog)[] currentIssueWorklogs = await RetrieveWorklogsForDeletion(jiraClient, inputIssueKeys, config.ServerConfig.JiraUserName, minInputWorklogDay, supInputWorklogDay, worklogsToBeDeletedProgress);
-        Console.Out.WriteLine($"There are {currentIssueWorklogs.Length} workglogs to be deleted");
+        Console.Out.WriteLine($"There are {currentIssueWorklogs.Length} conflicting worklogs on server to be deleted");
+
+        overallProgress.Tick(ProgressBarMsg + " :: DONE");
     }
 
     private static async Task<(string, jira.api.rest.response.JiraIssueWorklogsWorklog)[]> RetrieveWorklogsForDeletion(
