@@ -36,13 +36,13 @@ internal class Program
         using HttpClient httpClient = new HttpClient(httpClientHandler);
         httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(@"Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes(config.ServerConfig.JiraUserName + ":" + jiraPassword)));
 
-        JiraServerApi rpcJira = new JiraServerApi(httpClient, config.ServerConfig.BaseUrl);
-        IEnumerable<jira.api.rest.response.TempoWorklogAttributeDefinition> attrEnumDefs = await rpcJira.GetWorklogAttributesEnum();
+        JiraServerApi jiraClient = new JiraServerApi(httpClient, config.ServerConfig.BaseUrl);
+        IEnumerable<jira.api.rest.response.TempoWorklogAttributeDefinition> attrEnumDefs = await jiraClient.GetWorklogAttributesEnum();
         Dictionary<string, jira.api.rest.common.TempoWorklogAttributeStaticListValue> availableWorklogTypes = attrEnumDefs
             .Where(attrDef => attrDef.Key == @"_WorklogType_")
             .Where(attrDef => attrDef.Type.Value == jira.api.rest.common.TempoWorklogAttributeTypeIdentifier.StaticList)
             .Unnest(
-                retrieveNestedCollection: attrDef => attrDef.StaticListValues ?? new jira.api.rest.common.TempoWorklogAttributeStaticListValue[] { },
+                retrieveNestedCollection: attrDef => attrDef.StaticListValues ?? Array.Empty<jira.api.rest.common.TempoWorklogAttributeStaticListValue>(),
                 resultSelector: (outer, inner) => inner
             )
             .ToDictionary(staticListItem => staticListItem.Value);
