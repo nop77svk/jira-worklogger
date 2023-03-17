@@ -26,7 +26,7 @@ public class JwlCoreProcess : IDisposable
         _config = new Config();
     }
 
-    public async Task Execute(string inputFile)
+    public async Task Process(string inputFile)
     {
         _feedback.OverallProcessStart();
 
