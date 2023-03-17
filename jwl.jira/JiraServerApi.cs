@@ -34,6 +34,7 @@ public class JiraServerApi
             .AddResourceFolder(@"rest")
             .AddResourceFolder(@"api")
             .AddResourceFolder(@"2")
+            .AddResourceFolder(@"issue")
             .AddResourceFolder(issueKey)
             .AddResourceFolder(@"worklog");
 

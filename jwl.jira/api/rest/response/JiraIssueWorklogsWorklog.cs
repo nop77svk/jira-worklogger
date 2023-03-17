@@ -2,14 +2,14 @@ namespace jwl.jira.api.rest.response;
 
 public struct JiraIssueWorklogsWorklog
 {
-    public long Id;
-    public long IssueId;
+    public common.JiraStringedInteger Id;
+    public common.JiraStringedInteger IssueId;
     public common.JiraUserInfo Author;
     public common.JiraUserInfo UpdateAuthor;
     public string Comment;
-    public DateTime Created;
-    public DateTime Updated;
-    public DateTime Started;
+    public common.JiraTimeStamp Created;
+    public common.JiraTimeStamp Updated;
+    public common.JiraTimeStamp Started;
     public string TimeSpent;
     public int TimeSpentSeconds;
 }
