@@ -18,8 +18,8 @@
     <Copyright>Practically copyleft</Copyright>
     <NoWarn>1701;1702;AD0001;NETSDK1182</NoWarn>
     <RootNamespace>jwl</RootNamespace>
-    <AssemblyName>jwl</AssemblyName>
-    <PackageId>NoP77svk.jwl</PackageId>
+    <AssemblyName>jwlc</AssemblyName>
+    <PackageId>NoP77svk.jwl.console</PackageId>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

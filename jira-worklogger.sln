@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "jwl", "jwl\jwl.csproj", "{9C9934CA-19BE-4F96-85FB-3DD167749FE9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "jwl.console", "jwl.console\jwl.console.csproj", "{9C9934CA-19BE-4F96-85FB-3DD167749FE9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "jwl.jira", "jwl.jira\jwl.jira.csproj", "{BBD86C7C-E2C4-4359-BCE3-06204ACEAB62}"
 EndProject
