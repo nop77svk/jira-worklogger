@@ -9,18 +9,8 @@ public static class HumanReadableTimeSpan
 
         if (!TimeSpan.TryParseExact(timeSpanStr.Replace(" ", null), timespanTimeFormats, CultureInfo.InvariantCulture, out result))
         {
-            double timeSpanInNumberOfHours;
-            NumberStyles numberStyles = NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite;
-            if (!double.TryParse(timeSpanStr, numberStyles, CultureInfo.InvariantCulture, out timeSpanInNumberOfHours))
-            {
-                if (!double.TryParse(timeSpanStr.Replace('.', ','), numberStyles, CultureInfo.InvariantCulture, out timeSpanInNumberOfHours))
-                {
-                    if (!double.TryParse(timeSpanStr.Replace(',', '.'), numberStyles, CultureInfo.InvariantCulture, out timeSpanInNumberOfHours))
-                    {
-                        throw new FormatException($"Invalid timespan string \"{timeSpanStr}\"");
-                    }
-                }
-            }
+            if (!InexactDecimal.TryParse(timeSpanStr, out double timeSpanInNumberOfHours))
+                throw new FormatException($"Invalid timespan string \"{timeSpanStr}\"");
 
             result = TimeSpan.FromHours(timeSpanInNumberOfHours);
         }

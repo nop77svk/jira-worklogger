@@ -9,8 +9,8 @@
     <Company>Open source community</Company>
     <Copyright>Practically copyleft</Copyright>
     <NoWarn>1701;1702;AD0001;NETSDK1182</NoWarn>
-    <RootNamespace>NoP77svk.jwl.infra</RootNamespace>
-    <AssemblyName>NoP77svk.jwl.infra</AssemblyName>
+    <RootNamespace>jwl.infra</RootNamespace>
+    <AssemblyName>jwl.infra</AssemblyName>
     <PackageId>NoP77svk.jwl.infra</PackageId>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
   </PropertyGroup>
