@@ -5,6 +5,8 @@ using jwl.core;
 
 public class WorklogCsvReader : IWorklogReader
 {
+    public bool ErrorOnEmptyRow { get; init; } = true;
+
     private CsvReader _csvReader;
 
     public WorklogCsvReader(TextReader inputFile)
@@ -41,7 +43,14 @@ public class WorklogCsvReader : IWorklogReader
 
             try
             {
-                JiraWorklogRawCsv row = _csvReader.GetRecord<JiraWorklogRawCsv>();
+                JiraWorklogRawCsv? row = _csvReader.GetRecord<JiraWorklogRawCsv>();
+                if (row == null)
+                {
+                    if (ErrorOnEmptyRow)
+                        throw new InvalidDataException("Empty row on input");
+                    else
+                        continue;
+                }
 
                 JiraIssueKey worklogIssueKey = new JiraIssueKey(row.IssueKey);
 

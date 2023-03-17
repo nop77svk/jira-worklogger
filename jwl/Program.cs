@@ -53,6 +53,8 @@ internal class Program
         JiraWorklog[] worklogs = worklogReader
             .AsEnumerable()
             .ToArray();
+        
+        Console.Out.WriteLine($"There are {worklogs.Length} worklogs on input");
 
         Console.ReadKey();
     }
