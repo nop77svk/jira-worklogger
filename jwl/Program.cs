@@ -10,7 +10,7 @@ using ShellProgressBar;
 
 internal class Program
 {
-    internal const int TotalProcessSteps = 3;
+    internal const int TotalProcessSteps = 4;
     internal const string ProgressBarMsg = @"Filling Jira worklogs for you";
 
     internal static async Task Main(string[] args)
@@ -22,7 +22,7 @@ internal class Program
             CollapseWhenFinished = true,
             EnableTaskBarProgress = true,
             ProgressBarOnBottom = true,
-            ProgressCharacter = '.'
+            ProgressCharacter = '─'
         });
 
         string jiraPassword;
@@ -72,7 +72,7 @@ internal class Program
 
         string[] inputIssueKeys = worklogs
             .Select(worklog => worklog.IssueKey.ToString())
-            .Where(issueKey => !issueKey.StartsWith("ADMIN-")) // 2do! remove
+//            .Where(issueKey => !issueKey.StartsWith("ADMIN-")) // 2do! remove
             .Distinct()
             .OrderByDescending(x => x)
             .ToArray();
