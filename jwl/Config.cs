@@ -1,5 +1,5 @@
 namespace jwl;
-using jwl.core;
+using jwl.jira;
 
 internal class Config
 {

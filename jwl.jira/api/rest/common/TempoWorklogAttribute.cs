@@ -1,4 +1,4 @@
-namespace jwl.core.api.rest.common;
+namespace jwl.jira.api.rest.common;
 
 public struct TempoWorklogAttribute
 {

@@ -1,7 +1,7 @@
 namespace jwl.inputs;
 using System.Globalization;
 using CsvHelper;
-using jwl.core;
+using jwl.jira;
 using jwl.infra;
 
 public class WorklogCsvReader : IWorklogReader

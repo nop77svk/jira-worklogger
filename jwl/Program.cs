@@ -1,7 +1,7 @@
 ﻿namespace jwl;
 using System.Net.Http.Headers;
 using System.Text;
-using jwl.core;
+using jwl.jira;
 using jwl.inputs;
 using NoP77svk.Console;
 using NoP77svk.Linq;
@@ -36,13 +36,13 @@ internal class Program
         using HttpClient httpClient = new HttpClient(httpClientHandler);
         httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(@"Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes(config.ServerConfig.JiraUserName + ":" + jiraPassword)));
 
-        JiraServerApi jira = new JiraServerApi(httpClient, config.ServerConfig.BaseUrl);
-        IEnumerable<core.api.rest.response.TempoWorklogAttributeDefinition> attrEnumDefs = await jira.GetWorklogAttributesEnum();
-        Dictionary<string, core.api.rest.common.TempoWorklogAttributeStaticListValue> availableWorklogTypes = attrEnumDefs
+        JiraServerApi rpcJira = new JiraServerApi(httpClient, config.ServerConfig.BaseUrl);
+        IEnumerable<jira.api.rest.response.TempoWorklogAttributeDefinition> attrEnumDefs = await rpcJira.GetWorklogAttributesEnum();
+        Dictionary<string, jira.api.rest.common.TempoWorklogAttributeStaticListValue> availableWorklogTypes = attrEnumDefs
             .Where(attrDef => attrDef.Key == @"_WorklogType_")
-            .Where(attrDef => attrDef.Type.Value == core.api.rest.common.TempoWorklogAttributeTypeIdentifier.StaticList)
+            .Where(attrDef => attrDef.Type.Value == jira.api.rest.common.TempoWorklogAttributeTypeIdentifier.StaticList)
             .Unnest(
-                retrieveNestedCollection: attrDef => attrDef.StaticListValues ?? new core.api.rest.common.TempoWorklogAttributeStaticListValue[] { },
+                retrieveNestedCollection: attrDef => attrDef.StaticListValues ?? new jira.api.rest.common.TempoWorklogAttributeStaticListValue[] { },
                 resultSelector: (outer, inner) => inner
             )
             .ToDictionary(staticListItem => staticListItem.Value);

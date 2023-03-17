@@ -1,5 +1,5 @@
 namespace jwl.inputs;
-using jwl.core;
+using jwl.jira;
 
 public interface IWorklogReader : IDisposable
 {

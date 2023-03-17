@@ -9,9 +9,9 @@
     <Company>Open source community</Company>
     <Copyright>Practically copyleft</Copyright>
     <NoWarn>1701;1702;AD0001;NETSDK1182</NoWarn>
-    <RootNamespace>jwl.core</RootNamespace>
-    <AssemblyName>jwl.core</AssemblyName>
-    <PackageId>NoP77svk.jwl.core</PackageId>
+    <RootNamespace>jwl.jira</RootNamespace>
+    <AssemblyName>jwl.jira</AssemblyName>
+    <PackageId>NoP77svk.jwl.jira</PackageId>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

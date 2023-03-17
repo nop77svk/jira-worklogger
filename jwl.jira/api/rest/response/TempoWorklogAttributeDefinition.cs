@@ -1,4 +1,4 @@
-namespace jwl.core.api.rest.response;
+namespace jwl.jira.api.rest.response;
 using System.Text.Json.Serialization;
 
 public struct TempoWorklogAttributeDefinition

@@ -1,4 +1,4 @@
-namespace jwl.core;
+namespace jwl.jira;
 
 public struct JiraIssueKey
 {

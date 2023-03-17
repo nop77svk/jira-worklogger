@@ -1,4 +1,4 @@
-namespace jwl.core;
+namespace jwl.jira;
 using System.Linq;
 using System.Net.Http;
 using NoP77svk.Web.WS;

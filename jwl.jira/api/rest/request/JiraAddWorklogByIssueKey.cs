@@ -1,4 +1,4 @@
-namespace jwl.core.api.rest.request;
+namespace jwl.jira.api.rest.request;
 
 public struct JiraAddWorklogByIssueKey
 {

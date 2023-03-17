@@ -1,4 +1,4 @@
-namespace jwl.core;
+namespace jwl.jira;
 using NoP77svk.Web.WS;
 
 public static class TempoTimesheetsPluginApiExt

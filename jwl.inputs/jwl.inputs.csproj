@@ -31,7 +31,7 @@
     <Compile Include="..\GlobalSuppressions.cs" Link="GlobalSuppressions.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\jwl.core\jwl.core.csproj" />
+    <ProjectReference Include="..\jwl.jira\jwl.jira.csproj" />
     <ProjectReference Include="..\jwl.infra\jwl.infra.csproj" />
   </ItemGroup>
   <Target Name="PostClean" AfterTargets="Clean">

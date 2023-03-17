@@ -1,4 +1,4 @@
-namespace jwl.core.api.rest.common;
+namespace jwl.jira.api.rest.common;
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 
