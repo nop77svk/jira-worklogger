@@ -1,13 +1,5 @@
 ﻿namespace jwl.console;
-using System.Net.Http.Headers;
-using System.Text;
 using jwl.core;
-using jwl.infra;
-using jwl.inputs;
-using jwl.jira;
-using NoP77svk.Console;
-using NoP77svk.Linq;
-using ShellProgressBar;
 
 internal class Program
 {
