@@ -2,6 +2,7 @@
 using System.Net.Http.Headers;
 using System.Text;
 using jwl.jira;
+using jwl.jira.api.rest.common;
 using jwl.inputs;
 using NoP77svk.Console;
 using NoP77svk.Linq;
@@ -38,16 +39,7 @@ internal class Program
 
         JiraServerApi jiraClient = new JiraServerApi(httpClient, config.ServerConfig.BaseUrl);
 
-        IEnumerable<jira.api.rest.response.TempoWorklogAttributeDefinition> attrEnumDefs = await jiraClient.GetWorklogAttributesEnum();
-        Dictionary<string, jira.api.rest.common.TempoWorklogAttributeStaticListValue> availableWorklogTypes = attrEnumDefs
-            .Where(attrDef => attrDef.Key == TempoTimesheetsPluginApiExt.WorklogTypeAttributeKey)
-            .Where(attrDef => attrDef.Type.Value == jira.api.rest.common.TempoWorklogAttributeTypeIdentifier.StaticList)
-            .Unnest(
-                retrieveNestedCollection: attrDef => attrDef.StaticListValues ?? Array.Empty<jira.api.rest.common.TempoWorklogAttributeStaticListValue>(),
-                resultSelector: (outer, inner) => inner
-            )
-            .ToDictionary(staticListItem => staticListItem.Value);
-
+        Dictionary<string, TempoWorklogAttributeStaticListValue> availableWorklogTypes = await GetAvailableWorklogTypesDictionary(jiraClient);
         Console.Out.WriteLine($"There are {availableWorklogTypes.Count} worklog types available on the server");
 
         using IWorklogReader worklogReader = WorklogReaderFactory.GetReaderFromFilePath(@"d:\x.csv");
@@ -74,13 +66,11 @@ internal class Program
         DateTime supInputWorklogDay = inputWorklogDays.Last().Date.AddDays(1);
 
         // retrieve worklogs for the current issues and days
-        KeyValuePair<string, Task<jira.api.rest.response.JiraIssueWorklogs>>[] currentIssueWorklogsTasks = inputIssueKeys
-            .Select(issueKey => new KeyValuePair<string, Task<jira.api.rest.response.JiraIssueWorklogs>>(
-                issueKey,
-                jiraClient.GetIssueWorklogs(issueKey))
-            )
-            .ToArray();
-        Console.Out.WriteLine($"Retrieving current worklogs for Jira issues {string.Join(',', inputIssueKeys)}");
+        Dictionary<string, Task<jira.api.rest.response.JiraIssueWorklogs>> currentIssueWorklogsTasks = inputIssueKeys
+            .ToDictionary(
+                keySelector: issueKey => issueKey,
+                elementSelector: issueKey => jiraClient.GetIssueWorklogs(issueKey)
+            );
         await Task.WhenAll(currentIssueWorklogsTasks.Select(x => x.Value));
         var currentIssueWorklogs = currentIssueWorklogsTasks
             .Unnest(
@@ -97,5 +87,22 @@ internal class Program
         }
 
         Console.ReadKey();
+    }
+
+    private static async Task<Dictionary<string, TempoWorklogAttributeStaticListValue>> GetAvailableWorklogTypesDictionary(JiraServerApi jiraClient)
+    {
+        Dictionary<string, jira.api.rest.common.TempoWorklogAttributeStaticListValue> result;
+
+        IEnumerable<jira.api.rest.response.TempoWorklogAttributeDefinition> attrEnumDefs = await jiraClient.GetWorklogAttributesEnum();
+        result = attrEnumDefs
+            .Where(attrDef => attrDef.Key == TempoTimesheetsPluginApiExt.WorklogTypeAttributeKey)
+            .Where(attrDef => attrDef.Type.Value == jira.api.rest.common.TempoWorklogAttributeTypeIdentifier.StaticList)
+            .Unnest(
+                retrieveNestedCollection: attrDef => attrDef.StaticListValues ?? Array.Empty<jira.api.rest.common.TempoWorklogAttributeStaticListValue>(),
+                resultSelector: (outer, inner) => inner
+            )
+            .ToDictionary(staticListItem => staticListItem.Value);
+
+        return result;
     }
 }
