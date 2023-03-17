@@ -1,8 +1,9 @@
 ﻿namespace jwl;
 using System.Net.Http.Headers;
 using System.Text;
-using jwl.jira;
+using jwl.infra;
 using jwl.inputs;
+using jwl.jira;
 using NoP77svk.Console;
 using NoP77svk.Linq;
 
@@ -64,13 +65,8 @@ internal class Program
         DateTime minInputWorklogDay = inputWorklogDays.First().Date;
         DateTime supInputWorklogDay = inputWorklogDays.Last().Date.AddDays(1);
 
-        IEnumerable<(string, jira.api.rest.response.JiraIssueWorklogsWorklog)> currentIssueWorklogs = await RetrieveWorklogsForDeletion(jiraClient, inputIssueKeys, config.ServerConfig.JiraUserName, minInputWorklogDay, supInputWorklogDay);
-        foreach (var clog in currentIssueWorklogs)
-        {
-            Console.Out.WriteLine($"Jira issue {clog.Item1}, id {clog.Item2.IssueId} worklog id {clog.Item2.Id}"); //  by {clog.Value.Author.Name} ({clog.Value.Author.Key})
-        }
-
-        Console.ReadKey();
+        (string, jira.api.rest.response.JiraIssueWorklogsWorklog)[] currentIssueWorklogs = await RetrieveWorklogsForDeletion(jiraClient, inputIssueKeys, config.ServerConfig.JiraUserName, minInputWorklogDay, supInputWorklogDay);
+        Console.Out.WriteLine($"There are {currentIssueWorklogs.Length} workglogs to be deleted");
     }
 
     private static async Task<(string, jira.api.rest.response.JiraIssueWorklogsWorklog)[]> RetrieveWorklogsForDeletion(JiraServerApi jiraClient, IEnumerable<string> issueKeys, string authorUserName, DateTime minWorklogDay, DateTime supWorklogDay)
@@ -81,7 +77,9 @@ internal class Program
                 elementSelector: issueKey => jiraClient.GetIssueWorklogs(issueKey)
             );
 
-        await Task.WhenAll(currentIssueWorklogsTasks.Select(x => x.Value));
+        await MultiTask.WhenAll(currentIssueWorklogsTasks.Select(x => x.Value),
+            (progress, _) => Console.Out.WriteLine($"{progress.State}: {progress.Finished} finished OK, {progress.Cancelled} cancelled, {progress.Faulted} faulted out of {progress.Total}")
+        );
 
         return currentIssueWorklogsTasks
             .Unnest(
