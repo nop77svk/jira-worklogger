@@ -6,6 +6,7 @@ using jwl.inputs;
 using jwl.jira;
 using NoP77svk.Console;
 using NoP77svk.Linq;
+using ShellProgressBar;
 
 internal class Program
 {
@@ -55,8 +56,9 @@ internal class Program
 
         string[] inputIssueKeys = worklogs
             .Select(worklog => worklog.IssueKey.ToString())
-            .Where(issueKey => !issueKey.StartsWith("ADMIN-")) // 2do! remove
+//            .Where(issueKey => !issueKey.StartsWith("ADMIN-")) // 2do! remove
             .Distinct()
+            .OrderByDescending(x => x)
             .ToArray();
         DateTime[] inputWorklogDays = worklogs
             .Select(worklog => worklog.Date)
@@ -65,23 +67,35 @@ internal class Program
         DateTime minInputWorklogDay = inputWorklogDays.First().Date;
         DateTime supInputWorklogDay = inputWorklogDays.Last().Date.AddDays(1);
 
-        (string, jira.api.rest.response.JiraIssueWorklogsWorklog)[] currentIssueWorklogs = await RetrieveWorklogsForDeletion(jiraClient, inputIssueKeys, config.ServerConfig.JiraUserName, minInputWorklogDay, supInputWorklogDay);
+        using ProgressBar worklogsToBeDeletedProgress = new ProgressBar(0, "Retrieving list of worklogs to be deleted");
+        (string, jira.api.rest.response.JiraIssueWorklogsWorklog)[] currentIssueWorklogs = await RetrieveWorklogsForDeletion(jiraClient, inputIssueKeys, config.ServerConfig.JiraUserName, minInputWorklogDay, supInputWorklogDay, worklogsToBeDeletedProgress);
         Console.Out.WriteLine($"There are {currentIssueWorklogs.Length} workglogs to be deleted");
     }
 
-    private static async Task<(string, jira.api.rest.response.JiraIssueWorklogsWorklog)[]> RetrieveWorklogsForDeletion(JiraServerApi jiraClient, IEnumerable<string> issueKeys, string authorUserName, DateTime minWorklogDay, DateTime supWorklogDay)
+    private static async Task<(string, jira.api.rest.response.JiraIssueWorklogsWorklog)[]> RetrieveWorklogsForDeletion(
+        JiraServerApi jiraClient,
+        IEnumerable<string> issueKeys,
+        string authorUserName,
+        DateTime minWorklogDay,
+        DateTime supWorklogDay,
+        IProgressBar progressBar
+    )
     {
+        (string, jira.api.rest.response.JiraIssueWorklogsWorklog)[] result;
+
         Dictionary<string, Task<jira.api.rest.response.JiraIssueWorklogs>> currentIssueWorklogsTasks = issueKeys
             .ToDictionary(
                 keySelector: issueKey => issueKey,
                 elementSelector: issueKey => jiraClient.GetIssueWorklogs(issueKey)
             );
+        progressBar.MaxTicks += currentIssueWorklogsTasks.Count + 1;
 
-        await MultiTask.WhenAll(currentIssueWorklogsTasks.Select(x => x.Value),
-            (progress, _) => Console.Out.WriteLine($"{progress.State}: {progress.Finished} finished OK, {progress.Cancelled} cancelled, {progress.Faulted} faulted out of {progress.Total}")
+        await MultiTask.WhenAll(
+            tasks: currentIssueWorklogsTasks.Select(x => x.Value),
+            reportProgress: (progress, _) => progressBar.Tick(progress.DoneSoFar, progress.ErredSoFar > 0 ? $"({progress.ErredSoFar} errors thus far)" : null)
         );
 
-        return currentIssueWorklogsTasks
+        result = currentIssueWorklogsTasks
             .Unnest(
                 retrieveNestedCollection: x => x.Value.Result.Worklogs
                     .Where(worklog => worklog.Author.Name.Equals(authorUserName))
@@ -89,6 +103,9 @@ internal class Program
                 resultSelector: (outer, inner) => new ValueTuple<string, jira.api.rest.response.JiraIssueWorklogsWorklog>(outer.Key, inner)
             )
             .ToArray();
+
+        progressBar.Tick();
+        return result;
     }
 
     private static async Task<Dictionary<string, jira.api.rest.common.TempoWorklogAttributeStaticListValue>> GetAvailableWorklogTypesDictionary(JiraServerApi jiraClient)

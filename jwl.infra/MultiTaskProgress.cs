@@ -8,4 +8,6 @@ public struct MultiTaskProgress
     public int Faulted;
     public int Cancelled;
     public int Unknown;
+    public int ErredSoFar { get => Faulted + Cancelled + Unknown; }
+    public int DoneSoFar { get => Finished + ErredSoFar; }
 }
