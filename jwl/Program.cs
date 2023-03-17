@@ -47,13 +47,11 @@ internal class Program
             )
             .ToDictionary(staticListItem => staticListItem.Value);
 
+        Console.Out.WriteLine($"There are {availableWorklogTypes.Count} worklog types available on the server");
+
         using IWorklogReader worklogReader = WorklogReaderFactory.GetReaderFromFilePath(@"d:\x.csv");
         JiraWorklog[] worklogs = worklogReader
-            .AsEnumerable(inputWorklog =>
-            {
-                if (!availableWorklogTypes.ContainsKey(inputWorklog.TempWorklogType))
-                    throw new InvalidDataException($"Invalid worklog type - {inputWorklog.TempWorklogType}");
-            })
+            .AsEnumerable()
             .ToArray();
 
         Console.ReadKey();

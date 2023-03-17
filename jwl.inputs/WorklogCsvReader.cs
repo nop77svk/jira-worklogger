@@ -12,7 +12,7 @@ public class WorklogCsvReader : IWorklogReader
         _csvReader = new CsvReader(inputFile, CultureInfo.InvariantCulture);
     }
 
-    public IEnumerable<JiraWorklog> AsEnumerable(Action<JiraWorklog>? assertCorrectResult = null)
+    public IEnumerable<JiraWorklog> AsEnumerable()
     {
         string[] dateFormats =
         {
@@ -35,10 +35,8 @@ public class WorklogCsvReader : IWorklogReader
         _csvReader.Read();
         _csvReader.ReadHeader();
 
-        int currentRowNo = 1;
         while (_csvReader.Read())
         {
-            currentRowNo++;
             JiraWorklog result;
 
             try
@@ -60,12 +58,10 @@ public class WorklogCsvReader : IWorklogReader
                     TempWorklogType = row.TempoWorklogType,
                     Comment = row.Comment
                 };
-
-                assertCorrectResult?.Invoke(result);
             }
             catch (Exception e)
             {
-                throw new InputRowException(currentRowNo, e);
+                throw new InputRowException(_csvReader.Parser.RawRow, e);
             }
 
             yield return result;
