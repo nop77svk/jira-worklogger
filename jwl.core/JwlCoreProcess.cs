@@ -10,7 +10,7 @@ using NoP77svk.Linq;
 
 public class JwlCoreProcess : IDisposable
 {
-    public const int TotalProcessSteps = 5;
+    public const int TotalProcessSteps = 4;
     public Config _config { get; }
 
     private bool _isDisposed;

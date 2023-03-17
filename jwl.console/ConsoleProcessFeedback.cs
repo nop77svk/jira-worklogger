@@ -40,7 +40,6 @@ public class ConsoleProcessFeedback
 
     public void OverallProcessStart()
     {
-        _overallProgress.Tick(ProgressBarMsg);
         FeedbackDelay?.Invoke();
     }
 
