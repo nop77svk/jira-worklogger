@@ -34,24 +34,20 @@ public class WorklogCsvReader : IWorklogReader
             @"hh'h'mm'm'"
         };
 
-        _csvReader.Read();
-        _csvReader.ReadHeader();
-
-        while (_csvReader.Read())
+        foreach (JiraWorklogRawCsv row in _csvReader.GetRecords<JiraWorklogRawCsv>())
         {
+            if (row == null)
+            {
+                if (ErrorOnEmptyRow)
+                    throw new InvalidDataException("Empty row on input");
+                else
+                    continue;
+            }
+
             JiraWorklog result;
 
             try
             {
-                JiraWorklogRawCsv? row = _csvReader.GetRecord<JiraWorklogRawCsv>();
-                if (row == null)
-                {
-                    if (ErrorOnEmptyRow)
-                        throw new InvalidDataException("Empty row on input");
-                    else
-                        continue;
-                }
-
                 JiraIssueKey worklogIssueKey = new JiraIssueKey(row.IssueKey);
 
                 if (!DateTime.TryParseExact(row.Date, dateFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime worklogDate))
