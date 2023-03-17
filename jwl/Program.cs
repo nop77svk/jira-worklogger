@@ -2,7 +2,6 @@
 using System.Net.Http.Headers;
 using System.Text;
 using jwl.jira;
-using jwl.jira.api.rest.common;
 using jwl.inputs;
 using NoP77svk.Console;
 using NoP77svk.Linq;
@@ -39,7 +38,7 @@ internal class Program
 
         JiraServerApi jiraClient = new JiraServerApi(httpClient, config.ServerConfig.BaseUrl);
 
-        Dictionary<string, TempoWorklogAttributeStaticListValue> availableWorklogTypes = await GetAvailableWorklogTypesDictionary(jiraClient);
+        Dictionary<string, jira.api.rest.common.TempoWorklogAttributeStaticListValue> availableWorklogTypes = await GetAvailableWorklogTypesDictionary(jiraClient);
         Console.Out.WriteLine($"There are {availableWorklogTypes.Count} worklog types available on the server");
 
         using IWorklogReader worklogReader = WorklogReaderFactory.GetReaderFromFilePath(@"d:\x.csv");
@@ -65,31 +64,36 @@ internal class Program
         DateTime minInputWorklogDay = inputWorklogDays.First().Date;
         DateTime supInputWorklogDay = inputWorklogDays.Last().Date.AddDays(1);
 
-        // retrieve worklogs for the current issues and days
-        Dictionary<string, Task<jira.api.rest.response.JiraIssueWorklogs>> currentIssueWorklogsTasks = inputIssueKeys
-            .ToDictionary(
-                keySelector: issueKey => issueKey,
-                elementSelector: issueKey => jiraClient.GetIssueWorklogs(issueKey)
-            );
-        await Task.WhenAll(currentIssueWorklogsTasks.Select(x => x.Value));
-        var currentIssueWorklogs = currentIssueWorklogsTasks
-            .Unnest(
-                retrieveNestedCollection: x => x.Value.Result.Worklogs
-                    .Where(worklog => worklog.Author.Name.Equals(config.ServerConfig.JiraUserName))
-                    .Where(worklog => worklog.Created.Value >= minInputWorklogDay && worklog.Created.Value < supInputWorklogDay),
-                resultSelector: (outer, inner) => new KeyValuePair<string, jira.api.rest.response.JiraIssueWorklogsWorklog>(outer.Key, inner)
-            )
-            .ToArray();
-
+        IEnumerable<(string, jira.api.rest.response.JiraIssueWorklogsWorklog)> currentIssueWorklogs = await RetrieveWorklogsForDeletion(jiraClient, inputIssueKeys, config.ServerConfig.JiraUserName, minInputWorklogDay, supInputWorklogDay);
         foreach (var clog in currentIssueWorklogs)
         {
-            Console.Out.WriteLine($"Jira issue {clog.Key}, id {clog.Value.IssueId} worklog id {clog.Value.Id}"); //  by {clog.Value.Author.Name} ({clog.Value.Author.Key})
+            Console.Out.WriteLine($"Jira issue {clog.Item1}, id {clog.Item2.IssueId} worklog id {clog.Item2.Id}"); //  by {clog.Value.Author.Name} ({clog.Value.Author.Key})
         }
 
         Console.ReadKey();
     }
 
-    private static async Task<Dictionary<string, TempoWorklogAttributeStaticListValue>> GetAvailableWorklogTypesDictionary(JiraServerApi jiraClient)
+    private static async Task<(string, jira.api.rest.response.JiraIssueWorklogsWorklog)[]> RetrieveWorklogsForDeletion(JiraServerApi jiraClient, IEnumerable<string> issueKeys, string authorUserName, DateTime minWorklogDay, DateTime supWorklogDay)
+    {
+        Dictionary<string, Task<jira.api.rest.response.JiraIssueWorklogs>> currentIssueWorklogsTasks = issueKeys
+            .ToDictionary(
+                keySelector: issueKey => issueKey,
+                elementSelector: issueKey => jiraClient.GetIssueWorklogs(issueKey)
+            );
+
+        await Task.WhenAll(currentIssueWorklogsTasks.Select(x => x.Value));
+
+        return currentIssueWorklogsTasks
+            .Unnest(
+                retrieveNestedCollection: x => x.Value.Result.Worklogs
+                    .Where(worklog => worklog.Author.Name.Equals(authorUserName))
+                    .Where(worklog => worklog.Created.Value >= minWorklogDay && worklog.Created.Value < supWorklogDay),
+                resultSelector: (outer, inner) => new ValueTuple<string, jira.api.rest.response.JiraIssueWorklogsWorklog>(outer.Key, inner)
+            )
+            .ToArray();
+    }
+
+    private static async Task<Dictionary<string, jira.api.rest.common.TempoWorklogAttributeStaticListValue>> GetAvailableWorklogTypesDictionary(JiraServerApi jiraClient)
     {
         Dictionary<string, jira.api.rest.common.TempoWorklogAttributeStaticListValue> result;
 
