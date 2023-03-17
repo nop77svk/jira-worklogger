@@ -2,6 +2,7 @@ namespace jwl.inputs;
 using System.Globalization;
 using CsvHelper;
 using jwl.core;
+using jwl.infra;
 
 public class WorklogCsvReader : IWorklogReader
 {
@@ -53,7 +54,7 @@ public class WorklogCsvReader : IWorklogReader
                 if (!DateTime.TryParseExact(row.Date, dateFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime worklogDate))
                     throw new FormatException($"Invalid date/datetime value \"{row.Date}\"");
 
-                TimeSpan worklogTimeSpent = LiberalParseTimeSpan(row.TimeSpent, timespanTimeFormats);
+                TimeSpan worklogTimeSpent = HumanReadableTimeSpan.Parse(row.TimeSpent, timespanTimeFormats);
 
                 result = new JiraWorklog()
                 {
@@ -76,31 +77,6 @@ public class WorklogCsvReader : IWorklogReader
     public void Dispose()
     {
         _csvReader.Dispose();
-    }
-
-    private TimeSpan LiberalParseTimeSpan(string timeSpanStr, string[] timespanTimeFormats)
-    {
-        TimeSpan result;
-
-        if (!TimeSpan.TryParseExact(timeSpanStr.Replace(" ", null), timespanTimeFormats, CultureInfo.InvariantCulture, out result))
-        {
-            double timeSpanInNumberOfHours;
-            NumberStyles numberStyles = NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite;
-            if (!double.TryParse(timeSpanStr, numberStyles, CultureInfo.InvariantCulture, out timeSpanInNumberOfHours))
-            {
-                if (!double.TryParse(timeSpanStr.Replace('.', ','), numberStyles, CultureInfo.InvariantCulture, out timeSpanInNumberOfHours))
-                {
-                    if (!double.TryParse(timeSpanStr.Replace(',', '.'), numberStyles, CultureInfo.InvariantCulture, out timeSpanInNumberOfHours))
-                    {
-                        throw new FormatException($"Invalid timespan value \"{timeSpanStr}\"");
-                    }
-                }
-            }
-
-            result = TimeSpan.FromHours(timeSpanInNumberOfHours);
-        }
-
-        return result;
     }
 
     private void ParseHeader()

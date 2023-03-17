@@ -9,9 +9,9 @@
     <Company>Open source community</Company>
     <Copyright>Practically copyleft</Copyright>
     <NoWarn>1701;1702;AD0001;NETSDK1182</NoWarn>
-    <RootNamespace>jwl.inputs</RootNamespace>
-    <AssemblyName>jwl.inputs</AssemblyName>
-    <PackageId>NoP77svk.jwl.inputs</PackageId>
+    <RootNamespace>NoP77svk.jwl.infra</RootNamespace>
+    <AssemblyName>NoP77svk.jwl.infra</AssemblyName>
+    <PackageId>NoP77svk.jwl.infra</PackageId>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -19,7 +19,6 @@
     <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="CsvHelper" Version="30.0.1" />
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="6.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -29,10 +28,6 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <Compile Include="..\GlobalSuppressions.cs" Link="GlobalSuppressions.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\jwl.core\jwl.core.csproj" />
-    <ProjectReference Include="..\jwl.infra\jwl.infra.csproj" />
   </ItemGroup>
   <Target Name="PostClean" AfterTargets="Clean">
     <RemoveDir Directories="$(BaseIntermediateOutputPath)" />
