@@ -1,15 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <ItemGroup>
-    <ProjectReference Include="..\jwl.jira\jwl.jira.csproj" />
-    <ProjectReference Include="..\jwl.inputs\jwl.inputs.csproj" />
-    <ProjectReference Include="..\jwl.core\jwl.core.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="NoP77svk.Console" Version="2022.8.3" />
-    <PackageReference Include="ShellProgressBar" Version="5.2.0" />
-  </ItemGroup>
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
+    <OutputType>Library</OutputType>
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -18,9 +9,9 @@
     <Company>Open source community</Company>
     <Copyright>Practically copyleft</Copyright>
     <NoWarn>1701;1702;AD0001;NETSDK1182</NoWarn>
-    <RootNamespace>jwl</RootNamespace>
-    <AssemblyName>jwlc</AssemblyName>
-    <PackageId>NoP77svk.jwl.console</PackageId>
+    <RootNamespace>jwl.core</RootNamespace>
+    <AssemblyName>jwl.core</AssemblyName>
+    <PackageId>NoP77svk.jwl.core</PackageId>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -28,17 +19,21 @@
     <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="7.0.1">
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="6.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="NoP77svk.Linq" Version="2023.3.1" />
+    <PackageReference Include="NoP77svk.Web.WS.Client" Version="2023.3.1" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <Compile Include="..\GlobalSuppressions.cs" Link="GlobalSuppressions.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\GlobalSuppressions.cs" Link="GlobalSuppressions.cs" />
+    <ProjectReference Include="..\jwl.jira\jwl.jira.csproj" />
+    <ProjectReference Include="..\jwl.inputs\jwl.inputs.csproj" />
   </ItemGroup>
   <Target Name="PostClean" AfterTargets="Clean">
     <RemoveDir Directories="$(BaseIntermediateOutputPath)" />

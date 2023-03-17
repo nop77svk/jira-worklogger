@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "jwl.inputs", "jwl.inputs\jw
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "jwl.infra", "jwl.infra\jwl.infra.csproj", "{5C3EDD4A-F418-4FFC-B7A1-C92CE5C0CC21}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "jwl.core", "jwl.core\jwl.core.csproj", "{DA3C8E30-0358-4103-97E0-29740E648A27}"
+EndProject
 Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -72,5 +74,17 @@ Global
 		{5C3EDD4A-F418-4FFC-B7A1-C92CE5C0CC21}.Release|x64.Build.0 = Release|Any CPU
 		{5C3EDD4A-F418-4FFC-B7A1-C92CE5C0CC21}.Release|x86.ActiveCfg = Release|Any CPU
 		{5C3EDD4A-F418-4FFC-B7A1-C92CE5C0CC21}.Release|x86.Build.0 = Release|Any CPU
+		{DA3C8E30-0358-4103-97E0-29740E648A27}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA3C8E30-0358-4103-97E0-29740E648A27}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA3C8E30-0358-4103-97E0-29740E648A27}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{DA3C8E30-0358-4103-97E0-29740E648A27}.Debug|x64.Build.0 = Debug|Any CPU
+		{DA3C8E30-0358-4103-97E0-29740E648A27}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{DA3C8E30-0358-4103-97E0-29740E648A27}.Debug|x86.Build.0 = Debug|Any CPU
+		{DA3C8E30-0358-4103-97E0-29740E648A27}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA3C8E30-0358-4103-97E0-29740E648A27}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA3C8E30-0358-4103-97E0-29740E648A27}.Release|x64.ActiveCfg = Release|Any CPU
+		{DA3C8E30-0358-4103-97E0-29740E648A27}.Release|x64.Build.0 = Release|Any CPU
+		{DA3C8E30-0358-4103-97E0-29740E648A27}.Release|x86.ActiveCfg = Release|Any CPU
+		{DA3C8E30-0358-4103-97E0-29740E648A27}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
