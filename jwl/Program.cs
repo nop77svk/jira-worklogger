@@ -39,7 +39,7 @@ internal class Program
         JiraServerApi jiraClient = new JiraServerApi(httpClient, config.ServerConfig.BaseUrl);
         IEnumerable<jira.api.rest.response.TempoWorklogAttributeDefinition> attrEnumDefs = await jiraClient.GetWorklogAttributesEnum();
         Dictionary<string, jira.api.rest.common.TempoWorklogAttributeStaticListValue> availableWorklogTypes = attrEnumDefs
-            .Where(attrDef => attrDef.Key == @"_WorklogType_")
+            .Where(attrDef => attrDef.Key == TempoTimesheetsPluginApiExt.WorklogTypeAttributeKey)
             .Where(attrDef => attrDef.Type.Value == jira.api.rest.common.TempoWorklogAttributeTypeIdentifier.StaticList)
             .Unnest(
                 retrieveNestedCollection: attrDef => attrDef.StaticListValues ?? Array.Empty<jira.api.rest.common.TempoWorklogAttributeStaticListValue>(),
@@ -51,7 +51,11 @@ internal class Program
 
         using IWorklogReader worklogReader = WorklogReaderFactory.GetReaderFromFilePath(@"d:\x.csv");
         JiraWorklog[] worklogs = worklogReader
-            .AsEnumerable()
+            .Read(row =>
+            {
+                if (!availableWorklogTypes.ContainsKey(row.TempWorklogType))
+                    throw new InvalidDataException($"Worklog type {row.TempWorklogType} not found on server");
+            })
             .ToArray();
 
         Console.Out.WriteLine($"There are {worklogs.Length} worklogs on input");

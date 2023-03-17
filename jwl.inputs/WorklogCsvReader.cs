@@ -15,7 +15,7 @@ public class WorklogCsvReader : IWorklogReader
         _csvReader = new CsvReader(inputFile, CultureInfo.InvariantCulture);
     }
 
-    public IEnumerable<JiraWorklog> AsEnumerable()
+    public IEnumerable<JiraWorklog> Read(Action<JiraWorklog>? postProcessResult = null)
     {
         string[] dateFormats =
         {

@@ -3,6 +3,8 @@ using NoP77svk.Web.WS;
 
 public static class TempoTimesheetsPluginApiExt
 {
+    public const string WorklogTypeAttributeKey = @"_WorklogType_";
+
     public static async Task AddWorklogPeriod(this JiraServerApi self, string issueKey, string userKey, DateTime dayFrom, DateTime dayTo, int timeSpentSeconds, string tempoWorklogType, string comment, bool includeNonWorkingDays = false)
     {
         var request = new api.rest.request.TempoAddWorklogByIssueKey()
@@ -16,10 +18,10 @@ public static class TempoTimesheetsPluginApiExt
             IncludeNonWorkingDays = includeNonWorkingDays,
             Attributes = new Dictionary<string, api.rest.common.TempoWorklogAttribute>()
             {
-                [@"_WorklogType_"] = new api.rest.common.TempoWorklogAttribute()
+                [WorklogTypeAttributeKey] = new api.rest.common.TempoWorklogAttribute()
                     {
                         WorkAttributeId = 1,
-                        Key = @"_WorklogType_",
+                        Key = WorklogTypeAttributeKey,
                         Name = @"Worklog Type",
                         Type = api.rest.common.TempoWorklogAttributeTypeIdentifier.StaticList,
                         Value = tempoWorklogType

@@ -3,5 +3,5 @@ using jwl.jira;
 
 public interface IWorklogReader : IDisposable
 {
-    IEnumerable<JiraWorklog> AsEnumerable();
+    IEnumerable<JiraWorklog> Read(Action<JiraWorklog>? validateResult = null);
 }
