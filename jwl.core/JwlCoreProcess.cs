@@ -23,11 +23,11 @@ public class JwlCoreProcess : IDisposable
 
     private Dictionary<string, jira.api.rest.common.TempoWorklogAttributeStaticListValue> availableWorklogTypes = new ();
 
-    public JwlCoreProcess(ICoreProcessFeedback feedback, ICoreProcessInteraction interaction)
+    public JwlCoreProcess(Config config, ICoreProcessFeedback feedback, ICoreProcessInteraction interaction)
     {
         _feedback = feedback;
         _interaction = interaction;
-        _config = new Config();
+        _config = config;
 
         _httpClientHandler = new HttpClientHandler()
         {
