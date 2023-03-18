@@ -13,7 +13,7 @@ public class JwlCoreProcess : IDisposable
     public const int TotalProcessSteps = 4;
 
     public ICoreProcessFeedback? Feedback { get; init; }
-    public ICoreProcessInteraction? Interaction { get; init; }
+    private ICoreProcessInteraction _interaction;
 
     private bool _isDisposed;
 
@@ -24,9 +24,10 @@ public class JwlCoreProcess : IDisposable
 
     private Dictionary<string, jira.api.rest.common.TempoWorklogAttributeStaticListValue> availableWorklogTypes = new ();
 
-    public JwlCoreProcess(Config config)
+    public JwlCoreProcess(Config config, ICoreProcessInteraction interaction)
     {
         _config = config;
+        _interaction = interaction;
 
         _httpClientHandler = new HttpClientHandler()
         {
@@ -48,7 +49,7 @@ public class JwlCoreProcess : IDisposable
 
         string jiraPassword;
         if (string.IsNullOrEmpty(_config.UserConfig.JiraUserPassword))
-            jiraPassword = Interaction?.AskForPassword(_config.UserConfig.JiraUserName) ?? string.Empty;
+            jiraPassword = _interaction?.AskForPassword(_config.UserConfig.JiraUserName) ?? string.Empty;
         else
             jiraPassword = _config.UserConfig.JiraUserPassword;
 
