@@ -11,22 +11,21 @@ using NoP77svk.Linq;
 public class JwlCoreProcess : IDisposable
 {
     public const int TotalProcessSteps = 4;
-    public Config _config { get; }
+
+    public ICoreProcessFeedback? Feedback { get; init; }
+    public ICoreProcessInteraction? Interaction { get; init; }
 
     private bool _isDisposed;
-    private ICoreProcessFeedback _feedback;
-    private ICoreProcessInteraction _interaction;
 
+    private Config _config;
     private JiraServerApi _jiraClient;
     private HttpClientHandler _httpClientHandler;
     private HttpClient _httpClient;
 
     private Dictionary<string, jira.api.rest.common.TempoWorklogAttributeStaticListValue> availableWorklogTypes = new ();
 
-    public JwlCoreProcess(Config config, ICoreProcessFeedback feedback, ICoreProcessInteraction interaction)
+    public JwlCoreProcess(Config config)
     {
-        _feedback = feedback;
-        _interaction = interaction;
         _config = config;
 
         _httpClientHandler = new HttpClientHandler()
@@ -45,35 +44,35 @@ public class JwlCoreProcess : IDisposable
 
     public async Task PreProcess()
     {
-        _feedback.OverallProcessStart();
+        Feedback?.OverallProcessStart();
 
         string jiraPassword;
         if (string.IsNullOrEmpty(_config.UserConfig.JiraUserPassword))
-            jiraPassword = _interaction.AskForPassword(_config.UserConfig.JiraUserName);
+            jiraPassword = Interaction?.AskForPassword(_config.UserConfig.JiraUserName) ?? string.Empty;
         else
             jiraPassword = _config.UserConfig.JiraUserPassword;
 
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(@"Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes(_config.UserConfig.JiraUserName + ":" + jiraPassword)));
 
-        _feedback.PreloadAvailableWorklogTypesStart();
+        Feedback?.PreloadAvailableWorklogTypesStart();
         availableWorklogTypes = await PreloadAvailableWorklogTypes();
-        _feedback.PreloadAvailableWorklogTypesEnd();
+        Feedback?.PreloadAvailableWorklogTypesEnd();
     }
 
     public async Task Process(string inputFile)
     {
-        _feedback.ReadCsvInputStart();
+        Feedback?.ReadCsvInputStart();
         JiraWorklog[] inputWorklogs = await ReadInputFile(inputFile);
-        _feedback.ReadCsvInputEnd();
+        Feedback?.ReadCsvInputEnd();
 
-        _feedback.RetrieveWorklogsForDeletionStart();
+        Feedback?.RetrieveWorklogsForDeletionStart();
         (string, jira.api.rest.response.JiraIssueWorklogsWorklog)[] worklogsForDeletion = await RetrieveWorklogsForDeletion(inputWorklogs);
-        _feedback.RetrieveWorklogsForDeletionEnd();
+        Feedback?.RetrieveWorklogsForDeletionEnd();
     }
 
     public async Task PostProcess()
     {
-        _feedback.OverallProcessEnd();
+        Feedback?.OverallProcessEnd();
     }
 
     public void Dispose()
@@ -151,11 +150,11 @@ public class JwlCoreProcess : IDisposable
                 elementSelector: issueKey => _jiraClient.GetIssueWorklogs(issueKey)
             );
 
-        _feedback.RetrieveWorklogsForDeletionSetTarget(currentIssueWorklogsTasks.Count + 1);
+        Feedback?.RetrieveWorklogsForDeletionSetTarget(currentIssueWorklogsTasks.Count + 1);
 
         await MultiTask.WhenAll(
             tasks: currentIssueWorklogsTasks.Select(x => x.Value),
-            reportProgress: (progress, _) => _feedback.RetrieveWorklogsForDeletionProcess(progress)
+            reportProgress: (progress, _) => Feedback?.RetrieveWorklogsForDeletionProcess(progress)
         );
 
         return currentIssueWorklogsTasks
