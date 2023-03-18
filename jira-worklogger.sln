@@ -1,22 +1,21 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30114.105
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33502.453
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "jwl.console", "jwl.console\jwl.console.csproj", "{9C9934CA-19BE-4F96-85FB-3DD167749FE9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "jwl.console", "jwl.console\jwl.console.csproj", "{9C9934CA-19BE-4F96-85FB-3DD167749FE9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "jwl.jira", "jwl.jira\jwl.jira.csproj", "{BBD86C7C-E2C4-4359-BCE3-06204ACEAB62}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "jwl.jira", "jwl.jira\jwl.jira.csproj", "{BBD86C7C-E2C4-4359-BCE3-06204ACEAB62}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "jwl.inputs", "jwl.inputs\jwl.inputs.csproj", "{FC96DC08-FDBF-4C7F-9585-25B1D98214F9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "jwl.inputs", "jwl.inputs\jwl.inputs.csproj", "{FC96DC08-FDBF-4C7F-9585-25B1D98214F9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "jwl.infra", "jwl.infra\jwl.infra.csproj", "{5C3EDD4A-F418-4FFC-B7A1-C92CE5C0CC21}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "jwl.infra", "jwl.infra\jwl.infra.csproj", "{5C3EDD4A-F418-4FFC-B7A1-C92CE5C0CC21}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "jwl.core", "jwl.core\jwl.core.csproj", "{DA3C8E30-0358-4103-97E0-29740E648A27}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "jwl.core", "jwl.core\jwl.core.csproj", "{DA3C8E30-0358-4103-97E0-29740E648A27}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "jwl.wpf", "jwl.wpf\jwl.wpf.csproj", "{B07453BF-B7B0-47FF-A1A8-C03307CBE0FC}"
 EndProject
 Global
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|x64 = Debug|x64
@@ -86,5 +85,20 @@ Global
 		{DA3C8E30-0358-4103-97E0-29740E648A27}.Release|x64.Build.0 = Release|Any CPU
 		{DA3C8E30-0358-4103-97E0-29740E648A27}.Release|x86.ActiveCfg = Release|Any CPU
 		{DA3C8E30-0358-4103-97E0-29740E648A27}.Release|x86.Build.0 = Release|Any CPU
+		{B07453BF-B7B0-47FF-A1A8-C03307CBE0FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B07453BF-B7B0-47FF-A1A8-C03307CBE0FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B07453BF-B7B0-47FF-A1A8-C03307CBE0FC}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B07453BF-B7B0-47FF-A1A8-C03307CBE0FC}.Debug|x64.Build.0 = Debug|Any CPU
+		{B07453BF-B7B0-47FF-A1A8-C03307CBE0FC}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B07453BF-B7B0-47FF-A1A8-C03307CBE0FC}.Debug|x86.Build.0 = Debug|Any CPU
+		{B07453BF-B7B0-47FF-A1A8-C03307CBE0FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B07453BF-B7B0-47FF-A1A8-C03307CBE0FC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B07453BF-B7B0-47FF-A1A8-C03307CBE0FC}.Release|x64.ActiveCfg = Release|Any CPU
+		{B07453BF-B7B0-47FF-A1A8-C03307CBE0FC}.Release|x64.Build.0 = Release|Any CPU
+		{B07453BF-B7B0-47FF-A1A8-C03307CBE0FC}.Release|x86.ActiveCfg = Release|Any CPU
+		{B07453BF-B7B0-47FF-A1A8-C03307CBE0FC}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 EndGlobal
