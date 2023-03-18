@@ -5,7 +5,7 @@
     <ProjectReference Include="..\jwl.core\jwl.core.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="NoP77svk.Console" Version="2022.8.3" />
+    <PackageReference Include="NoP77svk.Console" Version="2023.3.1" />
     <PackageReference Include="ShellProgressBar" Version="5.2.0" />
   </ItemGroup>
   <PropertyGroup>
