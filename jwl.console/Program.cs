@@ -8,6 +8,8 @@ internal class Program
         using ICoreProcessFeedback feedback = new ConsoleProcessFeedback(JwlCoreProcess.TotalProcessSteps);
         using ICoreProcessInteraction interaction = new ConsoleProcessInteraction();
         using JwlCoreProcess engine = new JwlCoreProcess(feedback, interaction);
+        await engine.PreProcess();
         await engine.Process(@"d:\x.csv");
+        await engine.PostProcess();
     }
 }

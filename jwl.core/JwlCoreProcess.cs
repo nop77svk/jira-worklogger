@@ -1,4 +1,6 @@
 namespace jwl.core;
+
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using jwl.infra;
@@ -15,20 +17,19 @@ public class JwlCoreProcess : IDisposable
     private ICoreProcessFeedback _feedback;
     private ICoreProcessInteraction _interaction;
 
-    private JiraServerApi? _jiraClient = null;
+    private JiraServerApi _jiraClient;
+    private HttpClientHandler _httpClientHandler;
+    private HttpClient _httpClient;
+
+    private Dictionary<string, jira.api.rest.common.TempoWorklogAttributeStaticListValue> availableWorklogTypes = new ();
 
     public JwlCoreProcess(ICoreProcessFeedback feedback, ICoreProcessInteraction interaction)
     {
         _feedback = feedback;
         _interaction = interaction;
         _config = new Config();
-    }
 
-    public async Task Process(string inputFile)
-    {
-        _feedback.OverallProcessStart();
-
-        using HttpClientHandler httpClientHandler = new HttpClientHandler()
+        _httpClientHandler = new HttpClientHandler()
         {
             UseProxy = _config.ServerConfig.UseProxy,
             UseDefaultCredentials = false,
@@ -36,9 +37,15 @@ public class JwlCoreProcess : IDisposable
         };
 
         if (_config.ServerConfig.SkipSslCertificateCheck)
-            httpClientHandler.ServerCertificateCustomValidationCallback = (_, _, _, _) => true;
+            _httpClientHandler.ServerCertificateCustomValidationCallback = (_, _, _, _) => true;
 
-        using HttpClient httpClient = new HttpClient(httpClientHandler);
+        _httpClient = new HttpClient(_httpClientHandler);
+        _jiraClient = new JiraServerApi(_httpClient, _config.ServerConfig.BaseUrl);
+    }
+
+    public async Task PreProcess()
+    {
+        _feedback.OverallProcessStart();
 
         string jiraPassword;
         if (string.IsNullOrEmpty(_config.UserConfig.JiraUserPassword))
@@ -46,21 +53,26 @@ public class JwlCoreProcess : IDisposable
         else
             jiraPassword = _config.UserConfig.JiraUserPassword;
 
-        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(@"Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes(_config.UserConfig.JiraUserName + ":" + jiraPassword)));
-        _jiraClient = new JiraServerApi(httpClient, _config.ServerConfig.BaseUrl);
+        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(@"Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes(_config.UserConfig.JiraUserName + ":" + jiraPassword)));
 
         _feedback.PreloadAvailableWorklogTypesStart();
-        Dictionary<string, jira.api.rest.common.TempoWorklogAttributeStaticListValue> availableWorklogTypes = await PreloadAvailableWorklogTypes();
+        availableWorklogTypes = await PreloadAvailableWorklogTypes();
         _feedback.PreloadAvailableWorklogTypesEnd();
+    }
 
+    public async Task Process(string inputFile)
+    {
         _feedback.ReadCsvInputStart();
-        JiraWorklog[] inputWorklogs = await ReadInputFile(inputFile, availableWorklogTypes);
+        JiraWorklog[] inputWorklogs = await ReadInputFile(inputFile);
         _feedback.ReadCsvInputEnd();
 
         _feedback.RetrieveWorklogsForDeletionStart();
         (string, jira.api.rest.response.JiraIssueWorklogsWorklog)[] worklogsForDeletion = await RetrieveWorklogsForDeletion(inputWorklogs);
         _feedback.RetrieveWorklogsForDeletionEnd();
+    }
 
+    public async Task PostProcess()
+    {
         _feedback.OverallProcessEnd();
     }
 
@@ -77,8 +89,8 @@ public class JwlCoreProcess : IDisposable
         {
             if (disposing)
             {
-                _feedback.Dispose();
-                _interaction.Dispose();
+                _httpClient?.Dispose();
+                _httpClientHandler?.Dispose();
             }
 
             // note: free unmanaged resources (unmanaged objects) and override finalizer
@@ -87,7 +99,7 @@ public class JwlCoreProcess : IDisposable
         }
     }
 
-    private async Task<JiraWorklog[]> ReadInputFile(string fileName, Dictionary<string, jira.api.rest.common.TempoWorklogAttributeStaticListValue> availableWorklogTypes)
+    private async Task<JiraWorklog[]> ReadInputFile(string fileName)
     {
         using IWorklogReader worklogReader = WorklogReaderFactory.GetReaderFromFilePath(fileName);
 
@@ -107,9 +119,6 @@ public class JwlCoreProcess : IDisposable
 
     private async Task<Dictionary<string, jira.api.rest.common.TempoWorklogAttributeStaticListValue>> PreloadAvailableWorklogTypes()
     {
-        if (_jiraClient == null)
-            throw new ArgumentNullException("FATAL! Jira client not initialized");
-
         IEnumerable<jira.api.rest.response.TempoWorklogAttributeDefinition> attrEnumDefs = await _jiraClient.GetWorklogAttributesEnum();
 
         return attrEnumDefs
@@ -124,9 +133,6 @@ public class JwlCoreProcess : IDisposable
 
     private async Task<(string, jira.api.rest.response.JiraIssueWorklogsWorklog)[]> RetrieveWorklogsForDeletion(JiraWorklog[] inputWorklogs)
     {
-        if (_jiraClient == null)
-            throw new ArgumentNullException("FATAL! Jira client not initialized");
-
         string[] inputIssueKeys = inputWorklogs
             .Select(worklog => worklog.IssueKey.ToString())
             .Distinct()
