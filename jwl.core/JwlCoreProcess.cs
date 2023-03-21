@@ -8,7 +8,6 @@ using jwl.inputs;
 using jwl.jira;
 using jwl.jira.api.rest.response;
 using NoP77svk.Linq;
-using NoP77svk.Web.WS;
 
 public class JwlCoreProcess : IDisposable
 {
