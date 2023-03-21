@@ -6,11 +6,12 @@ using System.Text;
 using jwl.infra;
 using jwl.inputs;
 using jwl.jira;
+using jwl.jira.api.rest.response;
 using NoP77svk.Linq;
 
 public class JwlCoreProcess : IDisposable
 {
-    public const int TotalProcessSteps = 4;
+    public const int TotalProcessSteps = 5;
 
     public ICoreProcessFeedback? Feedback { get; init; }
     private ICoreProcessInteraction _interaction;
@@ -69,6 +70,13 @@ public class JwlCoreProcess : IDisposable
         Feedback?.RetrieveWorklogsForDeletionStart();
         (string, jira.api.rest.response.JiraIssueWorklogsWorklog)[] worklogsForDeletion = await RetrieveWorklogsForDeletion(inputWorklogs);
         Feedback?.RetrieveWorklogsForDeletionEnd();
+
+        if (_interaction.DeleteExistingWorklogs())
+        {
+            Feedback?.DeleteExistingWorklogsStart();
+            await DeleteExistingWorklogs(worklogsForDeletion);
+            Feedback?.DeleteExistingWorklogsEnd();
+        }
     }
 
     public async Task PostProcess()
@@ -97,6 +105,20 @@ public class JwlCoreProcess : IDisposable
             // note: set large fields to null
             _isDisposed = true;
         }
+    }
+
+    private async Task DeleteExistingWorklogs((string, JiraIssueWorklogsWorklog)[] worklogsForDeletion)
+    {
+        Feedback?.DeleteExistingWorklogsSetTarget(worklogsForDeletion.Length);
+
+        Task[] deleteExistingWorklogsTasks = worklogsForDeletion
+            .Select(worklog => _jiraClient.DeleteWorklog(worklog.Item2.IssueId.Value, worklog.Item2.Id.Value))
+            .ToArray();
+
+        await MultiTask.WhenAll(
+            tasks: deleteExistingWorklogsTasks,
+            reportProgress: (p, t) => Feedback?.DeleteExistingWorklogsProcess(p)
+        );
     }
 
     private async Task<JiraWorklog[]> ReadInputFile(string fileName)

@@ -4,6 +4,12 @@ using jwl.infra;
 public interface ICoreProcessFeedback
     : IDisposable
 {
+    void DeleteExistingWorklogsStart();
+    void DeleteExistingWorklogsSetTarget(int numberOfWorklogs);
+    void DeleteExistingWorklogsProcess(MultiTaskProgress progress);
+    void DeleteExistingWorklogsEnd();
+    void OverallProcessStart();
+    void OverallProcessEnd();
     void PreloadAvailableWorklogTypesStart();
     void PreloadAvailableWorklogTypesEnd();
     void ReadCsvInputStart();
@@ -12,6 +18,4 @@ public interface ICoreProcessFeedback
     void RetrieveWorklogsForDeletionSetTarget(int count);
     void RetrieveWorklogsForDeletionProcess(MultiTaskProgress progress);
     void RetrieveWorklogsForDeletionEnd();
-    void OverallProcessStart();
-    void OverallProcessEnd();
 }

@@ -12,6 +12,7 @@ public class ConsoleProcessFeedback
     private ProgressBar _overallProgress;
     private bool _isDisposed;
     private IProgressBar? _worklogsToBeDeletedProgress = null;
+    private IProgressBar? _deleteExistingWorklogsProgress = null;
 
     public ConsoleProcessFeedback(int totalSteps)
     {
@@ -23,6 +24,34 @@ public class ConsoleProcessFeedback
             ProgressBarOnBottom = true,
             ProgressCharacter = '─'
         });
+    }
+
+    public void DeleteExistingWorklogsStart()
+    {
+        _overallProgress.Tick(ProgressBarMsg);
+        _deleteExistingWorklogsProgress = _overallProgress.Spawn(0, "Deleting existing worklogs");
+        FeedbackDelay?.Invoke();
+    }
+
+    public void DeleteExistingWorklogsSetTarget(int numberOfWorklogs)
+    {
+        if (_deleteExistingWorklogsProgress != null)
+            _deleteExistingWorklogsProgress.MaxTicks = numberOfWorklogs;
+
+        FeedbackDelay?.Invoke();
+    }
+
+    public void DeleteExistingWorklogsProcess(MultiTaskProgress progress)
+    {
+        _deleteExistingWorklogsProgress?.Tick(progress.DoneSoFar, progress.ErredSoFar > 0 ? $"({progress.ErredSoFar} errors thus far)" : null);
+        FeedbackDelay?.Invoke();
+    }
+
+    public void DeleteExistingWorklogsEnd()
+    {
+        _deleteExistingWorklogsProgress?.Dispose();
+        _deleteExistingWorklogsProgress = null;
+        FeedbackDelay?.Invoke();
     }
 
     public void Dispose()

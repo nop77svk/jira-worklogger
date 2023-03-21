@@ -17,6 +17,24 @@ public class ConsoleProcessInteraction
         return SecretConsoleExt.ReadLineInSecret(_ => '*', true);
     }
 
+    public bool DeleteExistingWorklogs()
+    {
+        bool? deleteExistingWorklogs = null;
+        while (deleteExistingWorklogs != null)
+        {
+            Console.Error.Write($"Delete existing worklogs? [Y/n] ");
+            string response = Console.ReadLine() ?? string.Empty;
+            deleteExistingWorklogs = response.Trim().ToUpper() switch
+            {
+                "Y" or "" => true,
+                "N" => false,
+                _ => null
+            };
+        }
+
+        return deleteExistingWorklogs ?? true;
+    }
+
     public void Dispose()
     {
         // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method

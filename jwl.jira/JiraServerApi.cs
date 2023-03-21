@@ -43,7 +43,7 @@ public class JiraServerApi
         return await response.FirstAsync();
     }
 
-    public async Task DeleteWorklog(int issueId, int worklogId, bool notifyUsers = false)
+    public async Task DeleteWorklog(long issueId, long worklogId, bool notifyUsers = false)
     {
         await WsClient.EndpointCall(new JsonRestWsEndpoint(HttpMethod.Delete)
             .AddResourceFolder(@"rest")
