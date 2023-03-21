@@ -125,8 +125,7 @@ public class JwlCoreProcess : IDisposable
         Feedback?.DeleteExistingWorklogsSetTarget(worklogsForDeletion.Length);
 
         Task[] deleteExistingWorklogsTasks = worklogsForDeletion
-            .Where(worklog => worklog.Item2.IssueId != null && worklog.Item2.Id != null)
-            .Select(worklog => _jiraClient.DeleteWorklog(worklog.Item2.IssueId?.Value ?? 0, worklog.Item2.Id?.Value ?? 0))
+            .Select(worklog => _jiraClient.DeleteWorklog(worklog.Item2.IssueId.Value, worklog.Item2.Id.Value))
             .ToArray();
 
         await MultiTask.WhenAll(
@@ -223,9 +222,8 @@ public class JwlCoreProcess : IDisposable
                         && worklog.Author.Name.Equals(_config.UserConfig.JiraUserName, StringComparison.OrdinalIgnoreCase)
                     )
                     .Where(worklog => worklog != null
-                        && worklog.Started != null
-                        && worklog.Started?.Value >= minInputWorklogDay
-                        && worklog.Started?.Value < supInputWorklogDay
+                        && worklog.Started.Value >= minInputWorklogDay
+                        && worklog.Started.Value < supInputWorklogDay
                     ),
                 resultSelector: (outer, inner) => new ValueTuple<string, jira.api.rest.response.JiraIssueWorklogsWorklog>(outer.Key, inner)
             )

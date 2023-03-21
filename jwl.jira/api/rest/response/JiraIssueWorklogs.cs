@@ -2,8 +2,16 @@ namespace jwl.jira.api.rest.response;
 
 public class JiraIssueWorklogs
 {
-    public int? StartAt { get; init; }
-    public int? MaxResults { get; init; }
-    public int? Total { get; init; }
-    public JiraIssueWorklogsWorklog[]? Worklogs { get; init; }
+    public JiraIssueWorklogs(int startAt, int maxResults, int total, JiraIssueWorklogsWorklog[] worklogs)
+    {
+        StartAt = startAt;
+        MaxResults = maxResults;
+        Total = total;
+        Worklogs = worklogs;
+    }
+
+    public int StartAt { get; }
+    public int MaxResults { get; }
+    public int Total { get; }
+    public JiraIssueWorklogsWorklog[] Worklogs { get; }
 }

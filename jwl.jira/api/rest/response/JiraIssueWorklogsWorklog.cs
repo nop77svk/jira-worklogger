@@ -1,15 +1,30 @@
 namespace jwl.jira.api.rest.response;
+using jwl.jira.api.rest.common;
 
 public class JiraIssueWorklogsWorklog
 {
-    public common.JiraStringedInteger? Id { get; init; }
-    public common.JiraStringedInteger? IssueId { get; init; }
-    public common.JiraUserInfo? Author { get; init; }
-    public common.JiraUserInfo? UpdateAuthor { get; init; }
-    public string? Comment { get; init; }
-    public common.JiraTimeStamp? Created { get; init; }
-    public common.JiraTimeStamp? Updated { get; init; }
-    public common.JiraTimeStamp? Started { get; init; }
-    public string? TimeSpent { get; init; }
-    public int? TimeSpentSeconds { get; init; }
+    public JiraIssueWorklogsWorklog(JiraStringedInteger id, JiraStringedInteger issueId, JiraUserInfo author, JiraUserInfo updateAuthor, string comment, JiraTimeStamp created, JiraTimeStamp updated, JiraTimeStamp started, string timeSpent, int timeSpentSeconds)
+    {
+        Id = id;
+        IssueId = issueId;
+        Author = author;
+        UpdateAuthor = updateAuthor;
+        Comment = comment;
+        Created = created;
+        Updated = updated;
+        Started = started;
+        TimeSpent = timeSpent;
+        TimeSpentSeconds = timeSpentSeconds;
+    }
+
+    public common.JiraStringedInteger Id { get; }
+    public common.JiraStringedInteger IssueId { get; }
+    public common.JiraUserInfo Author { get; }
+    public common.JiraUserInfo UpdateAuthor { get; }
+    public string Comment { get; }
+    public common.JiraTimeStamp Created { get; }
+    public common.JiraTimeStamp Updated { get; }
+    public common.JiraTimeStamp Started { get; }
+    public string TimeSpent { get; }
+    public int TimeSpentSeconds { get; }
 }
