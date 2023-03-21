@@ -121,6 +121,20 @@ public class JwlCoreProcess : IDisposable
         );
     }
 
+    private async Task<Dictionary<string, jira.api.rest.common.TempoWorklogAttributeStaticListValue>> PreloadAvailableWorklogTypes()
+    {
+        IEnumerable<jira.api.rest.response.TempoWorklogAttributeDefinition> attrEnumDefs = await _jiraClient.GetWorklogAttributesEnum();
+
+        return attrEnumDefs
+            .Where(attrDef => attrDef.Key == TempoTimesheetsPluginApiExt.WorklogTypeAttributeKey)
+            .Where(attrDef => attrDef.Type.Value == jira.api.rest.common.TempoWorklogAttributeTypeIdentifier.StaticList)
+            .Unnest(
+                retrieveNestedCollection: attrDef => attrDef.StaticListValues ?? Array.Empty<jira.api.rest.common.TempoWorklogAttributeStaticListValue>(),
+                resultSelector: (outer, inner) => inner
+            )
+            .ToDictionary(staticListItem => staticListItem.Value);
+    }
+
     private async Task<JiraWorklog[]> ReadInputFile(string fileName)
     {
         using IWorklogReader worklogReader = WorklogReaderFactory.GetReaderFromFilePath(fileName);
@@ -137,20 +151,6 @@ public class JwlCoreProcess : IDisposable
         });
 
         return await response;
-    }
-
-    private async Task<Dictionary<string, jira.api.rest.common.TempoWorklogAttributeStaticListValue>> PreloadAvailableWorklogTypes()
-    {
-        IEnumerable<jira.api.rest.response.TempoWorklogAttributeDefinition> attrEnumDefs = await _jiraClient.GetWorklogAttributesEnum();
-
-        return attrEnumDefs
-            .Where(attrDef => attrDef.Key == TempoTimesheetsPluginApiExt.WorklogTypeAttributeKey)
-            .Where(attrDef => attrDef.Type.Value == jira.api.rest.common.TempoWorklogAttributeTypeIdentifier.StaticList)
-            .Unnest(
-                retrieveNestedCollection: attrDef => attrDef.StaticListValues ?? Array.Empty<jira.api.rest.common.TempoWorklogAttributeStaticListValue>(),
-                resultSelector: (outer, inner) => inner
-            )
-            .ToDictionary(staticListItem => staticListItem.Value);
     }
 
     private async Task<(string, jira.api.rest.response.JiraIssueWorklogsWorklog)[]> RetrieveWorklogsForDeletion(JiraWorklog[] inputWorklogs)
