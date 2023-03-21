@@ -1,9 +1,9 @@
 namespace jwl.jira.api.rest.response;
 
-public struct JiraIssueWorklogs
+public class JiraIssueWorklogs
 {
-    public int StartAt;
-    public int MaxResults;
-    public int Total;
-    public JiraIssueWorklogsWorklog[] Worklogs;
+    public int? StartAt { get; init; }
+    public int? MaxResults { get; init; }
+    public int? Total { get; init; }
+    public JiraIssueWorklogsWorklog[]? Worklogs { get; init; }
 }

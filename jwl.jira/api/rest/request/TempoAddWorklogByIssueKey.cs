@@ -1,14 +1,16 @@
 namespace jwl.jira.api.rest.request;
-using commons = jwl.jira.api.rest.common;
+using System.Text.Json.Serialization;
+using jwl.jira.api.rest.common;
 
-public struct TempoAddWorklogByIssueKey
+public class TempoAddWorklogByIssueKey
 {
-    public string IssueKey;
-    public int TimeSpentSeconds;
-    public int BillableSeconds;
-    public string Worker;
-    public string Started;
-    public string EndDate;
-    public bool IncludeNonWorkingDays;
-    public Dictionary<string, commons.TempoWorklogAttribute> Attributes;
+    [JsonPropertyName("originTaskId")]
+    public string? IssueKey { get; init; }
+    public int? TimeSpentSeconds { get; init; }
+    public int? BillableSeconds { get; init; }
+    public string? Worker { get; init; }
+    public string? Started { get; init; }
+    public string? EndDate { get; init; }
+    public bool? IncludeNonWorkingDays { get; init; }
+    public Dictionary<string, TempoWorklogAttribute>? Attributes { get; init; }
 }

@@ -29,7 +29,7 @@ public static class TempoTimesheetsPluginApiExt
             }
         };
 
-        await self.WsClient.EndpointCall(new JsonRestWsEndpoint(HttpMethod.Post)
+        string result = await self.WsClient.EndpointGetString(new JsonRestWsEndpoint(HttpMethod.Post)
             .AddResourceFolder(@"rest")
             .AddResourceFolder(@"tempo-timesheets")
             .AddResourceFolder(@"4")

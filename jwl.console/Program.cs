@@ -15,6 +15,5 @@ internal class Program
 
         await engine.PreProcess();
         await engine.Process(@"d:\x.csv");
-        await engine.PostProcess();
     }
 }

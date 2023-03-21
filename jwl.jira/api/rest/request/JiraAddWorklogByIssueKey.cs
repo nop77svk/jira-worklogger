@@ -1,8 +1,8 @@
 namespace jwl.jira.api.rest.request;
 
-public struct JiraAddWorklogByIssueKey
+public class JiraAddWorklogByIssueKey
 {
-    public string Started;
-    public int TimeSpentSeconds;
-    public string Comment;
+    public string? Started { get; init; }
+    public int? TimeSpentSeconds { get; init; }
+    public string? Comment { get; init; }
 }

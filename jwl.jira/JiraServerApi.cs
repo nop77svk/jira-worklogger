@@ -1,13 +1,14 @@
 namespace jwl.jira;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using NoP77svk.Web.WS;
 
 public class JiraServerApi
 {
     public Uri BaseUrl { get; }
 
-    internal HttpWebServiceClient WsClient { get; }
+    public HttpWebServiceClient WsClient { get; }
 
     public JiraServerApi(HttpClient httpClient, string baseUrl)
     {

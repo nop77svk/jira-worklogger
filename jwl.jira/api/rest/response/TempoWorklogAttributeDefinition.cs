@@ -1,14 +1,14 @@
 namespace jwl.jira.api.rest.response;
 using System.Text.Json.Serialization;
 
-public struct TempoWorklogAttributeDefinition
+public class TempoWorklogAttributeDefinition
 {
-    public int Id;
-    public string Key;
-    public string Name;
-    public common.TempoWorklogAttributeTypeDefinition Type;
+    public int? Id { get; init; }
+    public string? Key { get; init; }
+    public string? Name { get; init; }
+    public common.TempoWorklogAttributeTypeDefinition? Type { get; init; }
     [JsonPropertyName("required")]
-    public bool IsRequired;
-    public int Sequence;
-    public common.TempoWorklogAttributeStaticListValue[]? StaticListValues;
+    public bool? IsRequired { get; init; }
+    public int? Sequence { get; init; }
+    public common.TempoWorklogAttributeStaticListValue[]? StaticListValues { get; init; }
 }

@@ -8,6 +8,7 @@ using jwl.inputs;
 using jwl.jira;
 using jwl.jira.api.rest.response;
 using NoP77svk.Linq;
+using NoP77svk.Web.WS;
 
 public class JwlCoreProcess : IDisposable
 {
@@ -22,7 +23,7 @@ public class JwlCoreProcess : IDisposable
     private HttpClientHandler _httpClientHandler;
     private HttpClient _httpClient;
     private JiraServerApi _jiraClient;
-    private jwl.jira.api.rest.common.JiraUserInfo _userInfo;
+    private jwl.jira.api.rest.common.JiraUserInfo? _userInfo;
 
     private Dictionary<string, jira.api.rest.common.TempoWorklogAttributeStaticListValue> availableWorklogTypes = new ();
 
@@ -43,6 +44,16 @@ public class JwlCoreProcess : IDisposable
 
         _httpClient = new HttpClient(_httpClientHandler);
         _jiraClient = new JiraServerApi(_httpClient, _config.ServerConfig.BaseUrl);
+
+        _jiraClient.WsClient.HttpRequestPostprocess = req =>
+        {
+            // 2do! optional logging of request bodies
+        };
+
+        _jiraClient.WsClient.HttpResponsePostprocess = resp =>
+        {
+            // 2do! optional logging of response bodies
+        };
     }
 
     public async Task PreProcess()
@@ -76,21 +87,13 @@ public class JwlCoreProcess : IDisposable
         (string, jira.api.rest.response.JiraIssueWorklogsWorklog)[] worklogsForDeletion = await RetrieveWorklogsForDeletion(inputWorklogs);
         Feedback?.RetrieveWorklogsForDeletionEnd();
 
-        if (_interaction.DeleteExistingWorklogs())
-        {
-            Feedback?.DeleteExistingWorklogsStart();
-            await DeleteExistingWorklogs(worklogsForDeletion);
-            Feedback?.DeleteExistingWorklogsEnd();
-        }
+        Feedback?.DeleteExistingWorklogsStart();
+        await DeleteExistingWorklogs(worklogsForDeletion);
+        Feedback?.DeleteExistingWorklogsEnd();
 
         Feedback?.FillJiraWithWorklogsStart();
         await FillJiraWithWorklogs(inputWorklogs);
         Feedback?.FillJiraWithWorklogsEnd();
-    }
-
-    public async Task PostProcess()
-    {
-        Feedback?.OverallProcessEnd();
     }
 
     public void Dispose()
@@ -106,12 +109,14 @@ public class JwlCoreProcess : IDisposable
         {
             if (disposing)
             {
-                _httpClient?.Dispose();
-                _httpClientHandler?.Dispose();
             }
 
             // note: free unmanaged resources (unmanaged objects) and override finalizer
             // note: set large fields to null
+            Feedback?.OverallProcessEnd();
+            _httpClient?.Dispose();
+            _httpClientHandler?.Dispose();
+
             _isDisposed = true;
         }
     }
@@ -121,7 +126,8 @@ public class JwlCoreProcess : IDisposable
         Feedback?.DeleteExistingWorklogsSetTarget(worklogsForDeletion.Length);
 
         Task[] deleteExistingWorklogsTasks = worklogsForDeletion
-            .Select(worklog => _jiraClient.DeleteWorklog(worklog.Item2.IssueId.Value, worklog.Item2.Id.Value))
+            .Where(worklog => worklog.Item2.IssueId != null && worklog.Item2.Id != null)
+            .Select(worklog => _jiraClient.DeleteWorklog(worklog.Item2.IssueId?.Value ?? 0, worklog.Item2.Id?.Value ?? 0))
             .ToArray();
 
         await MultiTask.WhenAll(
@@ -133,6 +139,9 @@ public class JwlCoreProcess : IDisposable
     private async Task FillJiraWithWorklogs(JiraWorklog[] inputWorklogs)
     {
         Feedback?.FillJiraWithWorklogsSetTarget(inputWorklogs.Length);
+
+        if (_userInfo == null || _userInfo.Key == null)
+            throw new ArgumentNullException(@"Unresolved Jira key for the logged-on user");
 
         Task[] fillJiraWithWorklogsTasks = inputWorklogs
             .Select(worklog => _jiraClient.AddWorklog(worklog.IssueKey.ToString(), _userInfo.Key, worklog.Date, (int)worklog.TimeSpent.TotalSeconds, worklog.TempWorklogType, string.Empty))
@@ -149,13 +158,16 @@ public class JwlCoreProcess : IDisposable
         IEnumerable<jira.api.rest.response.TempoWorklogAttributeDefinition> attrEnumDefs = await _jiraClient.GetWorklogAttributesEnum();
 
         return attrEnumDefs
-            .Where(attrDef => attrDef.Key == TempoTimesheetsPluginApiExt.WorklogTypeAttributeKey)
-            .Where(attrDef => attrDef.Type.Value == jira.api.rest.common.TempoWorklogAttributeTypeIdentifier.StaticList)
+            .Where(attrDef => attrDef.Key?.Equals(TempoTimesheetsPluginApiExt.WorklogTypeAttributeKey) ?? false)
+            .Where(attrDef => attrDef.Type != null
+                && attrDef.Type?.Value == jira.api.rest.common.TempoWorklogAttributeTypeIdentifier.StaticList
+            )
             .Unnest(
                 retrieveNestedCollection: attrDef => attrDef.StaticListValues ?? Array.Empty<jira.api.rest.common.TempoWorklogAttributeStaticListValue>(),
                 resultSelector: (outer, inner) => inner
             )
-            .ToDictionary(staticListItem => staticListItem.Value);
+            .Where(staticListItem => !string.IsNullOrEmpty(staticListItem.Value))
+            .ToDictionary(staticListItem => staticListItem.Value ?? string.Empty);
     }
 
     private async Task<JiraWorklog[]> ReadInputFile(string fileName)
@@ -205,9 +217,17 @@ public class JwlCoreProcess : IDisposable
 
         return currentIssueWorklogsTasks
             .Unnest(
-                retrieveNestedCollection: x => x.Value.Result.Worklogs
-                    .Where(worklog => worklog.Author.Name.Equals(_config.UserConfig.JiraUserName, StringComparison.OrdinalIgnoreCase))
-                    .Where(worklog => worklog.Created.Value >= minInputWorklogDay && worklog.Created.Value < supInputWorklogDay),
+                retrieveNestedCollection: x => (x.Value.Result.Worklogs ?? Array.Empty<JiraIssueWorklogsWorklog>())
+                    .Where(worklog => worklog != null
+                        && worklog.Author != null
+                        && !string.IsNullOrEmpty(worklog.Author.Name)
+                        && worklog.Author.Name.Equals(_config.UserConfig.JiraUserName, StringComparison.OrdinalIgnoreCase)
+                    )
+                    .Where(worklog => worklog != null
+                        && worklog.Started != null
+                        && worklog.Started?.Value >= minInputWorklogDay
+                        && worklog.Started?.Value < supInputWorklogDay
+                    ),
                 resultSelector: (outer, inner) => new ValueTuple<string, jira.api.rest.response.JiraIssueWorklogsWorklog>(outer.Key, inner)
             )
             .ToArray();

@@ -1,13 +1,13 @@
 namespace jwl.jira.api.rest.common;
 using System.Text.Json.Serialization;
 
-public struct TempoWorklogAttributeStaticListValue
+public class TempoWorklogAttributeStaticListValue
 {
-    public int Id;
-    public string Name;
-    public string Value;
+    public int? Id { get; init; }
+    public string? Name { get; init; }
+    public string? Value { get; init; }
     [JsonPropertyName("removed")]
-    public bool IsRemoved;
-    public int Sequence;
-    public int WorkAttributeId;
+    public bool? IsRemoved { get; init; }
+    public int? Sequence { get; init; }
+    public int? WorkAttributeId { get; init; }
 }

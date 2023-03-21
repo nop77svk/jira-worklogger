@@ -1,10 +1,10 @@
 namespace jwl.jira.api.rest.common;
 using System.Text.Json.Serialization;
 
-public struct TempoWorklogAttributeTypeDefinition
+public class TempoWorklogAttributeTypeDefinition
 {
-    public string Name;
-    public TempoWorklogAttributeTypeIdentifier Value;
+    public string? Name { get; init; }
+    public TempoWorklogAttributeTypeIdentifier? Value { get; init; }
     [JsonPropertyName("systemType")]
-    public bool IsSystemType;
+    public bool? IsSystemType { get; init; }
 }
