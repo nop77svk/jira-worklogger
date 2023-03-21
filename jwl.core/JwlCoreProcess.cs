@@ -11,7 +11,7 @@ using NoP77svk.Linq;
 
 public class JwlCoreProcess : IDisposable
 {
-    public const int TotalProcessSteps = 5;
+    public const int TotalProcessSteps = 7;
 
     public ICoreProcessFeedback? Feedback { get; init; }
     private ICoreProcessInteraction _interaction;
@@ -19,9 +19,10 @@ public class JwlCoreProcess : IDisposable
     private bool _isDisposed;
 
     private Config _config;
-    private JiraServerApi _jiraClient;
     private HttpClientHandler _httpClientHandler;
     private HttpClient _httpClient;
+    private JiraServerApi _jiraClient;
+    private jwl.jira.api.rest.common.JiraUserInfo _userInfo;
 
     private Dictionary<string, jira.api.rest.common.TempoWorklogAttributeStaticListValue> availableWorklogTypes = new ();
 
@@ -59,6 +60,10 @@ public class JwlCoreProcess : IDisposable
         Feedback?.PreloadAvailableWorklogTypesStart();
         availableWorklogTypes = await PreloadAvailableWorklogTypes();
         Feedback?.PreloadAvailableWorklogTypesEnd();
+
+        Feedback?.PreloadUserInfoStart(_config.UserConfig.JiraUserName);
+        _userInfo = await _jiraClient.GetUserInfo(_config.UserConfig.JiraUserName);
+        Feedback?.PreloadUserInfoEnd();
     }
 
     public async Task Process(string inputFile)
@@ -77,6 +82,10 @@ public class JwlCoreProcess : IDisposable
             await DeleteExistingWorklogs(worklogsForDeletion);
             Feedback?.DeleteExistingWorklogsEnd();
         }
+
+        Feedback?.FillJiraWithWorklogsStart();
+        await FillJiraWithWorklogs(inputWorklogs);
+        Feedback?.FillJiraWithWorklogsEnd();
     }
 
     public async Task PostProcess()
@@ -117,7 +126,21 @@ public class JwlCoreProcess : IDisposable
 
         await MultiTask.WhenAll(
             tasks: deleteExistingWorklogsTasks,
-            reportProgress: (p, t) => Feedback?.DeleteExistingWorklogsProcess(p)
+            reportProgress: (p, _) => Feedback?.DeleteExistingWorklogsProcess(p)
+        );
+    }
+
+    private async Task FillJiraWithWorklogs(JiraWorklog[] inputWorklogs)
+    {
+        Feedback?.FillJiraWithWorklogsSetTarget(inputWorklogs.Length);
+
+        Task[] fillJiraWithWorklogsTasks = inputWorklogs
+            .Select(worklog => _jiraClient.AddWorklog(worklog.IssueKey.ToString(), _userInfo.Key, worklog.Date, (int)worklog.TimeSpent.TotalSeconds, worklog.TempWorklogType, string.Empty))
+            .ToArray();
+
+        await MultiTask.WhenAll(
+            tasks: fillJiraWithWorklogsTasks,
+            reportProgress: (p, _) => Feedback?.FillJiraWithWorklogsProcess(p)
         );
     }
 

@@ -13,6 +13,7 @@ public class ConsoleProcessFeedback
     private bool _isDisposed;
     private IProgressBar? _worklogsToBeDeletedProgress = null;
     private IProgressBar? _deleteExistingWorklogsProgress = null;
+    private IProgressBar? _fillJiraWithWorklogsProgress = null;
 
     public ConsoleProcessFeedback(int totalSteps)
     {
@@ -43,7 +44,7 @@ public class ConsoleProcessFeedback
 
     public void DeleteExistingWorklogsProcess(MultiTaskProgress progress)
     {
-        _deleteExistingWorklogsProgress?.Tick(progress.DoneSoFar, progress.ErredSoFar > 0 ? $"({progress.ErredSoFar} errors thus far)" : null);
+        GenericMultiTaskProgressProcessFeedback(_deleteExistingWorklogsProgress, progress);
         FeedbackDelay?.Invoke();
     }
 
@@ -59,6 +60,34 @@ public class ConsoleProcessFeedback
         // note: Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
+    }
+
+    public void FillJiraWithWorklogsStart()
+    {
+        _overallProgress.Tick(ProgressBarMsg);
+        _fillJiraWithWorklogsProgress = _overallProgress.Spawn(0, "Filling Jira with your worklogs");
+        FeedbackDelay?.Invoke();
+    }
+
+    public void FillJiraWithWorklogsSetTarget(int numberOfWorklogs)
+    {
+        if (_fillJiraWithWorklogsProgress != null)
+            _fillJiraWithWorklogsProgress.MaxTicks = numberOfWorklogs;
+
+        FeedbackDelay?.Invoke();
+    }
+
+    public void FillJiraWithWorklogsProcess(MultiTaskProgress progress)
+    {
+        GenericMultiTaskProgressProcessFeedback(_fillJiraWithWorklogsProgress, progress);
+        FeedbackDelay?.Invoke();
+    }
+
+    public void FillJiraWithWorklogsEnd()
+    {
+        _fillJiraWithWorklogsProgress?.Dispose();
+        _fillJiraWithWorklogsProgress = null;
+        FeedbackDelay?.Invoke();
     }
 
     public void OverallProcessEnd()
@@ -82,6 +111,16 @@ public class ConsoleProcessFeedback
         FeedbackDelay?.Invoke();
     }
 
+    public void PreloadUserInfoStart(string userName)
+    {
+        _overallProgress.Tick(ProgressBarMsg + $" :: Preloading user \"{userName}\" info from server");
+        FeedbackDelay?.Invoke();
+    }
+
+    public void PreloadUserInfoEnd()
+    {
+    }
+
     public void ReadCsvInputEnd()
     {
     }
@@ -101,7 +140,7 @@ public class ConsoleProcessFeedback
 
     public void RetrieveWorklogsForDeletionProcess(MultiTaskProgress progress)
     {
-        _worklogsToBeDeletedProgress?.Tick(progress.DoneSoFar, progress.ErredSoFar > 0 ? $"({progress.ErredSoFar} errors thus far)" : null);
+        GenericMultiTaskProgressProcessFeedback(_worklogsToBeDeletedProgress, progress);
         FeedbackDelay?.Invoke();
     }
 
@@ -117,6 +156,11 @@ public class ConsoleProcessFeedback
         _overallProgress.Tick(ProgressBarMsg);
         _worklogsToBeDeletedProgress = _overallProgress.Spawn(0, "Retrieving list of worklogs to be deleted");
         FeedbackDelay?.Invoke();
+    }
+
+    protected void GenericMultiTaskProgressProcessFeedback(IProgressBar? bar, MultiTaskProgress progress)
+    {
+        bar?.Tick(progress.DoneSoFar, progress.ErredSoFar > 0 ? $"({progress.ErredSoFar} errors thus far)" : null);
     }
 
     protected virtual void Dispose(bool disposing)
