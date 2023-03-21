@@ -4,12 +4,12 @@ public static class MultiTask
 {
     public static async Task WhenAll(IEnumerable<Task> tasks, Action<MultiTaskProgress, Task?> reportProgress, CancellationToken? cancellationToken = null)
     {
-        Task[] tasksFetched = tasks.ToArray();
+        HashSet<Task> tasksToExecute = tasks.ToHashSet();
 
         MultiTaskProgress progress = new MultiTaskProgress()
         {
             State = MultiTaskProgressState.Starting,
-            Total = tasksFetched.Length,
+            Total = tasksToExecute.Count,
             Finished = 0,
             Faulted = 0,
             Cancelled = 0,
@@ -19,23 +19,32 @@ public static class MultiTask
 
         try
         {
-            for (int i = 0; i < tasksFetched.Length; i++)
+            while (tasksToExecute.Any())
             {
                 cancellationToken?.ThrowIfCancellationRequested();
                 progress.State = MultiTaskProgressState.InProgress;
 
-                Task taskFinished = await Task.WhenAny(tasksFetched);
+                Task taskFinished = await Task.WhenAny(tasksToExecute);
 
-                if (taskFinished.IsCompletedSuccessfully)
-                    progress.Finished++;
-                else if (taskFinished.IsCanceled)
-                    progress.Cancelled++;
-                else if (taskFinished.IsFaulted)
-                    progress.Faulted++;
-                else if (taskFinished.IsCompleted)
-                    progress.Unknown++;
+                if (tasksToExecute.Contains(taskFinished))
+                {
+                    tasksToExecute.Remove(taskFinished);
 
-                reportProgress(progress, taskFinished);
+                    if (taskFinished.IsCompletedSuccessfully)
+                        progress.Finished++;
+                    else if (taskFinished.IsCanceled)
+                        progress.Cancelled++;
+                    else if (taskFinished.IsFaulted)
+                        progress.Faulted++;
+                    else if (taskFinished.IsCompleted)
+                        progress.Unknown++;
+
+                    reportProgress(progress, taskFinished);
+                }
+                else
+                {
+                    Console.Error.WriteLine("ERROR: Task accidentally reported as finished!");
+                }
             }
         }
         catch (TaskCanceledException)
