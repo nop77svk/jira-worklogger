@@ -1,4 +1,4 @@
-﻿namespace jwl.wpf.form_test;
+﻿namespace jwl.wpf.FormTest;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
