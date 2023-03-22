@@ -22,8 +22,8 @@ public class JwlCoreProcess : IDisposable
     private HttpClientHandler _httpClientHandler;
     private HttpClient _httpClient;
     private JiraServerApi _jiraClient;
-    private jwl.jira.api.rest.common.JiraUserInfo? _userInfo;
 
+    private jwl.jira.api.rest.common.JiraUserInfo? _userInfo;
     private Dictionary<string, jira.api.rest.common.TempoWorklogAttributeStaticListValue> availableWorklogTypes = new ();
 
     public JwlCoreProcess(Config config, ICoreProcessInteraction interaction)
