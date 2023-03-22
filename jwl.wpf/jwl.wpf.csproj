@@ -20,6 +20,7 @@
 		<AssemblyName>jwlw</AssemblyName>
 		<PackageId>NoP77svk.jwl.wpf</PackageId>
 		<GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+		<EnableWindowsTargeting>True</EnableWindowsTargeting>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
