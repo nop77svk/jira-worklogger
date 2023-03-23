@@ -3,8 +3,8 @@ namespace jwl.config;
 public class ConfigLocationResolver
 {
     public string PreferredAppSubfolder { get; }
-    public bool UseAssemblyFolder { get; init; } = true;
-    public bool UseCurrentFolder { get; init; } = true;
+    public bool UseAssemblyFolderWithMinPriority { get; init; } = true;
+    public bool UseCurrentFolderWithMaxPriority { get; init; } = true;
     public bool UseUserProfileFolders { get; init; } = true;
 
     public ConfigLocationResolver(string preferredAppSubfolder)
@@ -17,13 +17,13 @@ public class ConfigLocationResolver
 
     public IEnumerable<string> GetDefaultConfigFolders(IEnumerable<Environment.SpecialFolder> specialFolders)
     {
-        if (UseCurrentFolder)
+        if (UseCurrentFolderWithMaxPriority)
             yield return Path.GetFullPath(".");
 
         foreach (Environment.SpecialFolder folder in specialFolders)
             yield return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), PreferredAppSubfolder);
 
-        if (UseAssemblyFolder)
+        if (UseAssemblyFolderWithMinPriority)
             yield return AppDomain.CurrentDomain.BaseDirectory;
     }
 
