@@ -2,30 +2,20 @@ namespace jwl.config;
 using System.IO;
 using System.Xml.Serialization;
 
-public class ConfigLoader
+public static class ConfigLoader
 {
-    public ConfigLocationResolver LocationResolver { get; }
-
-    public ConfigLoader(ConfigLocationResolver locationResolver)
-    {
-        LocationResolver = locationResolver;
-    }
-
-    public IEnumerable<(SymbolicConfigLocation, T)> LoadMultipleXml<T>(SymbolicConfigLocation locations, string fileName)
+    public static IEnumerable<(string, T)> LoadMultipleXml<T>(IEnumerable<string> folders, string fileName)
         where T : class
     {
-        foreach (SymbolicConfigLocation singleLocation in Enum.GetValues<SymbolicConfigLocation>())
+        foreach (string singleFolder in folders)
         {
-            if ((locations & singleLocation) != 0)
-            {
-                string pathToConfigFile = Path.Combine(LocationResolver.Resolve(singleLocation), fileName);
-                T configContents = LoadSingleXml<T>(pathToConfigFile);
-                yield return (singleLocation, configContents);
-            }
+            string fullFilePath = Path.Combine(singleFolder, fileName);
+            T fileContents = LoadSingleXml<T>(fullFilePath);
+            yield return (singleFolder, fileContents);
         }
     }
 
-    private T LoadSingleXml<T>(Stream contents)
+    public static T LoadSingleXml<T>(Stream contents)
         where T : class
     {
         XmlSerializer serializer = new XmlSerializer(typeof(T));
@@ -36,7 +26,7 @@ public class ConfigLoader
             return nullableResult;
     }
 
-    private T LoadSingleXml<T>(string fileName)
+    public static T LoadSingleXml<T>(string fileName)
         where T : class
     {
         using FileStream reader = new FileStream(fileName, FileMode.Open, FileAccess.Read);

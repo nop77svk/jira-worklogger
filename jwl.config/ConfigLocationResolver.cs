@@ -3,6 +3,9 @@ namespace jwl.config;
 public class ConfigLocationResolver
 {
     public string PreferredAppSubfolder { get; }
+    public bool UseAssemblyFolder { get; init; } = true;
+    public bool UseCurrentFolder { get; init; } = true;
+    public bool UseUserProfileFolders { get; init; } = true;
 
     public ConfigLocationResolver(string preferredAppSubfolder)
     {
@@ -12,15 +15,30 @@ public class ConfigLocationResolver
         PreferredAppSubfolder = preferredAppSubfolder;
     }
 
-    public string Resolve(SymbolicConfigLocation location)
+    public IEnumerable<string> GetDefaultConfigFolders(IEnumerable<Environment.SpecialFolder> specialFolders)
     {
-        return location switch
+        if (UseCurrentFolder)
+            yield return Path.GetFullPath(".");
+
+        foreach (Environment.SpecialFolder folder in specialFolders)
+            yield return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), PreferredAppSubfolder);
+
+        if (UseAssemblyFolder)
+            yield return AppDomain.CurrentDomain.BaseDirectory;
+    }
+
+    public IEnumerable<string> GetDefaultConfigFolders()
+    {
+        Environment.SpecialFolder[] specialFolders = UseUserProfileFolders switch
         {
-            SymbolicConfigLocation.ApplicationFolder => AppDomain.CurrentDomain.BaseDirectory,
-            SymbolicConfigLocation.UserLocalSettingsFolder => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), PreferredAppSubfolder),
-            SymbolicConfigLocation.UserRoamingSettingsFolder => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), PreferredAppSubfolder),
-            SymbolicConfigLocation.CurrentFolder => Path.GetFullPath("."),
-            _ => throw new ArgumentOutOfRangeException(location.ToString())
+            true => new Environment.SpecialFolder[]
+            {
+                Environment.SpecialFolder.LocalApplicationData,
+                Environment.SpecialFolder.ApplicationData
+            },
+            false => Array.Empty<Environment.SpecialFolder>()
         };
+
+        return GetDefaultConfigFolders(specialFolders);
     }
 }
