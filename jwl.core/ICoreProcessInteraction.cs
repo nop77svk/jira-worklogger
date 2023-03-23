@@ -3,6 +3,5 @@ namespace jwl.core;
 public interface ICoreProcessInteraction
     : IDisposable
 {
-    string AskForPassword(string userName);
-    bool DeleteExistingWorklogs();
+    (string, string) AskForCredentials(string? userName);
 }

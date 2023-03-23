@@ -11,28 +11,18 @@ public class ConsoleProcessInteraction
     {
     }
 
-    public string AskForPassword(string userName)
+    public (string, string) AskForCredentials(string? userName)
     {
-        Console.Error.Write($"Enter password for {userName}: ");
-        return SecretConsoleExt.ReadLineInSecret(_ => '*', true);
-    }
-
-    public bool DeleteExistingWorklogs()
-    {
-        bool? deleteExistingWorklogs = null;
-        while (deleteExistingWorklogs != null)
+        string userNameNN = userName ?? string.Empty;
+        if (string.IsNullOrEmpty(userNameNN))
         {
-            Console.Error.Write($"Delete existing worklogs? [Y/n] ");
-            string response = Console.ReadLine() ?? string.Empty;
-            deleteExistingWorklogs = response.Trim().ToUpper() switch
-            {
-                "Y" or "" => true,
-                "N" => false,
-                _ => null
-            };
+            Console.Error.Write(@"Enter Jira user name: ");
+            userNameNN = Console.ReadLine() ?? string.Empty;
         }
 
-        return deleteExistingWorklogs ?? true;
+        Console.Error.Write($"Enter password for Jira user {userNameNN}: ");
+        string userPasswordNN = SecretConsoleExt.ReadLineInSecret(_ => '*', true);
+        return (userNameNN, userPasswordNN);
     }
 
     public void Dispose()

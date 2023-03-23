@@ -59,20 +59,26 @@ public class JwlCoreProcess : IDisposable
     {
         Feedback?.OverallProcessStart();
 
-        string jiraPassword;
-        if (string.IsNullOrEmpty(_config.UserConfig.JiraUserPassword))
-            jiraPassword = _interaction?.AskForPassword(_config.UserConfig.JiraUserName) ?? string.Empty;
-        else
-            jiraPassword = _config.UserConfig.JiraUserPassword;
+        string? jiraUserName = _config.UserConfig.JiraUserName;
+        string? jiraUserPassword = _config.UserConfig.JiraUserPassword;
 
-        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(@"Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes(_config.UserConfig.JiraUserName + ":" + jiraPassword)));
+        if (string.IsNullOrEmpty(jiraUserName) || string.IsNullOrEmpty(jiraUserPassword))
+        {
+            if (_interaction != null)
+                (jiraUserName, jiraUserPassword) = _interaction.AskForCredentials(jiraUserName);
+        }
+
+        if (string.IsNullOrEmpty(jiraUserName) || string.IsNullOrEmpty(jiraUserPassword))
+            throw new ArgumentNullException($"Jira credentials not supplied");
+
+        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(@"Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes(jiraUserName + ":" + jiraUserPassword)));
 
         Feedback?.PreloadAvailableWorklogTypesStart();
         availableWorklogTypes = await PreloadAvailableWorklogTypes();
         Feedback?.PreloadAvailableWorklogTypesEnd();
 
-        Feedback?.PreloadUserInfoStart(_config.UserConfig.JiraUserName);
-        _userInfo = await _jiraClient.GetUserInfo(_config.UserConfig.JiraUserName);
+        Feedback?.PreloadUserInfoStart(jiraUserName);
+        _userInfo = await _jiraClient.GetUserInfo(jiraUserName);
         Feedback?.PreloadUserInfoEnd();
     }
 
