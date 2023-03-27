@@ -1,6 +1,7 @@
 namespace jwl.inputs;
 using System.Globalization;
 using CsvHelper;
+using CsvHelper.Configuration;
 using jwl.jira;
 using jwl.infra;
 
@@ -10,9 +11,14 @@ public class WorklogCsvReader : IWorklogReader
 
     private CsvReader _csvReader;
 
-    public WorklogCsvReader(TextReader inputFile)
+    public WorklogCsvReader(TextReader inputFile, CsvFormatConfig formatConfig)
     {
-        _csvReader = new CsvReader(inputFile, CultureInfo.InvariantCulture);
+        CsvConfiguration _config = new (CultureInfo.InvariantCulture)
+        {
+            Delimiter = formatConfig.Delimiter
+        };
+
+        _csvReader = new CsvReader(inputFile, _config);
     }
 
     public IEnumerable<JiraWorklog> Read(Action<JiraWorklog>? postProcessResult = null)

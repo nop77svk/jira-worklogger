@@ -3,22 +3,22 @@ using jwl.jira;
 
 public static class WorklogReaderFactory
 {
-    public static IWorklogReader GetCsvReaderFromStdin()
+    public static IWorklogReader GetCsvReaderFromStdin(CsvFormatConfig csvFormatConfig)
     {
-        return new WorklogCsvReader(Console.In);
+        return new WorklogCsvReader(Console.In, csvFormatConfig);
     }
 
-    public static IWorklogReader GetReaderFromFilePath(string inputPath)
+    public static IWorklogReader GetReaderFromFilePath(string inputPath, CsvFormatConfig csvFormatConfig) // 2do! rework to a delegate instead to loosen the dependency
     {
         IWorklogReader result;
 
         if (inputPath.EndsWith(".csv", StringComparison.OrdinalIgnoreCase))
         {
-            result = GetReaderFromFileStream(WorklogReaderFileFormat.Csv, new FileStream(inputPath, FileMode.Open, FileAccess.Read));
+            result = GetReaderFromFileStream(WorklogReaderFileFormat.Csv, new FileStream(inputPath, FileMode.Open, FileAccess.Read), csvFormatConfig);
         }
         else if (inputPath.EndsWith(".xlsx", StringComparison.OrdinalIgnoreCase))
         {
-            result = GetReaderFromFileStream(WorklogReaderFileFormat.Xlsx, new FileStream(inputPath, FileMode.Open, FileAccess.Read));
+            result = GetReaderFromFileStream(WorklogReaderFileFormat.Xlsx, new FileStream(inputPath, FileMode.Open, FileAccess.Read), csvFormatConfig);
         }
         else
         {
@@ -28,11 +28,11 @@ public static class WorklogReaderFactory
         return result;
     }
 
-    public static IWorklogReader GetReaderFromFileStream(WorklogReaderFileFormat fileFormat, Stream input)
+    public static IWorklogReader GetReaderFromFileStream(WorklogReaderFileFormat fileFormat, Stream input, CsvFormatConfig csvFormatConfig)
     {
         return fileFormat switch
         {
-            WorklogReaderFileFormat.Csv => new WorklogCsvReader(new StreamReader(input)),
+            WorklogReaderFileFormat.Csv => new WorklogCsvReader(new StreamReader(input), csvFormatConfig),
             _ => throw new NotImplementedException() // 2do
         };
     }
