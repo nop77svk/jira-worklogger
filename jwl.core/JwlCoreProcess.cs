@@ -196,7 +196,12 @@ public class JwlCoreProcess : IDisposable
 
     private async Task<JiraWorklog[]> ReadInputFile(string fileName)
     {
-        using IWorklogReader worklogReader = WorklogReaderFactory.GetReaderFromFilePath(fileName, _config.CsvFormatConfig); // 2do! remove the dependency on CsvFormatConfig
+        WorklogReaderAggregatedConfig readerConfig = new WorklogReaderAggregatedConfig()
+        {
+            CsvFormatConfig = _config.CsvFormatConfig
+        };
+
+        using IWorklogReader worklogReader = WorklogReaderFactory.GetReaderFromFilePath(fileName, readerConfig);
 
         Task<JiraWorklog[]> response = Task.Factory.StartNew(() =>
         {

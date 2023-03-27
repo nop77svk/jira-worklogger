@@ -2,20 +2,22 @@ namespace jwl.inputs;
 using System.Globalization;
 using CsvHelper;
 using CsvHelper.Configuration;
-using jwl.jira;
 using jwl.infra;
+using jwl.jira;
 
 public class WorklogCsvReader : IWorklogReader
 {
     public bool ErrorOnEmptyRow { get; init; } = true;
 
     private CsvReader _csvReader;
+    private WorklogReaderAggregatedConfig _readerConfig;
 
-    public WorklogCsvReader(TextReader inputFile, CsvFormatConfig formatConfig)
+    public WorklogCsvReader(TextReader inputFile, WorklogReaderAggregatedConfig readerConfig)
     {
+        _readerConfig = readerConfig;
         CsvConfiguration config = new (CultureInfo.InvariantCulture)
         {
-            Delimiter = formatConfig.Delimiter
+            Delimiter = readerConfig.CsvFormatConfig?.Delimiter ?? ","
         };
 
         _csvReader = new CsvReader(inputFile, config);
