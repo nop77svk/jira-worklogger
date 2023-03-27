@@ -82,10 +82,10 @@ public class JwlCoreProcess : IDisposable
         Feedback?.PreloadUserInfoEnd();
     }
 
-    public async Task Process(string inputFile)
+    public async Task Process(IEnumerable<string> inputFiles)
     {
         Feedback?.ReadCsvInputStart();
-        JiraWorklog[] inputWorklogs = await ReadInputFile(inputFile);
+        JiraWorklog[] inputWorklogs = await ReadInputFiles(inputFiles);
         Feedback?.ReadCsvInputEnd();
 
         Feedback?.RetrieveWorklogsForDeletionStart();
@@ -172,6 +172,26 @@ public class JwlCoreProcess : IDisposable
             )
             .Where(staticListItem => !string.IsNullOrEmpty(staticListItem.Value))
             .ToDictionary(staticListItem => staticListItem.Value ?? string.Empty);
+    }
+
+    private async Task<JiraWorklog[]> ReadInputFiles(IEnumerable<string> fileNames)
+    {
+        Task<JiraWorklog[]>[] readerTasks = fileNames
+            .Select(fileName => ReadInputFile(fileName))
+            .ToArray();
+
+        Feedback?.ReadCsvInputSetTarget(readerTasks.Length);
+
+        await MultiTask.WhenAll(readerTasks, (p, t) => Feedback?.ReadCsvInputProcess(p));
+
+        JiraWorklog[] result = readerTasks
+            .Unnest(
+                retrieveNestedCollection: response => response.Result,
+                resultSelector: (response, jiraWorklog) => jiraWorklog
+            )
+            .ToArray();
+
+        return result;
     }
 
     private async Task<JiraWorklog[]> ReadInputFile(string fileName)

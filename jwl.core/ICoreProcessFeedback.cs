@@ -19,6 +19,8 @@ public interface ICoreProcessFeedback
     void PreloadUserInfoStart(string userName);
     void PreloadUserInfoEnd();
     void ReadCsvInputStart();
+    void ReadCsvInputSetTarget(int numberOfInputFiles);
+    void ReadCsvInputProcess(MultiTaskProgress progress);
     void ReadCsvInputEnd();
     void RetrieveWorklogsForDeletionStart();
     void RetrieveWorklogsForDeletionSetTarget(int count);

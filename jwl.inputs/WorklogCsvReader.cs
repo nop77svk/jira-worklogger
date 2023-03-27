@@ -13,12 +13,12 @@ public class WorklogCsvReader : IWorklogReader
 
     public WorklogCsvReader(TextReader inputFile, CsvFormatConfig formatConfig)
     {
-        CsvConfiguration _config = new (CultureInfo.InvariantCulture)
+        CsvConfiguration config = new (CultureInfo.InvariantCulture)
         {
             Delimiter = formatConfig.Delimiter
         };
 
-        _csvReader = new CsvReader(inputFile, _config);
+        _csvReader = new CsvReader(inputFile, config);
     }
 
     public IEnumerable<JiraWorklog> Read(Action<JiraWorklog>? postProcessResult = null)

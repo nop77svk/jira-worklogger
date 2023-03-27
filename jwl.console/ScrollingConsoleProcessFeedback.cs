@@ -92,13 +92,25 @@ public class ScrollingConsoleProcessFeedback
     {
     }
 
-    public void ReadCsvInputEnd()
-    {
-    }
-
     public void ReadCsvInputStart()
     {
-        Console.Error.WriteLine(ProgressBarMsg + " :: Reading your input CSV");
+        Console.Error.WriteLine(ProgressBarMsg);
+        Console.Error.WriteLine(@"    Reading your input files");
+    }
+
+    public void ReadCsvInputSetTarget(int numberOfInputFiles)
+    {
+        Console.Error.WriteLine($"    Reading {numberOfInputFiles} input files");
+    }
+
+    public void ReadCsvInputProcess(MultiTaskProgress progress)
+    {
+        Console.Error.WriteLine($"    Read {progress.Finished} input files, failed to do so on {progress.ErredSoFar} files thus far");
+    }
+
+    public void ReadCsvInputEnd()
+    {
+        Console.Error.WriteLine(@"    Done reading your input files");
     }
 
     public void RetrieveWorklogsForDeletionStart()

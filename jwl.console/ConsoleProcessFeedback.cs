@@ -14,6 +14,7 @@ public class ConsoleProcessFeedback
     private IProgressBar? _worklogsToBeDeletedProgress = null;
     private IProgressBar? _deleteExistingWorklogsProgress = null;
     private IProgressBar? _fillJiraWithWorklogsProgress = null;
+    private IProgressBar? _readingInputFilesProgress = null;
 
     public ConsoleProcessFeedback(int totalSteps)
     {
@@ -121,14 +122,29 @@ public class ConsoleProcessFeedback
     {
     }
 
-    public void ReadCsvInputEnd()
-    {
-    }
-
     public void ReadCsvInputStart()
     {
-        _overallProgress.Tick(ProgressBarMsg + " :: Reading your input CSV");
+        _overallProgress.Tick(ProgressBarMsg);
+        _readingInputFilesProgress = _overallProgress.Spawn(0, @"Reading your input files");
         FeedbackDelay?.Invoke();
+    }
+
+    public void ReadCsvInputSetTarget(int numberOfInputFiles)
+    {
+        if (_readingInputFilesProgress != null)
+            _readingInputFilesProgress.MaxTicks = numberOfInputFiles;
+
+        FeedbackDelay?.Invoke();
+    }
+
+    public void ReadCsvInputProcess(MultiTaskProgress progress)
+    {
+        GenericMultiTaskProgressProcessFeedback(_readingInputFilesProgress, progress);
+        FeedbackDelay?.Invoke();
+    }
+
+    public void ReadCsvInputEnd()
+    {
     }
 
     public void RetrieveWorklogsForDeletionEnd()
