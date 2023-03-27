@@ -182,7 +182,8 @@ public class JwlCoreProcess : IDisposable
 
         Feedback?.ReadCsvInputSetTarget(readerTasks.Length);
 
-        await MultiTask.WhenAll(readerTasks, (p, t) => Feedback?.ReadCsvInputProcess(p));
+        if (readerTasks.Any())
+            await MultiTask.WhenAll(readerTasks, (p, t) => Feedback?.ReadCsvInputProcess(p));
 
         JiraWorklog[] result = readerTasks
             .Unnest(
@@ -219,45 +220,58 @@ public class JwlCoreProcess : IDisposable
 
     private async Task<(string, jira.api.rest.response.JiraIssueWorklogsWorklog)[]> RetrieveWorklogsForDeletion(JiraWorklog[] inputWorklogs)
     {
-        string[] inputIssueKeys = inputWorklogs
-            .Select(worklog => worklog.IssueKey.ToString())
-            .Distinct()
-            .OrderByDescending(x => x)
-            .ToArray();
+        (string, jira.api.rest.response.JiraIssueWorklogsWorklog)[] result;
+
         DateTime[] inputWorklogDays = inputWorklogs
             .Select(worklog => worklog.Date)
             .OrderBy(worklogDate => worklogDate)
             .ToArray();
-        DateTime minInputWorklogDay = inputWorklogDays.First().Date;
-        DateTime supInputWorklogDay = inputWorklogDays.Last().Date.AddDays(1);
 
-        Dictionary<string, Task<jira.api.rest.response.JiraIssueWorklogs>> currentIssueWorklogsTasks = inputIssueKeys
-            .ToDictionary(
-                keySelector: issueKey => issueKey,
-                elementSelector: issueKey => _jiraClient.GetIssueWorklogs(issueKey)
+        if (!inputWorklogDays.Any())
+        {
+            result = Array.Empty<(string, jira.api.rest.response.JiraIssueWorklogsWorklog)>();
+        }
+        else
+        {
+            DateTime minInputWorklogDay = inputWorklogDays.First().Date;
+            DateTime supInputWorklogDay = inputWorklogDays.Last().Date.AddDays(1);
+
+            string[] inputIssueKeys = inputWorklogs
+                .Select(worklog => worklog.IssueKey.ToString())
+                .Distinct()
+                .OrderByDescending(x => x)
+                .ToArray();
+
+            Dictionary<string, Task<jira.api.rest.response.JiraIssueWorklogs>> currentIssueWorklogsTasks = inputIssueKeys
+                .ToDictionary(
+                    keySelector: issueKey => issueKey,
+                    elementSelector: issueKey => _jiraClient.GetIssueWorklogs(issueKey)
+                );
+
+            Feedback?.RetrieveWorklogsForDeletionSetTarget(currentIssueWorklogsTasks.Count + 1);
+
+            await MultiTask.WhenAll(
+                tasks: currentIssueWorklogsTasks.Select(x => x.Value),
+                reportProgress: (progress, _) => Feedback?.RetrieveWorklogsForDeletionProcess(progress)
             );
 
-        Feedback?.RetrieveWorklogsForDeletionSetTarget(currentIssueWorklogsTasks.Count + 1);
+            return currentIssueWorklogsTasks
+                .Unnest(
+                    retrieveNestedCollection: x => (x.Value.Result.Worklogs ?? Array.Empty<JiraIssueWorklogsWorklog>())
+                        .Where(worklog => worklog != null
+                            && worklog.Author != null
+                            && !string.IsNullOrEmpty(worklog.Author.Name)
+                            && worklog.Author.Name.Equals(_config.UserConfig.JiraUserName, StringComparison.OrdinalIgnoreCase)
+                        )
+                        .Where(worklog => worklog != null
+                            && worklog.Started.Value >= minInputWorklogDay
+                            && worklog.Started.Value < supInputWorklogDay
+                        ),
+                    resultSelector: (outer, inner) => new ValueTuple<string, jira.api.rest.response.JiraIssueWorklogsWorklog>(outer.Key, inner)
+                )
+                .ToArray();
+        }
 
-        await MultiTask.WhenAll(
-            tasks: currentIssueWorklogsTasks.Select(x => x.Value),
-            reportProgress: (progress, _) => Feedback?.RetrieveWorklogsForDeletionProcess(progress)
-        );
-
-        return currentIssueWorklogsTasks
-            .Unnest(
-                retrieveNestedCollection: x => (x.Value.Result.Worklogs ?? Array.Empty<JiraIssueWorklogsWorklog>())
-                    .Where(worklog => worklog != null
-                        && worklog.Author != null
-                        && !string.IsNullOrEmpty(worklog.Author.Name)
-                        && worklog.Author.Name.Equals(_config.UserConfig.JiraUserName, StringComparison.OrdinalIgnoreCase)
-                    )
-                    .Where(worklog => worklog != null
-                        && worklog.Started.Value >= minInputWorklogDay
-                        && worklog.Started.Value < supInputWorklogDay
-                    ),
-                resultSelector: (outer, inner) => new ValueTuple<string, jira.api.rest.response.JiraIssueWorklogsWorklog>(outer.Key, inner)
-            )
-            .ToArray();
+        return result;
     }
 }
