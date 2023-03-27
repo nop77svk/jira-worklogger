@@ -22,6 +22,7 @@ public class ConsoleProcessInteraction
 
         Console.Error.Write($"Enter password for Jira user {userNameNN}: ");
         string userPasswordNN = SecretConsoleExt.ReadLineInSecret(_ => '*', true);
+
         return (userNameNN, userPasswordNN);
     }
 
