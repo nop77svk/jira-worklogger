@@ -33,11 +33,11 @@ public static class AppConfigFactory
         AppConfig? result;
 
         IConfiguration config = new ConfigurationBuilder()
-            // 2do! command line custom provider
-            .AddJsonFile(Path.Combine(Path.GetFullPath("."), ConfigFileName), optional: true)
-            .AddJsonFile(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), ConfigFileName), optional: true)
-            .AddJsonFile(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ConfigFileName), optional: true)
             .AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ConfigFileName), optional: true)
+            .AddJsonFile(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ConfigFileName), optional: true)
+            .AddJsonFile(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), ConfigFileName), optional: true)
+            .AddJsonFile(Path.Combine(Path.GetFullPath("."), ConfigFileName), optional: true)
+            // 2do! custom command line config provider at the highest priority
             .Build();
 
         result = config.Get<AppConfig>(opt =>
