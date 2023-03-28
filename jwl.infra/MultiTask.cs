@@ -10,7 +10,7 @@ public static class MultiTask
         {
             State = MultiTaskProgressState.Starting,
             Total = tasksToExecute.Count,
-            Finished = 0,
+            Succeeded = 0,
             Faulted = 0,
             Cancelled = 0,
             Unknown = 0
@@ -31,7 +31,7 @@ public static class MultiTask
                     tasksToExecute.Remove(taskFinished);
 
                     if (taskFinished.IsCompletedSuccessfully)
-                        progress.Finished++;
+                        progress.Succeeded++;
                     else if (taskFinished.IsCanceled)
                         progress.Cancelled++;
                     else if (taskFinished.IsFaulted)

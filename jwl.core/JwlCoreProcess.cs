@@ -84,21 +84,44 @@ public class JwlCoreProcess : IDisposable
 
     public async Task Process(IEnumerable<string> inputFiles)
     {
-        Feedback?.ReadCsvInputStart();
-        JiraWorklog[] inputWorklogs = await ReadInputFiles(inputFiles);
-        Feedback?.ReadCsvInputEnd();
+        string[] inputFilesFetched = inputFiles.ToArray();
 
-        Feedback?.RetrieveWorklogsForDeletionStart();
-        (string, jira.api.rest.response.JiraIssueWorklogsWorklog)[] worklogsForDeletion = await RetrieveWorklogsForDeletion(inputWorklogs);
-        Feedback?.RetrieveWorklogsForDeletionEnd();
+        if (inputFilesFetched.Length > 0)
+        {
+            Feedback?.ReadCsvInputStart();
+            JiraWorklog[] inputWorklogs = await ReadInputFiles(inputFiles);
+            Feedback?.ReadCsvInputEnd();
 
-        Feedback?.DeleteExistingWorklogsStart();
-        await DeleteExistingWorklogs(worklogsForDeletion);
-        Feedback?.DeleteExistingWorklogsEnd();
+            if (inputWorklogs.Length > 0)
+            {
+                Feedback?.RetrieveWorklogsForDeletionStart();
+                (string, jira.api.rest.response.JiraIssueWorklogsWorklog)[] worklogsForDeletion = await RetrieveWorklogsForDeletion(inputWorklogs);
+                Feedback?.RetrieveWorklogsForDeletionEnd();
 
-        Feedback?.FillJiraWithWorklogsStart();
-        await FillJiraWithWorklogs(inputWorklogs);
-        Feedback?.FillJiraWithWorklogsEnd();
+                if (worklogsForDeletion.Length > 0)
+                {
+                    Feedback?.DeleteExistingWorklogsStart();
+                    await DeleteExistingWorklogs(worklogsForDeletion);
+                    Feedback?.DeleteExistingWorklogsEnd();
+                }
+                else
+                {
+                    Feedback?.NoExistingWorklogsToDelete();
+                }
+
+                Feedback?.FillJiraWithWorklogsStart();
+                await FillJiraWithWorklogs(inputWorklogs);
+                Feedback?.FillJiraWithWorklogsEnd();
+            }
+            else
+            {
+                Feedback?.NoWorklogsToFill();
+            }
+        }
+        else
+        {
+            Feedback?.NoFilesOnInput();
+        }
     }
 
     public void Dispose()

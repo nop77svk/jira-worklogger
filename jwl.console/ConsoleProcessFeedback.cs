@@ -94,6 +94,18 @@ public class ConsoleProcessFeedback
         FeedbackDelay?.Invoke();
     }
 
+    public void NoExistingWorklogsToDelete()
+    {
+    }
+
+    public void NoFilesOnInput()
+    {
+    }
+
+    public void NoWorklogsToFill()
+    {
+    }
+
     public void OverallProcessEnd()
     {
         Console.Error.WriteLine(@"DONE");

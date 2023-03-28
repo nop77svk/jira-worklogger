@@ -17,23 +17,22 @@ public class ScrollingConsoleProcessFeedback
 
     public void DeleteExistingWorklogsStart()
     {
-        Console.Error.WriteLine(ProgressBarMsg);
-        Console.Error.WriteLine(@"    Deleting existing worklogs");
+        Console.Error.Write(@"Deleting existing worklogs...");
     }
 
     public void DeleteExistingWorklogsSetTarget(int numberOfWorklogs)
     {
-        Console.Error.WriteLine($"    Deleting {numberOfWorklogs} existing worklogs");
+        Console.Error.Write($"\rDeleting {numberOfWorklogs} existing worklogs...");
     }
 
     public void DeleteExistingWorklogsProcess(MultiTaskProgress progress)
     {
-        Console.Error.WriteLine($"    Deleted {progress.Finished} worklogs, failed to delete {progress.ErredSoFar} worklogs thus far");
+        Console.Error.Write($"\rDeleting {progress.Total} existing worklogs... {ProgressPercentageAsString(progress)}");
     }
 
     public void DeleteExistingWorklogsEnd()
     {
-        Console.Error.WriteLine($"    Done deleting existing worklogs");
+        Console.Error.WriteLine();
     }
 
     public void Dispose()
@@ -45,93 +44,106 @@ public class ScrollingConsoleProcessFeedback
 
     public void FillJiraWithWorklogsStart()
     {
-        Console.Error.WriteLine(ProgressBarMsg);
-        Console.Error.WriteLine(@"    Filling Jira with your worklogs");
+        Console.Error.Write(@"Filling Jira with worklogs...");
     }
 
     public void FillJiraWithWorklogsSetTarget(int numberOfWorklogs)
     {
-        Console.Error.WriteLine($"    Filling Jira with {numberOfWorklogs} worklogs");
+        Console.Error.Write($"\rFilling Jira with {numberOfWorklogs} worklogs...");
     }
 
     public void FillJiraWithWorklogsProcess(MultiTaskProgress progress)
     {
-        Console.Error.WriteLine($"    Added {progress.Finished} worklogs, failed to add {progress.ErredSoFar} worklogs thus far");
+        Console.Error.Write($"\rFilling Jira with {progress.Total} worklogs... {ProgressPercentageAsString(progress)}");
     }
 
     public void FillJiraWithWorklogsEnd()
     {
-        Console.Error.WriteLine(@"    Done filling Jira with your worklogs");
+        Console.Error.WriteLine();
     }
 
-    public void OverallProcessEnd()
+    public void NoExistingWorklogsToDelete()
     {
-        Console.Error.WriteLine(ProgressBarMsg + " :: DONE");
+    }
+
+    public void NoFilesOnInput()
+    {
+        Console.Error.WriteLine(@"No files on input - no work to be done");
+    }
+
+    public void NoWorklogsToFill()
+    {
+        Console.Error.WriteLine(@"Empty files on input - no work to be done");
     }
 
     public void OverallProcessStart()
     {
-        Console.Error.WriteLine(ProgressBarMsg + " :: STARTING");
+        Console.Error.WriteLine(@"STARTING");
     }
 
-    public void PreloadAvailableWorklogTypesEnd()
+    public void OverallProcessEnd()
     {
+        Console.Error.WriteLine(@"DONE");
     }
 
     public void PreloadAvailableWorklogTypesStart()
     {
-        Console.Error.WriteLine(ProgressBarMsg + " :: Preloading available worklog types from server");
+        Console.Error.Write(@"Preloading available worklog types from server...");
+    }
+
+    public void PreloadAvailableWorklogTypesEnd()
+    {
+        Console.Error.WriteLine(@" OK");
     }
 
     public void PreloadUserInfoStart(string userName)
     {
-        Console.Error.WriteLine(ProgressBarMsg + $" :: Preloading user \"{userName}\" info from server");
+        Console.Error.Write($"Preloading user \"{userName}\" info from server...");
     }
 
     public void PreloadUserInfoEnd()
     {
+        Console.Error.WriteLine(@" OK");
     }
 
     public void ReadCsvInputStart()
     {
-        Console.Error.WriteLine(ProgressBarMsg);
-        Console.Error.WriteLine(@"    Reading your input files");
+        Console.Error.Write(@"Reading input files...");
     }
 
     public void ReadCsvInputSetTarget(int numberOfInputFiles)
     {
-        Console.Error.WriteLine($"    Reading {numberOfInputFiles} input files");
+        Console.Error.Write($"\rReading {numberOfInputFiles} input files...");
     }
 
     public void ReadCsvInputProcess(MultiTaskProgress progress)
     {
-        Console.Error.WriteLine($"    Read {progress.Finished} input files, failed to do so on {progress.ErredSoFar} files thus far");
+        Console.Error.Write($"\rReading {progress.Total} input files... {ProgressPercentageAsString(progress)}");
     }
 
     public void ReadCsvInputEnd()
     {
-        Console.Error.WriteLine(@"    Done reading your input files");
+        Console.Error.WriteLine();
     }
 
     public void RetrieveWorklogsForDeletionStart()
     {
-        Console.Error.WriteLine(ProgressBarMsg);
-        Console.Error.WriteLine(@"    Retrieving list of worklogs to be deleted");
+        Console.Error.Write(@"Retrieving list of worklogs to be deleted...");
     }
 
     public void RetrieveWorklogsForDeletionSetTarget(int count)
     {
-        Console.Error.WriteLine($"    Retrieving list of worklogs ({count} Jira issues) to be deleted");
+        Console.Error.Write($"\rRetrieving list of worklogs ({count} Jira issues) to be deleted...");
     }
 
     public void RetrieveWorklogsForDeletionProcess(MultiTaskProgress progress)
     {
-        Console.Error.WriteLine($"    Retrieved list of worklogs from {progress.Finished} issues, error from {progress.ErredSoFar} issues");
+        Console.Error.Write($"\rRetrieved list of worklogs ({progress.Total} Jira issues) to be deleted... {ProgressPercentageAsString(progress)}");
     }
 
     public void RetrieveWorklogsForDeletionEnd()
     {
-        Console.Error.WriteLine(@"    Done retrieving list of worklogs to be deleted");
+        Console.Error.WriteLine();
     }
 
     protected virtual void Dispose(bool disposing)
@@ -146,5 +158,26 @@ public class ScrollingConsoleProcessFeedback
             // TODO: set large fields to null
             _isDisposed = true;
         }
+    }
+
+    protected static string ProgressPercentageAsString(MultiTaskProgress progress)
+    {
+        string result;
+
+        if (progress.Total <= 0)
+        {
+            result = @"done";
+        }
+        else
+        {
+            result = progress.SucceededPct.ToString("G");
+
+            if (progress.ErredSoFar > 0)
+            {
+                result += " OK, " + progress.ErredSoFarPct.ToString("G") + " failed";
+            }
+        }
+
+        return result;
     }
 }

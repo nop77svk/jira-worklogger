@@ -12,6 +12,9 @@ public interface ICoreProcessFeedback
     void FillJiraWithWorklogsSetTarget(int numberOfWorklogs);
     void FillJiraWithWorklogsProcess(MultiTaskProgress progress);
     void FillJiraWithWorklogsEnd();
+    void NoExistingWorklogsToDelete();
+    void NoFilesOnInput();
+    void NoWorklogsToFill();
     void OverallProcessStart();
     void OverallProcessEnd();
     void PreloadAvailableWorklogTypesStart();
