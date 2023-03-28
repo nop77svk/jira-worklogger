@@ -6,6 +6,7 @@ using jwl.infra;
 using jwl.inputs;
 using jwl.jira;
 using jwl.jira.api.rest.response;
+using Microsoft.Extensions.Configuration;
 using NoP77svk.Linq;
 
 public class JwlCoreProcess : IDisposable
@@ -15,29 +16,9 @@ public class JwlCoreProcess : IDisposable
     public ICoreProcessFeedback? Feedback { get; init; }
     public ICoreProcessInteraction _interaction { get; }
 
-    private Config DefaultConfig { get; } = new Config()
-    {
-        ServerConfig = new ServerConfig()
-        {
-            BaseUrl = @"https://jira.ri-rpc.corp:8080",
-            MaxConnectionsPerServer = 4,
-            UseProxy = false,
-            SkipSslCertificateCheck = false
-        },
-        CsvFormatConfig = new CsvFormatConfig()
-        {
-            Delimiter = ","
-        },
-        UserConfig = new UserConfig()
-        {
-            JiraUserName = @"hrapet",
-            JiraUserPassword = null
-        }
-    };
-
     private bool _isDisposed;
 
-    private Config _config;
+    private AppConfig _config;
     private HttpClientHandler _httpClientHandler;
     private HttpClient _httpClient;
     private JiraServerApi _jiraClient;
@@ -45,23 +26,23 @@ public class JwlCoreProcess : IDisposable
     private jwl.jira.api.rest.common.JiraUserInfo? _userInfo;
     private Dictionary<string, jira.api.rest.common.TempoWorklogAttributeStaticListValue> availableWorklogTypes = new ();
 
-    public JwlCoreProcess(Config config, ICoreProcessInteraction interaction)
+    public JwlCoreProcess(AppConfig config, ICoreProcessInteraction interaction)
     {
         _config = config;
         _interaction = interaction;
 
         _httpClientHandler = new HttpClientHandler()
         {
-            UseProxy = _config.ServerConfig?.UseProxy ?? DefaultConfig.ServerConfig.UseProxy,
+            UseProxy = _config.ServerConfig?.UseProxy ?? AppConfigFactory.DefaultConfig.ServerConfig.UseProxy,
             UseDefaultCredentials = false,
-            MaxConnectionsPerServer = _config.ServerConfig?.MaxConnectionsPerServer ?? DefaultConfig.ServerConfig.MaxConnectionsPerServer
+            MaxConnectionsPerServer = _config.ServerConfig?.MaxConnectionsPerServer ?? AppConfigFactory.DefaultConfig.ServerConfig.MaxConnectionsPerServer
         };
 
-        if (_config.ServerConfig?.SkipSslCertificateCheck ?? DefaultConfig.ServerConfig.SkipSslCertificateCheck)
+        if (_config.ServerConfig?.SkipSslCertificateCheck ?? AppConfigFactory.DefaultConfig.ServerConfig.SkipSslCertificateCheck)
             _httpClientHandler.ServerCertificateCustomValidationCallback = (_, _, _, _) => true;
 
         _httpClient = new HttpClient(_httpClientHandler);
-        _jiraClient = new JiraServerApi(_httpClient, _config.ServerConfig?.BaseUrl ?? DefaultConfig.ServerConfig.BaseUrl);
+        _jiraClient = new JiraServerApi(_httpClient, _config.ServerConfig?.BaseUrl ?? AppConfigFactory.DefaultConfig.ServerConfig.BaseUrl);
 
         _jiraClient.WsClient.HttpRequestPostprocess = req =>
         {

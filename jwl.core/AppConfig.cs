@@ -1,6 +1,6 @@
 namespace jwl.core;
 
-public class Config
+public class AppConfig
 {
     public jwl.jira.ServerConfig? ServerConfig { get; init; }
     public jwl.core.UserConfig? UserConfig { get; init; }
