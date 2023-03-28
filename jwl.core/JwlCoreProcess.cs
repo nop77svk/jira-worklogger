@@ -1,5 +1,4 @@
 namespace jwl.core;
-
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -14,7 +13,27 @@ public class JwlCoreProcess : IDisposable
     public const int TotalProcessSteps = 7;
 
     public ICoreProcessFeedback? Feedback { get; init; }
-    private ICoreProcessInteraction _interaction;
+    public ICoreProcessInteraction _interaction { get; }
+
+    private Config DefaultConfig { get; } = new Config()
+    {
+        ServerConfig = new ServerConfig()
+        {
+            BaseUrl = @"https://jira.ri-rpc.corp:8080",
+            MaxConnectionsPerServer = 4,
+            UseProxy = false,
+            SkipSslCertificateCheck = false
+        },
+        CsvFormatConfig = new CsvFormatConfig()
+        {
+            Delimiter = ","
+        },
+        UserConfig = new UserConfig()
+        {
+            JiraUserName = @"hrapet",
+            JiraUserPassword = null
+        }
+    };
 
     private bool _isDisposed;
 
@@ -33,16 +52,16 @@ public class JwlCoreProcess : IDisposable
 
         _httpClientHandler = new HttpClientHandler()
         {
-            UseProxy = _config.ServerConfig.UseProxy,
+            UseProxy = _config.ServerConfig?.UseProxy ?? DefaultConfig.ServerConfig.UseProxy,
             UseDefaultCredentials = false,
-            MaxConnectionsPerServer = _config.ServerConfig.MaxConnectionsPerServer
+            MaxConnectionsPerServer = _config.ServerConfig?.MaxConnectionsPerServer ?? DefaultConfig.ServerConfig.MaxConnectionsPerServer
         };
 
-        if (_config.ServerConfig.SkipSslCertificateCheck)
+        if (_config.ServerConfig?.SkipSslCertificateCheck ?? DefaultConfig.ServerConfig.SkipSslCertificateCheck)
             _httpClientHandler.ServerCertificateCustomValidationCallback = (_, _, _, _) => true;
 
         _httpClient = new HttpClient(_httpClientHandler);
-        _jiraClient = new JiraServerApi(_httpClient, _config.ServerConfig.BaseUrl);
+        _jiraClient = new JiraServerApi(_httpClient, _config.ServerConfig?.BaseUrl ?? DefaultConfig.ServerConfig.BaseUrl);
 
         _jiraClient.WsClient.HttpRequestPostprocess = req =>
         {
@@ -59,8 +78,8 @@ public class JwlCoreProcess : IDisposable
     {
         Feedback?.OverallProcessStart();
 
-        string? jiraUserName = _config.UserConfig.JiraUserName;
-        string? jiraUserPassword = _config.UserConfig.JiraUserPassword;
+        string? jiraUserName = _config.UserConfig?.JiraUserName;
+        string? jiraUserPassword = _config.UserConfig?.JiraUserPassword;
 
         if (string.IsNullOrEmpty(jiraUserName) || string.IsNullOrEmpty(jiraUserPassword))
         {
@@ -222,6 +241,9 @@ public class JwlCoreProcess : IDisposable
     {
         (string, jira.api.rest.response.JiraIssueWorklogsWorklog)[] result;
 
+        if (_userInfo == null)
+            throw new ArgumentNullException(@"User info not preloaded from Jira server");
+
         DateTime[] inputWorklogDays = inputWorklogs
             .Select(worklog => worklog.Date)
             .OrderBy(worklogDate => worklogDate)
@@ -261,7 +283,7 @@ public class JwlCoreProcess : IDisposable
                         .Where(worklog => worklog != null
                             && worklog.Author != null
                             && !string.IsNullOrEmpty(worklog.Author.Name)
-                            && worklog.Author.Name.Equals(_config.UserConfig.JiraUserName, StringComparison.OrdinalIgnoreCase)
+                            && worklog.Author.Name.Equals(_userInfo.Name, StringComparison.OrdinalIgnoreCase)
                         )
                         .Where(worklog => worklog != null
                             && worklog.Started.Value >= minInputWorklogDay
