@@ -6,7 +6,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="NoP77svk.Console" Version="2023.3.1" />
-    <PackageReference Include="ShellProgressBar" Version="5.2.0" />
   </ItemGroup>
   <PropertyGroup>
     <OutputType>Exe</OutputType>

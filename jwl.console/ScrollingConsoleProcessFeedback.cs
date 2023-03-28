@@ -1,14 +1,12 @@
 namespace jwl.console;
 using jwl.core;
 using jwl.infra;
-using ShellProgressBar;
 
 public class ScrollingConsoleProcessFeedback
     : ICoreProcessFeedback, IDisposable
 {
     public Action? FeedbackDelay { get; init; } = null;
 
-    internal const string ProgressBarMsg = @"Filling Jira worklogs for you";
     private bool _isDisposed;
 
     public ScrollingConsoleProcessFeedback(int totalSteps)
@@ -146,20 +144,6 @@ public class ScrollingConsoleProcessFeedback
         Console.Error.WriteLine();
     }
 
-    protected virtual void Dispose(bool disposing)
-    {
-        if (!_isDisposed)
-        {
-            if (disposing)
-            {
-            }
-
-            // TODO: free unmanaged resources (unmanaged objects) and override finalizer
-            // TODO: set large fields to null
-            _isDisposed = true;
-        }
-    }
-
     protected static string ProgressPercentageAsString(MultiTaskProgress progress)
     {
         string result;
@@ -179,5 +163,19 @@ public class ScrollingConsoleProcessFeedback
         }
 
         return result;
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_isDisposed)
+        {
+            if (disposing)
+            {
+            }
+
+            // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+            // TODO: set large fields to null
+            _isDisposed = true;
+        }
     }
 }
