@@ -14,9 +14,8 @@ internal class Program
         };
 
         if (args.Length > 0)
-        {
             await engine.PreProcess();
-        }
+
         await engine.Process(args);
     }
 }
