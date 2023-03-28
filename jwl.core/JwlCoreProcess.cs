@@ -33,16 +33,16 @@ public class JwlCoreProcess : IDisposable
 
         _httpClientHandler = new HttpClientHandler()
         {
-            UseProxy = _config.ServerConfig?.UseProxy ?? AppConfigFactory.DefaultConfig.ServerConfig.UseProxy,
+            UseProxy = _config.JiraServer?.UseProxy ?? AppConfigFactory.DefaultConfig.JiraServer.UseProxy,
             UseDefaultCredentials = false,
-            MaxConnectionsPerServer = _config.ServerConfig?.MaxConnectionsPerServer ?? AppConfigFactory.DefaultConfig.ServerConfig.MaxConnectionsPerServer
+            MaxConnectionsPerServer = _config.JiraServer?.MaxConnectionsPerServer ?? AppConfigFactory.DefaultConfig.JiraServer.MaxConnectionsPerServer
         };
 
-        if (_config.ServerConfig?.SkipSslCertificateCheck ?? AppConfigFactory.DefaultConfig.ServerConfig.SkipSslCertificateCheck)
+        if (_config.JiraServer?.SkipSslCertificateCheck ?? AppConfigFactory.DefaultConfig.JiraServer.SkipSslCertificateCheck)
             _httpClientHandler.ServerCertificateCustomValidationCallback = (_, _, _, _) => true;
 
         _httpClient = new HttpClient(_httpClientHandler);
-        _jiraClient = new JiraServerApi(_httpClient, _config.ServerConfig?.BaseUrl ?? AppConfigFactory.DefaultConfig.ServerConfig.BaseUrl);
+        _jiraClient = new JiraServerApi(_httpClient, _config.JiraServer?.BaseUrl ?? AppConfigFactory.DefaultConfig.JiraServer.BaseUrl);
 
         _jiraClient.WsClient.HttpRequestPostprocess = req =>
         {
@@ -59,8 +59,8 @@ public class JwlCoreProcess : IDisposable
     {
         Feedback?.OverallProcessStart();
 
-        string? jiraUserName = _config.UserConfig?.JiraUserName;
-        string? jiraUserPassword = _config.UserConfig?.JiraUserPassword;
+        string? jiraUserName = _config.User?.Name;
+        string? jiraUserPassword = _config.User?.Password;
 
         if (string.IsNullOrEmpty(jiraUserName) || string.IsNullOrEmpty(jiraUserPassword))
         {
@@ -199,7 +199,7 @@ public class JwlCoreProcess : IDisposable
     {
         WorklogReaderAggregatedConfig readerConfig = new WorklogReaderAggregatedConfig()
         {
-            CsvFormatConfig = _config.CsvFormatConfig
+            CsvFormatConfig = _config.CsvOptions
         };
 
         using IWorklogReader worklogReader = WorklogReaderFactory.GetReaderFromFilePath(fileName, readerConfig);

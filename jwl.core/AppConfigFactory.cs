@@ -7,21 +7,21 @@ public static class AppConfigFactory
 {
     public static readonly AppConfig DefaultConfig = new AppConfig()
     {
-        ServerConfig = new ServerConfig()
+        JiraServer = new ServerConfig()
         {
             BaseUrl = @"https://jira.at-my-company.org:7777",
             MaxConnectionsPerServer = 4,
             UseProxy = false,
             SkipSslCertificateCheck = false
         },
-        CsvFormatConfig = new CsvFormatConfig()
+        CsvOptions = new CsvFormatConfig()
         {
-            Delimiter = ","
+            FieldDelimiter = ","
         },
-        UserConfig = new UserConfig()
+        User = new UserConfig()
         {
-            JiraUserName = string.Empty,
-            JiraUserPassword = null
+            Name = string.Empty,
+            Password = null
         }
     };
 
@@ -33,6 +33,7 @@ public static class AppConfigFactory
         AppConfig? result;
 
         IConfiguration config = new ConfigurationBuilder()
+            // 2do! command line custom provider
             .AddJsonFile(Path.Combine(Path.GetFullPath("."), ConfigFileName), optional: true)
             .AddJsonFile(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), ConfigFileName), optional: true)
             .AddJsonFile(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ConfigFileName), optional: true)

@@ -17,7 +17,7 @@ public class WorklogCsvReader : IWorklogReader
         _readerConfig = readerConfig;
         CsvConfiguration config = new (CultureInfo.InvariantCulture)
         {
-            Delimiter = readerConfig.CsvFormatConfig?.Delimiter ?? ","
+            Delimiter = readerConfig.CsvFormatConfig?.FieldDelimiter ?? ","
         };
 
         _csvReader = new CsvReader(inputFile, config);
