@@ -170,11 +170,11 @@ public class ScrollingConsoleProcessFeedback
         }
         else
         {
-            result = progress.SucceededPct.ToString("G");
+            result = progress.SucceededPct.ToString("P");
 
             if (progress.ErredSoFar > 0)
             {
-                result += " OK, " + progress.ErredSoFarPct.ToString("G") + " failed";
+                result += " OK, " + progress.ErredSoFarPct.ToString("P") + " failed";
             }
         }
 
