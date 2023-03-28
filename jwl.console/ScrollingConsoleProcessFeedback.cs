@@ -76,7 +76,7 @@ public class ScrollingConsoleProcessFeedback
 
     public void OverallProcessStart()
     {
-        Console.Error.WriteLine(@"STARTING");
+        Console.Error.WriteLine(@"Jira worklogger by Peter H.");
     }
 
     public void OverallProcessEnd()
