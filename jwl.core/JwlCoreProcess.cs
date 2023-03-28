@@ -117,6 +117,8 @@ public class JwlCoreProcess : IDisposable
             {
                 Feedback?.NoWorklogsToFill();
             }
+
+            Feedback?.OverallProcessEnd();
         }
         else
         {
@@ -141,7 +143,6 @@ public class JwlCoreProcess : IDisposable
 
             // note: free unmanaged resources (unmanaged objects) and override finalizer
             // note: set large fields to null
-            Feedback?.OverallProcessEnd();
             _httpClient?.Dispose();
             _httpClientHandler?.Dispose();
 

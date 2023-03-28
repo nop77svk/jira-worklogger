@@ -66,12 +66,12 @@ public class ScrollingConsoleProcessFeedback
 
     public void NoFilesOnInput()
     {
-        Console.Error.WriteLine(@"No files on input - no work to be done");
+        Console.Error.WriteLine(@"Note: No files on input - no work to be done");
     }
 
     public void NoWorklogsToFill()
     {
-        Console.Error.WriteLine(@"Empty files on input - no work to be done");
+        Console.Error.WriteLine(@"Note: Empty files on input - no work to be done");
     }
 
     public void OverallProcessStart()
