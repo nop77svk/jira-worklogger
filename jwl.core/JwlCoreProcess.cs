@@ -33,16 +33,16 @@ public class JwlCoreProcess : IDisposable
 
         _httpClientHandler = new HttpClientHandler()
         {
-            UseProxy = _config.JiraServer?.UseProxy ?? AppConfigFactory.DefaultConfig.JiraServer.UseProxy,
+            UseProxy = _config.JiraServer?.UseProxy ?? ServerConfig.Default_UseProxy,
             UseDefaultCredentials = false,
-            MaxConnectionsPerServer = _config.JiraServer?.MaxConnectionsPerServer ?? AppConfigFactory.DefaultConfig.JiraServer.MaxConnectionsPerServer
+            MaxConnectionsPerServer = _config.JiraServer?.MaxConnectionsPerServer ?? ServerConfig.Default_MaxConnectionsPerServer
         };
 
-        if (_config.JiraServer?.SkipSslCertificateCheck ?? AppConfigFactory.DefaultConfig.JiraServer.SkipSslCertificateCheck)
+        if (_config.JiraServer?.SkipSslCertificateCheck ?? ServerConfig.Default_SkipSslCertificateCheck)
             _httpClientHandler.ServerCertificateCustomValidationCallback = (_, _, _, _) => true;
 
         _httpClient = new HttpClient(_httpClientHandler);
-        _jiraClient = new JiraServerApi(_httpClient, _config.JiraServer?.BaseUrl ?? AppConfigFactory.DefaultConfig.JiraServer.BaseUrl);
+        _jiraClient = new JiraServerApi(_httpClient, _config.JiraServer?.BaseUrl ?? ServerConfig.Default_BaseUrl);
 
         _jiraClient.WsClient.HttpRequestPostprocess = req =>
         {

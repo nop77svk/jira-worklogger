@@ -7,7 +7,7 @@ internal class Program
     {
         using ICoreProcessFeedback feedback = new ConsoleProcessFeedback(JwlCoreProcess.TotalProcessSteps);
         using ICoreProcessInteraction interaction = new ConsoleProcessInteraction();
-        AppConfig config = AppConfigFactory.ReadConfig() ?? AppConfigFactory.DefaultConfig;
+        AppConfig config = AppConfigFactory.ReadConfig();
         using JwlCoreProcess engine = new JwlCoreProcess(config, interaction)
         {
             Feedback = feedback
