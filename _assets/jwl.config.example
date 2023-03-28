@@ -1,0 +1,15 @@
+{
+	"JiraServer": {
+		"BaseUrl": "https://jira.at-my-company.org:7777",
+		"MaxConnectionsPerServer": 4,
+		"UseProxy": false,
+		"SkipSslCertificateCheck": false
+	},
+	"CsvOptions": {
+		"FieldDelimiter": ","
+	},
+	"User": {
+		"Name": "my name",
+		"Password": "my password"
+	}
+}

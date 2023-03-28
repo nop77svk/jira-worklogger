@@ -39,10 +39,23 @@
     <ProjectReference Include="..\jwl.jira\jwl.jira.csproj" />
     <ProjectReference Include="..\jwl.inputs\jwl.inputs.csproj" />
   </ItemGroup>
+
   <Target Name="PostClean" AfterTargets="Clean">
     <RemoveDir Directories="$(BaseIntermediateOutputPath)" />
     <!-- obj -->
     <RemoveDir Directories="$(BaseOutputPath)" />
     <!-- bin -->
+  </Target>
+
+  <ItemGroup>
+    <CommonAssetFiles Include="../_assets/**/*" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <Target Name="CopyCustomContent" AfterTargets="AfterBuild">
+    <Copy SourceFiles="@(CommonAssetFiles)" DestinationFolder="$(OutDir)" />
+  </Target>
+
+  <Target Name="CopyCustomContentOnPublish" AfterTargets="Publish">
+    <Copy SourceFiles="@(CommonAssetFiles)" DestinationFolder="$(PublishDir)" />
   </Target>
 </Project>
