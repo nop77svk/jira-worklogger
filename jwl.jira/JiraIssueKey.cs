@@ -27,7 +27,7 @@ public struct JiraIssueKey
 
         string[] issueKeySplit = issueKey.Split('-', 3, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         if (issueKeySplit.Length != 2)
-            throw new ArgumentOutOfRangeException(nameof(issueKey), issueKey, $"Invalid number of hyphens; found {issueKeySplit.Length}, expected 2");
+            throw new ArgumentOutOfRangeException(nameof(issueKey), issueKey, $"Invalid format of the issue key; must be <string>-<number>");
 
         result.Item1 = issueKeySplit[0];
 
