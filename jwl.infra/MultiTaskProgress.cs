@@ -13,7 +13,7 @@ public struct MultiTaskProgress
     public int Unknown;
     public float UnknownPct => Total > 0 ? (float)Unknown / Total : float.NaN;
     public int ErredSoFar => Faulted + Cancelled + Unknown;
-    public float ErredSoFarPct => Total > 0 ? (float)ErredSoFarPct / Total : float.NaN;
+    public float ErredSoFarPct => Total > 0 ? (float)ErredSoFar / Total : float.NaN;
     public int DoneSoFar => Succeeded + ErredSoFar;
     public float DoneSoFarPct => Total > 0 ? (float)DoneSoFar / Total : float.NaN;
 }
