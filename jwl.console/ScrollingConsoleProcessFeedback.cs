@@ -8,6 +8,8 @@ public class ScrollingConsoleProcessFeedback
     public Action? FeedbackDelay { get; init; } = null;
 
     private bool _isDisposed;
+    private int _numberOfWorklogsToInsert = 0;
+    private int _numberOfWorklogsToDelete = 0;
 
     public ScrollingConsoleProcessFeedback(int totalSteps)
     {
@@ -42,21 +44,27 @@ public class ScrollingConsoleProcessFeedback
 
     public void FillJiraWithWorklogsStart()
     {
+        _numberOfWorklogsToInsert = 0;
+        _numberOfWorklogsToDelete = 0;
         Console.Error.Write(@"Filling Jira with worklogs...");
     }
 
-    public void FillJiraWithWorklogsSetTarget(int numberOfWorklogs)
+    public void FillJiraWithWorklogsSetTarget(int numberOfWorklogsToInsert, int numberOfWorklogsToDelete)
     {
-        Console.Error.Write($"\rFilling Jira with {numberOfWorklogs} worklogs...");
+        _numberOfWorklogsToInsert = numberOfWorklogsToInsert;
+        _numberOfWorklogsToDelete = numberOfWorklogsToDelete;
+        Console.Error.Write($"\rFilling Jira with {_numberOfWorklogsToInsert} worklogs, removing {_numberOfWorklogsToDelete} existing worklogs...");
     }
 
     public void FillJiraWithWorklogsProcess(MultiTaskProgress progress)
     {
-        Console.Error.Write($"\rFilling Jira with {progress.Total} worklogs... {ProgressPercentageAsString(progress)}");
+        Console.Error.Write($"\rFilling Jira with {_numberOfWorklogsToInsert} worklogs, removing {_numberOfWorklogsToDelete} existing worklogs... {ProgressPercentageAsString(progress)}");
     }
 
     public void FillJiraWithWorklogsEnd()
     {
+        _numberOfWorklogsToInsert = 0;
+        _numberOfWorklogsToDelete = 0;
         Console.Error.WriteLine();
     }
 
@@ -136,7 +144,7 @@ public class ScrollingConsoleProcessFeedback
 
     public void RetrieveWorklogsForDeletionProcess(MultiTaskProgress progress)
     {
-        Console.Error.Write($"\rRetrieved list of worklogs ({progress.Total} Jira issues) to be deleted... {ProgressPercentageAsString(progress)}");
+        Console.Error.Write($"\rRetrieving list of worklogs ({progress.Total} Jira issues) to be deleted... {ProgressPercentageAsString(progress)}");
     }
 
     public void RetrieveWorklogsForDeletionEnd()

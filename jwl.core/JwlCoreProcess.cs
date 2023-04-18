@@ -98,19 +98,8 @@ public class JwlCoreProcess : IDisposable
                 (string, jira.api.rest.response.JiraIssueWorklogsWorklog)[] worklogsForDeletion = await RetrieveWorklogsForDeletion(inputWorklogs);
                 Feedback?.RetrieveWorklogsForDeletionEnd();
 
-                if (worklogsForDeletion.Length > 0)
-                {
-                    Feedback?.DeleteExistingWorklogsStart();
-                    await DeleteExistingWorklogs(worklogsForDeletion);
-                    Feedback?.DeleteExistingWorklogsEnd();
-                }
-                else
-                {
-                    Feedback?.NoExistingWorklogsToDelete();
-                }
-
                 Feedback?.FillJiraWithWorklogsStart();
-                await FillJiraWithWorklogs(inputWorklogs);
+                await FillJiraWithWorklogs(inputWorklogs, worklogsForDeletion);
                 Feedback?.FillJiraWithWorklogsEnd();
             }
             else
@@ -150,34 +139,25 @@ public class JwlCoreProcess : IDisposable
         }
     }
 
-    private async Task DeleteExistingWorklogs((string, JiraIssueWorklogsWorklog)[] worklogsForDeletion)
+    private async Task FillJiraWithWorklogs(JiraWorklog[] inputWorklogs, (string, JiraIssueWorklogsWorklog)[] worklogsForDeletion)
     {
-        Feedback?.DeleteExistingWorklogsSetTarget(worklogsForDeletion.Length);
-
-        Task[] deleteExistingWorklogsTasks = worklogsForDeletion
-            .Select(worklog => _jiraClient.DeleteWorklog(worklog.Item2.IssueId.Value, worklog.Item2.Id.Value))
-            .ToArray();
-
-        await MultiTask.WhenAll(
-            tasks: deleteExistingWorklogsTasks,
-            reportProgress: (p, _) => Feedback?.DeleteExistingWorklogsProcess(p)
-        );
-    }
-
-    private async Task FillJiraWithWorklogs(JiraWorklog[] inputWorklogs)
-    {
-        Feedback?.FillJiraWithWorklogsSetTarget(inputWorklogs.Length);
+        Feedback?.FillJiraWithWorklogsSetTarget(inputWorklogs.Length, worklogsForDeletion.Length);
 
         if (_userInfo == null || _userInfo.Key == null)
             throw new ArgumentNullException(@"Unresolved Jira key for the logged-on user");
 
         Task[] fillJiraWithWorklogsTasks = inputWorklogs
             .Select(worklog => _jiraClient.AddWorklog(worklog.IssueKey.ToString(), _userInfo.Key, worklog.Date, (int)worklog.TimeSpent.TotalSeconds, worklog.TempWorklogType, string.Empty))
+            .Concat(worklogsForDeletion
+                .Select(worklog => _jiraClient.DeleteWorklog(worklog.Item2.IssueId.Value, worklog.Item2.Id.Value))
+            )
             .ToArray();
+
+        MultiTaskProgress progress = new MultiTaskProgress(fillJiraWithWorklogsTasks.Length);
 
         await MultiTask.WhenAll(
             tasks: fillJiraWithWorklogsTasks,
-            reportProgress: (p, _) => Feedback?.FillJiraWithWorklogsProcess(p)
+            progressFeedback: (_, t) => Feedback?.FillJiraWithWorklogsProcess(progress.AddTaskStatus(t?.Status))
         );
     }
 
@@ -206,8 +186,15 @@ public class JwlCoreProcess : IDisposable
 
         Feedback?.ReadCsvInputSetTarget(readerTasks.Length);
 
+        MultiTaskProgress progress = new MultiTaskProgress(readerTasks.Length);
+
         if (readerTasks.Any())
-            await MultiTask.WhenAll(readerTasks, (p, t) => Feedback?.ReadCsvInputProcess(p));
+        {
+            await MultiTask.WhenAll(
+                tasks: readerTasks,
+                progressFeedback: (_, t) => Feedback?.ReadCsvInputProcess(progress.AddTaskStatus(t?.Status))
+            );
+        }
 
         JiraWorklog[] result = readerTasks
             .Unnest(
@@ -275,11 +262,13 @@ public class JwlCoreProcess : IDisposable
                     elementSelector: issueKey => _jiraClient.GetIssueWorklogs(issueKey)
                 );
 
-            Feedback?.RetrieveWorklogsForDeletionSetTarget(currentIssueWorklogsTasks.Count + 1);
+            Feedback?.RetrieveWorklogsForDeletionSetTarget(currentIssueWorklogsTasks.Count);
+
+            MultiTaskProgress progress = new MultiTaskProgress(currentIssueWorklogsTasks.Count);
 
             await MultiTask.WhenAll(
                 tasks: currentIssueWorklogsTasks.Select(x => x.Value),
-                reportProgress: (progress, _) => Feedback?.RetrieveWorklogsForDeletionProcess(progress)
+                progressFeedback: (_, t) => Feedback?.RetrieveWorklogsForDeletionProcess(progress.AddTaskStatus(t?.Status))
             );
 
             return currentIssueWorklogsTasks

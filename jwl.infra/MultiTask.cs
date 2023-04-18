@@ -2,65 +2,37 @@ namespace jwl.infra;
 
 public static class MultiTask
 {
-    public static async Task WhenAll(IEnumerable<Task> tasks, Action<MultiTaskProgress, Task?> reportProgress, CancellationToken? cancellationToken = null)
+    public static async Task WhenAll(IEnumerable<Task> tasks, Action<MultiTaskProgressState, Task?> progressFeedback, CancellationToken? cancellationToken = null)
     {
+        progressFeedback(MultiTaskProgressState.Starting, null);
         HashSet<Task> tasksToExecute = tasks.ToHashSet();
-
-        MultiTaskProgress progress = new MultiTaskProgress()
-        {
-            State = MultiTaskProgressState.Starting,
-            Total = tasksToExecute.Count,
-            Succeeded = 0,
-            Faulted = 0,
-            Cancelled = 0,
-            Unknown = 0
-        };
-        reportProgress(progress, null);
 
         try
         {
             while (tasksToExecute.Any())
             {
                 cancellationToken?.ThrowIfCancellationRequested();
-                progress.State = MultiTaskProgressState.InProgress;
 
                 Task taskFinished = await Task.WhenAny(tasksToExecute);
+                progressFeedback(MultiTaskProgressState.InProgress, taskFinished);
 
                 if (tasksToExecute.Contains(taskFinished))
-                {
                     tasksToExecute.Remove(taskFinished);
-
-                    if (taskFinished.IsCompletedSuccessfully)
-                        progress.Succeeded++;
-                    else if (taskFinished.IsCanceled)
-                        progress.Cancelled++;
-                    else if (taskFinished.IsFaulted)
-                        progress.Faulted++;
-                    else if (taskFinished.IsCompleted)
-                        progress.Unknown++;
-
-                    reportProgress(progress, taskFinished);
-                }
                 else
-                {
-                    Console.Error.WriteLine("ERROR: Task accidentally reported as finished!");
-                }
+                    throw new Exception("Task reported as finished... again!");
             }
         }
         catch (TaskCanceledException)
         {
-            progress.State = MultiTaskProgressState.Cancelled;
-            reportProgress(progress, null);
+            progressFeedback(MultiTaskProgressState.Cancelled, null);
             throw;
         }
         catch (Exception)
         {
-            progress.State = MultiTaskProgressState.Error;
-            reportProgress(progress, null);
+            progressFeedback(MultiTaskProgressState.Error, null);
             throw;
         }
 
-        progress.State = MultiTaskProgressState.Finished;
-        reportProgress(progress, null);
+        progressFeedback(MultiTaskProgressState.Finished, null);
     }
 }

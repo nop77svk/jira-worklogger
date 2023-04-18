@@ -9,7 +9,7 @@ public interface ICoreProcessFeedback
     void DeleteExistingWorklogsProcess(MultiTaskProgress progress);
     void DeleteExistingWorklogsEnd();
     void FillJiraWithWorklogsStart();
-    void FillJiraWithWorklogsSetTarget(int numberOfWorklogs);
+    void FillJiraWithWorklogsSetTarget(int numberOfWorklogsToInsert, int numbeOfWorklogsToDelete);
     void FillJiraWithWorklogsProcess(MultiTaskProgress progress);
     void FillJiraWithWorklogsEnd();
     void NoExistingWorklogsToDelete();
