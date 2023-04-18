@@ -5,28 +5,33 @@ using Microsoft.Extensions.Configuration;
 
 public static class AppConfigFactory
 {
+    public const int DefaultMaxConnectionsPerServer = 4;
+
     private const string ConfigFileName = @"jwl.config";
     private const string DefaultSubFolder = @"jira-worklogger";
 
-    private static readonly AppConfig EmptyConfig = new AppConfig()
+    public static AppConfig CreateWithDefaults()
     {
-        JiraServer = new ServerConfig()
+        return new AppConfig()
         {
-            BaseUrl = ServerConfig.Default_BaseUrl,
-            MaxConnectionsPerServer = ServerConfig.Default_MaxConnectionsPerServer,
-            SkipSslCertificateCheck = ServerConfig.Default_SkipSslCertificateCheck,
-            UseProxy = ServerConfig.Default_UseProxy
-        },
-        CsvOptions = new CsvFormatConfig()
-        {
-            FieldDelimiter = CsvFormatConfig.Default_FieldDelimiter
-        },
-        User = new UserConfig()
-        {
-            Name = UserConfig.Default_Name,
-            Password = UserConfig.Default_Password
-        }
-    };
+            JiraServer = new ServerConfig()
+            {
+                BaseUrl = @"http://jira.my-domain.xyz",
+                MaxConnectionsPerServer = DefaultMaxConnectionsPerServer,
+                SkipSslCertificateCheck = false,
+                UseProxy = false
+            },
+            CsvOptions = new CsvFormatConfig()
+            {
+                FieldDelimiter = ","
+            },
+            User = new UserConfig()
+            {
+                Name = string.Empty,
+                Password = null
+            }
+        };
+    }
 
     public static AppConfig ReadConfig()
     {
@@ -46,6 +51,6 @@ public static class AppConfigFactory
             opt.ErrorOnUnknownConfiguration = true;
         });
 
-        return result ?? EmptyConfig;
+        return result ?? CreateWithDefaults();
     }
 }

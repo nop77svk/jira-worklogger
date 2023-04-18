@@ -1,8 +1,7 @@
 namespace jwl.inputs;
+using System.ComponentModel;
 
 public class CsvFormatConfig
 {
-    public const string Default_FieldDelimiter = ",";
-
     public string? FieldDelimiter { get; init; }
 }
