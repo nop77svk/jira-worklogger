@@ -95,7 +95,7 @@ public class JwlCoreProcess : IDisposable
             if (inputWorklogs.Length > 0)
             {
                 Feedback?.RetrieveWorklogsForDeletionStart();
-                (string, jira.api.rest.response.JiraIssueWorklogsWorklog)[] worklogsForDeletion = await RetrieveWorklogsForDeletion(inputWorklogs);
+                jira.api.rest.response.TempoWorklog[] worklogsForDeletion = await RetrieveWorklogsForDeletion(inputWorklogs);
                 Feedback?.RetrieveWorklogsForDeletionEnd();
 
                 Feedback?.FillJiraWithWorklogsStart();
@@ -139,7 +139,7 @@ public class JwlCoreProcess : IDisposable
         }
     }
 
-    private async Task FillJiraWithWorklogs(JiraWorklog[] inputWorklogs, (string, JiraIssueWorklogsWorklog)[] worklogsForDeletion)
+    private async Task FillJiraWithWorklogs(JiraWorklog[] inputWorklogs, TempoWorklog[] worklogsForDeletion)
     {
         Feedback?.FillJiraWithWorklogsSetTarget(inputWorklogs.Length, worklogsForDeletion.Length);
 
@@ -149,7 +149,7 @@ public class JwlCoreProcess : IDisposable
         Task[] fillJiraWithWorklogsTasks = inputWorklogs
             .Select(worklog => _jiraClient.AddWorklog(worklog.IssueKey.ToString(), _userInfo.Key, DateOnly.FromDateTime(worklog.Date), (int)worklog.TimeSpent.TotalSeconds, worklog.TempWorklogType, string.Empty))
             .Concat(worklogsForDeletion
-                .Select(worklog => _jiraClient.DeleteWorklog(worklog.Item2.IssueId.Value, worklog.Item2.Id.Value))
+                .Select(worklog => _jiraClient.DeleteWorklog(worklog.IssueId ?? 0, worklog.Id ?? 0))
             )
             .ToArray();
 
@@ -229,12 +229,14 @@ public class JwlCoreProcess : IDisposable
         return await response;
     }
 
-    private async Task<(string, jira.api.rest.response.JiraIssueWorklogsWorklog)[]> RetrieveWorklogsForDeletion(JiraWorklog[] inputWorklogs)
+    private async Task<jira.api.rest.response.TempoWorklog[]> RetrieveWorklogsForDeletion(JiraWorklog[] inputWorklogs)
     {
-        (string, jira.api.rest.response.JiraIssueWorklogsWorklog)[] result;
+        jira.api.rest.response.TempoWorklog[] result;
 
         if (_userInfo == null)
             throw new ArgumentNullException(@"User info not preloaded from Jira server");
+        if (string.IsNullOrEmpty(_userInfo.Key))
+            throw new ArgumentNullException(@"Empty user key preloaded from Jira server");
 
         DateTime[] inputWorklogDays = inputWorklogs
             .Select(worklog => worklog.Date)
@@ -243,12 +245,12 @@ public class JwlCoreProcess : IDisposable
 
         if (!inputWorklogDays.Any())
         {
-            result = Array.Empty<(string, jira.api.rest.response.JiraIssueWorklogsWorklog)>();
+            result = Array.Empty<jira.api.rest.response.TempoWorklog>();
         }
         else
         {
-            DateTime minInputWorklogDay = inputWorklogDays.First().Date;
-            DateTime supInputWorklogDay = inputWorklogDays.Last().Date.AddDays(1);
+            DateOnly minInputWorklogDay = DateOnly.FromDateTime(inputWorklogDays.First().Date);
+            DateOnly maxInputWorklogDay = DateOnly.FromDateTime(inputWorklogDays.Last().Date);
 
             string[] inputIssueKeys = inputWorklogs
                 .Select(worklog => worklog.IssueKey.ToString())
@@ -256,36 +258,7 @@ public class JwlCoreProcess : IDisposable
                 .OrderByDescending(x => x)
                 .ToArray();
 
-            Dictionary<string, Task<jira.api.rest.response.JiraIssueWorklogs>> currentIssueWorklogsTasks = inputIssueKeys
-                .ToDictionary(
-                    keySelector: issueKey => issueKey,
-                    elementSelector: issueKey => _jiraClient.GetIssueWorklogs(issueKey)
-                );
-
-            Feedback?.RetrieveWorklogsForDeletionSetTarget(currentIssueWorklogsTasks.Count);
-
-            MultiTaskProgress progress = new MultiTaskProgress(currentIssueWorklogsTasks.Count);
-
-            await MultiTask.WhenAll(
-                tasks: currentIssueWorklogsTasks.Select(x => x.Value),
-                progressFeedback: (_, t) => Feedback?.RetrieveWorklogsForDeletionProcess(progress.AddTaskStatus(t?.Status))
-            );
-
-            return currentIssueWorklogsTasks
-                .Unnest(
-                    retrieveNestedCollection: x => (x.Value.Result.Worklogs ?? Array.Empty<JiraIssueWorklogsWorklog>())
-                        .Where(worklog => worklog != null
-                            && worklog.Author != null
-                            && !string.IsNullOrEmpty(worklog.Author.Name)
-                            && worklog.Author.Name.Equals(_userInfo.Name, StringComparison.OrdinalIgnoreCase)
-                        )
-                        .Where(worklog => worklog != null
-                            && worklog.Started.Value >= minInputWorklogDay
-                            && worklog.Started.Value < supInputWorklogDay
-                        ),
-                    resultSelector: (outer, inner) => new ValueTuple<string, jira.api.rest.response.JiraIssueWorklogsWorklog>(outer.Key, inner)
-                )
-                .ToArray();
+            result = await _jiraClient.GetIssueWorklogs(minInputWorklogDay, maxInputWorklogDay, inputIssueKeys, new string[] { _userInfo.Key });
         }
 
         return result;

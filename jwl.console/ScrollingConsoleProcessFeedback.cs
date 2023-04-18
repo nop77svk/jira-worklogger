@@ -124,12 +124,12 @@ public class ScrollingConsoleProcessFeedback
 
     public void RetrieveWorklogsForDeletionProcess(MultiTaskProgress progress)
     {
-        Console.Error.Write($"\rRetrieving list of worklogs ({progress.Total} Jira issues) to be deleted... {ProgressPercentageAsString(progress)}");
+        throw new NotImplementedException(@"--- checkpoint ---");
     }
 
     public void RetrieveWorklogsForDeletionEnd()
     {
-        Console.Error.WriteLine();
+        Console.Error.WriteLine("OK");
     }
 
     protected static string ProgressPercentageAsString(MultiTaskProgress progress)

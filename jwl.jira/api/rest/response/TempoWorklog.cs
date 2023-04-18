@@ -5,16 +5,20 @@ using jwl.jira.api.rest.common;
 public class TempoWorklog
 {
     [JsonPropertyName("originId")]
-    public int? Id { get; init; }
-    public string? Started { get; init; }
+    public long? Id { get; init; }
+    [JsonPropertyName("originTaskId")]
+    public long? IssueId { get; init; }
+    public common.TempoTimeStamp? Started { get; init; }
     public int? TimeSpentSeconds { get; init; }
     public int? BillableSeconds { get; init; }
     [JsonPropertyName("worker")]
     public string? WorkerKey { get; init; }
-    public string? Created { get; init; }
+    [JsonPropertyName("dateCreated")]
+    public common.TempoTimeStamp? Created { get; init; }
     public Dictionary<string, TempoWorklogAttribute>? Attributes { get; init; }
     public string? Comment { get; init; }
     [JsonPropertyName("updater")]
     public string? UpdaterKey { get; init; }
-    public string? Updated { get; init; }
+    [JsonPropertyName("dateUpdated")]
+    public common.TempoTimeStamp? Updated { get; init; }
 }

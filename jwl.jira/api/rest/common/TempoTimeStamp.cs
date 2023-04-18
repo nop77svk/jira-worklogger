@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 [JsonConverter(typeof(TempoTimeStampJsonConverter))]
 public struct TempoTimeStamp
 {
-    public const string TempoTimeStampFormat = @"yyyy-MM-dd""T""HH:mm:ss.fff";
+    public const string TempoTimeStampFormat = @"yyyy-MM-dd HH:mm:ss.fff";
 
     public TempoTimeStamp(DateTime value)
     {
