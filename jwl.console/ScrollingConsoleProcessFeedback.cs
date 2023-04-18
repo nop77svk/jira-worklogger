@@ -33,12 +33,12 @@ public class ScrollingConsoleProcessFeedback
     {
         _numberOfWorklogsToInsert = numberOfWorklogsToInsert;
         _numberOfWorklogsToDelete = numberOfWorklogsToDelete;
-        Console.Error.Write($"\rFilling Jira with {_numberOfWorklogsToInsert} worklogs, removing {_numberOfWorklogsToDelete} existing worklogs...");
+        Console.Error.Write($"\rFilling Jira with worklogs (+{_numberOfWorklogsToInsert}/-{_numberOfWorklogsToDelete})...");
     }
 
     public void FillJiraWithWorklogsProcess(MultiTaskProgress progress)
     {
-        Console.Error.Write($"\rFilling Jira with {_numberOfWorklogsToInsert} worklogs, removing {_numberOfWorklogsToDelete} existing worklogs... {ProgressPercentageAsString(progress)}");
+        Console.Error.Write($"\rFilling Jira with worklogs (+{_numberOfWorklogsToInsert}/-{_numberOfWorklogsToDelete})... {ProgressPercentageAsString(progress)}");
     }
 
     public void FillJiraWithWorklogsEnd()
