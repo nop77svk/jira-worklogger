@@ -4,10 +4,6 @@ using jwl.infra;
 public interface ICoreProcessFeedback
     : IDisposable
 {
-    void DeleteExistingWorklogsStart();
-    void DeleteExistingWorklogsSetTarget(int numberOfWorklogs);
-    void DeleteExistingWorklogsProcess(MultiTaskProgress progress);
-    void DeleteExistingWorklogsEnd();
     void FillJiraWithWorklogsStart();
     void FillJiraWithWorklogsSetTarget(int numberOfWorklogsToInsert, int numbeOfWorklogsToDelete);
     void FillJiraWithWorklogsProcess(MultiTaskProgress progress);

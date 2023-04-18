@@ -15,26 +15,6 @@ public class ScrollingConsoleProcessFeedback
     {
     }
 
-    public void DeleteExistingWorklogsStart()
-    {
-        Console.Error.Write(@"Deleting existing worklogs...");
-    }
-
-    public void DeleteExistingWorklogsSetTarget(int numberOfWorklogs)
-    {
-        Console.Error.Write($"\rDeleting {numberOfWorklogs} existing worklogs...");
-    }
-
-    public void DeleteExistingWorklogsProcess(MultiTaskProgress progress)
-    {
-        Console.Error.Write($"\rDeleting {progress.Total} existing worklogs... {ProgressPercentageAsString(progress)}");
-    }
-
-    public void DeleteExistingWorklogsEnd()
-    {
-        Console.Error.WriteLine();
-    }
-
     public void Dispose()
     {
         // note: Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
