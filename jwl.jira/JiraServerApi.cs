@@ -77,4 +77,25 @@ public class JiraServerApi
             .WithContent(request)
         );
     }
+
+    public async Task UpdateWorklog(string issueKey, int worklogId, DateTime day, int timeSpentSeconds, string comment)
+    {
+        var request = new api.rest.request.JiraAddWorklogByIssueKey()
+        {
+            Started = day.ToString(@"yyyy-MM-dd""T""hh"";""mm"";""ss.fffzzzz").Replace(":", string.Empty).Replace(';', ':'),
+            TimeSpentSeconds = timeSpentSeconds,
+            Comment = comment
+        };
+
+        await WsClient.EndpointCall(new JsonRestWsEndpoint(HttpMethod.Put)
+            .AddResourceFolder(@"rest")
+            .AddResourceFolder(@"api")
+            .AddResourceFolder(@"2")
+            .AddResourceFolder(@"issue")
+            .AddResourceFolder(issueKey)
+            .AddResourceFolder(@"worklog")
+            .AddResourceFolder(worklogId.ToString())
+            .WithContent(request)
+        );
+    }
 }
