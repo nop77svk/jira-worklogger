@@ -129,7 +129,7 @@ public class ScrollingConsoleProcessFeedback
 
     public void RetrieveWorklogsForDeletionEnd()
     {
-        Console.Error.WriteLine("OK");
+        Console.Error.WriteLine(" OK");
     }
 
     protected static string ProgressPercentageAsString(MultiTaskProgress progress)
