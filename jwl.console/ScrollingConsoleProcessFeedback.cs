@@ -64,7 +64,9 @@ public class ScrollingConsoleProcessFeedback
 
     public void OverallProcessStart()
     {
-        Console.Error.WriteLine(@"Jira worklogger by Peter H.");
+        Console.Error.WriteLine(@"Jira Worklogger CLI 1.1.0"); // 2do! read from assembly
+        Console.Error.WriteLine(@"by Peter H., practically copyleft"); // 2do! read from assembly
+        Console.Error.WriteLine(new string('-', Console.WindowWidth - 1));
     }
 
     public void OverallProcessEnd()
