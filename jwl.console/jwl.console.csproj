@@ -12,7 +12,7 @@
     <RuntimeIdentifiers>win-x86;win-x64;win-arm;linux-x64;linux-arm</RuntimeIdentifiers>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Product>...</Product>
+    <Product>Jira Worklogger</Product>
     <Authors>Peter Hraško</Authors>
     <Company>Open source community</Company>
     <Copyright>Practically copyleft</Copyright>
@@ -21,6 +21,7 @@
     <AssemblyName>jwlc</AssemblyName>
     <PackageId>NoP77svk.jwl.console</PackageId>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <Version>1.1.0</Version>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DebugType>none</DebugType>
