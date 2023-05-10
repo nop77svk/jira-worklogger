@@ -29,20 +29,6 @@ public class FillCLI
         string? jiraServerSpecification = connectionSpecifierSplit.Length > 1 ? connectionSpecifierSplit[1] : null;
         if (!jiraServerSpecification?.Contains(@"://") ?? false)
             jiraServerSpecification = @"https://" + jiraServerSpecification;
-        /*
-        string[] jiraServerSpecificationSplit = jiraServerSpecification?.Split(':', 2, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? Array.Empty<string>();
-        string? jiraServerHost = jiraServerSpecificationSplit.Any() ? jiraServerSpecificationSplit[0] : null;
-        string? jiraServerPortStr = jiraServerSpecificationSplit.Length > 1 ? jiraServerSpecificationSplit[1] : null;
-        int? jiraServerPort;
-        try
-        {
-            jiraServerPort = string.IsNullOrEmpty(jiraServerPortStr) ? null : int.Parse(jiraServerPortStr);
-        }
-        catch (Exception e)
-        {
-            throw new ArgumentOutOfRangeException($"Invalid Jira server port {jiraServerPortStr}", e);
-        }
-        */
 
         string? jiraUserCredentials = connectionSpecifierSplit.Any() ? connectionSpecifierSplit[0] : null;
         string[] jiraUserCredentialsSplit = jiraUserCredentials?.Split('/', 2, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
