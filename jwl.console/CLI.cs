@@ -4,7 +4,7 @@ using CommandLine;
 [Verb("fill", isDefault: true, HelpText = "Fill Jira with worklogs")]
 public class FillCLI
 {
-    [Option('v', "verbose", HelpText = "\nGive more verbose feedback\nNote: Not implemented yet! :-)", Default = false)]
+    [Option('v', "verbose", HelpText = "\nGive more verbose feedback\nNote: Not implemented yet! 2do! :-)", Default = false, Hidden = true)]
     public bool UseVerboseFeedback { get; set; }
 
     [Option('i', "input", HelpText = "\nInput CSVs with the worklogs", Separator = ',', Required = true)]
@@ -13,7 +13,7 @@ public class FillCLI
     [Option("ifs", HelpText = "Input CSV fields delimiter")]
     public string? FieldDelimiter { get; set; }
 
-    [Option('u', "user", HelpText = "Credentials+server for Jira in the form of <user name>@<server host>[:<server port>]\nNote: The \"https://\" scheme is automatically asserted with this option!")]
+    [Option('t', "target", HelpText = "Connection string to Jira server in the form of <user name>@<server host>[:<server port>]\nNote: The \"https://\" scheme is automatically asserted with this option!")]
     public string? UserCredentials { get; set; }
 
     [Option("no-proxy", HelpText = "Turn off proxying the HTTP(S) connections to Jira server")]
