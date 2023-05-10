@@ -4,13 +4,16 @@ using CommandLine;
 [Verb("fill", isDefault: true, HelpText = "Fill Jira with worklogs")]
 public class FillCLI
 {
-    [Option('i', "input", HelpText = "Input CSVs with the worklogs", Separator = ',', Required = true)]
+    [Option('v', "verbose", HelpText = "\nGive more verbose feedback\nNote: Not implemented yet! :-)", Default = false)]
+    public bool UseVerboseFeedback { get; set; }
+
+    [Option('i', "input", HelpText = "\nInput CSVs with the worklogs", Separator = ',', Required = true)]
     public IEnumerable<string> InputFiles { get; set; } = new string[0];
 
-    [Option("ifs", HelpText = "Input CSV field delimiter")]
+    [Option("ifs", HelpText = "Input CSV fields delimiter")]
     public string? FieldDelimiter { get; set; }
 
-    [Option('u', "user", HelpText = "Credentials+server for Jira in the form of <user name>@<server host>[:<server port>]")]
+    [Option('u', "user", HelpText = "Credentials+server for Jira in the form of <user name>@<server host>[:<server port>]\nNote: The \"https://\" scheme is automatically asserted with this option!")]
     public string? UserCredentials { get; set; }
 
     [Option("no-proxy", HelpText = "Turn off proxying the HTTP(S) connections to Jira server")]
@@ -37,6 +40,7 @@ public class FillCLI
 
         return new core.AppConfig()
         {
+            UseVerboseFeedback = UseVerboseFeedback,
             JiraServer = new jira.ServerConfig()
             {
                 BaseUrl = jiraServerSpecification,

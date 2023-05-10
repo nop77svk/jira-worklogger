@@ -3,6 +3,7 @@ using AutoMapper;
 
 public class AppConfig
 {
+    public bool? UseVerboseFeedback { get; init; }
     public jwl.jira.ServerConfig? JiraServer { get; init; }
     public jwl.core.UserConfig? User { get; init; }
     public jwl.inputs.CsvFormatConfig? CsvOptions { get; init; }
