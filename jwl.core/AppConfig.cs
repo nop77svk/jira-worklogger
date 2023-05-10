@@ -12,11 +12,11 @@ public class AppConfig
         cfg.CreateMap<AppConfig, AppConfig>()
             .ForAllMembers(m => m.Condition((src, dest, member) => member != null));
         cfg.CreateMap<jira.ServerConfig, jira.ServerConfig>()
-            .ForAllMembers(m => m.Condition((src, dest, member) => member is not string && member != null || member is string && !string.IsNullOrEmpty((string)member)));
+            .ForAllMembers(m => m.Condition((src, dest, member) => member != null));
         cfg.CreateMap<inputs.CsvFormatConfig, inputs.CsvFormatConfig>()
-            .ForAllMembers(m => m.Condition((src, dest, member) => member is not string && member != null || member is string && !string.IsNullOrEmpty((string)member)));
+            .ForAllMembers(m => m.Condition((src, dest, member) => member != null));
         cfg.CreateMap<core.UserConfig, core.UserConfig>()
-            .ForAllMembers(m => m.Condition((src, dest, member) => member is not string && member != null || member is string && !string.IsNullOrEmpty((string)member)));
+            .ForAllMembers(m => m.Condition((src, dest, member) => member != null));
     });
     private static IMapper overridingMapper = overridingMapperConfiguration.CreateMapper();
 
