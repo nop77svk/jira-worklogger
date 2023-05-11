@@ -18,9 +18,9 @@ Meet the scripted Jira worklogging! Give it your worklogs in a CSV file (and you
 ## Configuration
 
 The jwl.config file is a simple JSON structure. It can be placed in (and will be read by jwl in the priority order of)
- - "current folder" (as in "where your shell's %CD% or ${PWD} is at the moment")
- - local application data (%USERPROFILE%\AppData\Local)
- - roaming application data (%USERPROFILE%\AppData\Roaming)
+ - "current folder" (as in "where your shell's <code>%CD%</code> or <code>${PWD}</code> is at the moment")
+ - local application data (<code>%USERPROFILE%\AppData\Local</code>)
+ - roaming application data (<code>%USERPROFILE%\AppData\Roaming</code>)
  - jwl's "installation" folder
 
 As for the CLI worklogger binary, there are command-line options available as well. Any partial options supplied via CLI will override their respective jwl.config counterparts with the highest priority.
@@ -28,8 +28,8 @@ As for the CLI worklogger binary, there are command-line options available as we
 ## The input CSV structure
 
 Five columns, data delimited (by default) by a colon:
- - Date (format YYYY-MM-DD accepted only)
- - IssueKey (string)
- - TempoWorklogType - Values are checked against the available values from Jira server on each execution.
- - TimeSpent (string; accepted formats - "HH:MI", "MI", "HH h MI")
- - Comment (string)
+ - <code>Date</code> (string) - worklog day date (format <code>YYYY-MM-DD</code> accepted only)
+ - <code>IssueKey</code> (string) - Jira issue key (<code>SOMEPROJECT-1234</code> and the likes)
+ - <code>TempoWorklogType</code> (string) - Tempo Timesheets worklog type; values are checked against the available values from Jira server on each execution.
+ - <code>TimeSpent</code> (string) - time to be logged for the Jira issue and the date; accepted formats - <code>HH:MI</code>, <code>MI</code>, <code>HH h MI</code>
+ - <code>Comment</code> (string) - optional worklog comment
