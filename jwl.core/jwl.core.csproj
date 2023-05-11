@@ -51,6 +51,7 @@
 
   <ItemGroup>
     <CommonAssetFiles Include="../_assets/**/*" CopyToOutputDirectory="PreserveNewest" />
+    <CommonAssetFiles Include="../*.md" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <Target Name="CopyCustomContent" AfterTargets="AfterBuild">
