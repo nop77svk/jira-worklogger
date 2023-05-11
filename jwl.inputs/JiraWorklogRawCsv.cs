@@ -6,7 +6,7 @@ public record JiraWorklogRawCsv
     string IssueKey,
     string Date,
     string TimeSpent,
-    string TempoWorklogType, // 2do? rework to more generic "Tempo worklog attributes"
+    string TempoWorklogType,
     string Comment
 )
 { }

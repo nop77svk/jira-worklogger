@@ -3,11 +3,6 @@ using jwl.jira;
 
 public static class WorklogReaderFactory
 {
-    public static IWorklogReader GetCsvReaderFromStdin(WorklogReaderAggregatedConfig readerConfig)
-    {
-        return new WorklogCsvReader(Console.In, readerConfig);
-    }
-
     public static IWorklogReader GetReaderFromFilePath(string inputPath, WorklogReaderAggregatedConfig readerConfig) // 2do! rework to a delegate instead to loosen the dependency
     {
         IWorklogReader result;
