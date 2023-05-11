@@ -28,8 +28,8 @@ As for the CLI worklogger binary, there are command-line options available as we
 ## The input CSV structure
 
 Five columns, data delimited (by default) by a colon:
- - <code>Date</code> (string) - worklog day date (format <code>YYYY-MM-DD</code> accepted only)
+ - <code>Date</code> (string) - worklog day date (valid formats: <code>YYYY-MM-DD</code>, <code>YYYY/MM/DD</code>, <code>DD.MM.YYYY</code>, all with optional <code> HH:MI:SS</code> part)
  - <code>IssueKey</code> (string) - Jira issue key (<code>SOMEPROJECT-1234</code> and the likes)
  - <code>TempoWorklogType</code> (string) - Tempo Timesheets worklog type; values are checked against the available values from Jira server on each execution.
- - <code>TimeSpent</code> (string) - time to be logged for the Jira issue and the date; accepted formats - <code>HH:MI</code>, <code>MI</code>, <code>HH h MI</code>
+ - <code>TimeSpent</code> (string) - time to be logged for the Jira issue and the date (valid formats: <code>HH:MI</code>, <code>MI</code>, <code>HH h MI</code>, <code>HH h MI m</code>)
  - <code>Comment</code> (string) - optional worklog comment
