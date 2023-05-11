@@ -42,7 +42,6 @@ public static class AppConfigFactory
             .AddJsonFile(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ConfigFileName), optional: true)
             .AddJsonFile(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), ConfigFileName), optional: true)
             .AddJsonFile(Path.Combine(Path.GetFullPath("."), ConfigFileName), optional: true)
-            // 2do! custom command line config provider at the highest priority
             .Build();
 
         result = config.Get<AppConfig>(opt =>
