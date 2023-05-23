@@ -26,7 +26,7 @@
     <Version>1.1.0</Version>
 
 	<BeautyLibsDir>./bin</BeautyLibsDir>
-	<BeautyHiddens>hostfxr;hostpolicy;*.deps.json;*.runtimeconfig*.json</BeautyHiddens>
+	<BeautyHiddens>hostfxr;hostpolicy;*.deps.json;*.runtimeconfig*.json;clrjit;coreclr;System.*.dll</BeautyHiddens>
     <BeautyOnPublishOnly>True</BeautyOnPublishOnly>
     <BeautyEnableDebugging>False</BeautyEnableDebugging>
   </PropertyGroup>
