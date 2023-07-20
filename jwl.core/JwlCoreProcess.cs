@@ -146,10 +146,10 @@ public class JwlCoreProcess : IDisposable
         if (_userInfo == null || _userInfo.Key == null)
             throw new ArgumentNullException(@"Unresolved Jira key for the logged-on user");
 
-        Task[] fillJiraWithWorklogsTasks = inputWorklogs
-            .Select(worklog => _jiraClient.AddWorklog(worklog.IssueKey.ToString(), _userInfo.Key, DateOnly.FromDateTime(worklog.Date), (int)worklog.TimeSpent.TotalSeconds, worklog.TempWorklogType, string.Empty))
-            .Concat(worklogsForDeletion
-                .Select(worklog => _jiraClient.DeleteWorklog(worklog.IssueId ?? 0, worklog.Id ?? 0))
+        Task[] fillJiraWithWorklogsTasks = worklogsForDeletion
+            .Select(worklog => _jiraClient.DeleteWorklog(worklog.Id ?? 0))
+            .Concat(inputWorklogs
+                .Select(worklog => _jiraClient.AddWorklog(worklog.IssueKey.ToString(), _userInfo.Key, DateOnly.FromDateTime(worklog.Date), (int)worklog.TimeSpent.TotalSeconds, worklog.TempWorklogType, string.Empty))
             )
             .ToArray();
 
