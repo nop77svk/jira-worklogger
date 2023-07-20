@@ -45,6 +45,17 @@ public static class TempoTimesheetsPluginApiExt
         await self.AddWorklogPeriod(issueKey, userKey, day, day, timeSpentSeconds, tempoWorklogType, comment);
     }
 
+    public static async Task DeleteWorklog(this JiraServerApi self, long worklogId)
+    {
+        await self.WsClient.EndpointCall(new JsonRestWsEndpoint(HttpMethod.Delete)
+            .AddResourceFolder(@"rest")
+            .AddResourceFolder(@"tempo-timesheets")
+            .AddResourceFolder(@"4")
+            .AddResourceFolder(@"worklogs")
+            .AddResourceFolder(worklogId.ToString())
+        );
+    }
+
     public static async Task UpdateWorklogPeriod(this JiraServerApi self, int worklogId, DateOnly dayFrom, DateOnly dayTo, int timeSpentSeconds, string comment, string tempoWorklogType, bool includeNonWorkingDays = false)
     {
         var request = new api.rest.request.TempoUpdateWorklog()
