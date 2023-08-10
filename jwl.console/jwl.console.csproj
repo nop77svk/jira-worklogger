@@ -2,11 +2,13 @@
   <ItemGroup>
     <ProjectReference Include="..\jwl.core\jwl.core.csproj" />
   </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.9.1" />
     <PackageReference Include="NoP77svk.Console" Version="2023.3.1" />
 <!--    <PackageReference Include="nulastudio.NetBeauty" Version="2.1.2.1" />	-->
   </ItemGroup>
+
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
@@ -30,10 +32,12 @@
     <BeautyOnPublishOnly>True</BeautyOnPublishOnly>
     <BeautyEnableDebugging>False</BeautyEnableDebugging>
   </PropertyGroup>
+
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DebugType>none</DebugType>
     <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="7.0.1">
       <PrivateAssets>all</PrivateAssets>
@@ -44,13 +48,28 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
+
   <ItemGroup>
     <Compile Include="..\GlobalSuppressions.cs" Link="GlobalSuppressions.cs" />
   </ItemGroup>
+
   <Target Name="PostClean" AfterTargets="Clean">
     <RemoveDir Directories="$(BaseIntermediateOutputPath)" />
     <!-- obj -->
     <RemoveDir Directories="$(BaseOutputPath)" />
     <!-- bin -->
+  </Target>
+
+  <ItemGroup>
+    <CommonAssetFiles Include="../_assets/**/*" CopyToOutputDirectory="PreserveNewest" />
+    <CommonAssetFiles Include="../*.md" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <Target Name="CopyCustomContent" AfterTargets="AfterBuild">
+    <Copy SourceFiles="@(CommonAssetFiles)" DestinationFolder="$(OutDir)/%(RecursiveDir)" SkipUnchangedFiles="true" />
+  </Target>
+
+  <Target Name="CopyCustomContentOnPublish" AfterTargets="Publish">
+    <Copy SourceFiles="@(CommonAssetFiles)" DestinationFolder="$(PublishDir)/%(RecursiveDir)" SkipUnchangedFiles="true" />
   </Target>
 </Project>

@@ -54,10 +54,10 @@
   </ItemGroup>
 
   <Target Name="CopyCustomContent" AfterTargets="AfterBuild">
-    <Copy SourceFiles="@(CommonAssetFiles)" DestinationFolder="$(OutDir)" />
+    <Copy SourceFiles="@(CommonAssetFiles)" DestinationFolder="$(OutDir)/%(RecursiveDir)" SkipUnchangedFiles="true" />
   </Target>
 
   <Target Name="CopyCustomContentOnPublish" AfterTargets="Publish">
-    <Copy SourceFiles="@(CommonAssetFiles)" DestinationFolder="$(PublishDir)" />
+    <Copy SourceFiles="@(CommonAssetFiles)" DestinationFolder="$(PublishDir)/%(RecursiveDir)" SkipUnchangedFiles="true" />
   </Target>
 </Project>
