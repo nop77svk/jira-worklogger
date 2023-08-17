@@ -10,19 +10,26 @@ public class FillCLI
     [Option('i', "input", HelpText = "\nInput CSVs with the worklogs", Separator = ',', Required = true)]
     public IEnumerable<string> InputFiles { get; set; } = new string[0];
 
-    [Option("ifs", HelpText = "Input CSV fields delimiter")]
+    [Option("ifs", HelpText = "Input CSV fields delimiter"
+        + $"\nJSON config: $.{nameof(core.AppConfig.CsvOptions)}.{nameof(inputs.CsvFormatConfig.FieldDelimiter)}")]
     public string? FieldDelimiter { get; set; }
 
-    [Option('t', "target", HelpText = "Connection string to Jira server in the form of <user name>@<server host>[:<server port>]\nNote: The \"https://\" scheme is automatically asserted with this option!")]
+    [Option('t', "target", HelpText = "Connection string to Jira server in the form of <user name>@<server host>[:<server port>]"
+        + "\nNote: The \"https://\" scheme is automatically asserted with this option!"
+        + $"\nJSON config: $.{nameof(core.AppConfig.JiraServer)}.{nameof(jira.ServerConfig.BaseUrl)} for <server host>[:<server port>]"
+        + $"\nJSON config: $.{nameof(core.AppConfig.User)}.{nameof(core.UserConfig.Name)} for <user name>")]
     public string? UserCredentials { get; set; }
 
-    [Option("no-proxy", HelpText = "Turn off proxying the HTTP(S) connections to Jira server")]
+    [Option("no-proxy", HelpText = "Turn off proxying the HTTP(S) connections to Jira server"
+        + $"\nJSON config: $.{nameof(core.AppConfig.JiraServer)}.{nameof(jira.ServerConfig.UseProxy)} (negated!)")]
     public bool? NoProxy { get; set; }
 
-    [Option("max-connections-per-server", HelpText = "Limit the number of concurrent connections to Jira server")]
+    [Option("max-connections-per-server", HelpText = "Limit the number of concurrent connections to Jira server"
+        + $"\nJSON config: $.{nameof(core.AppConfig.JiraServer)}.{nameof(jira.ServerConfig.MaxConnectionsPerServer)}")]
     public int? MaxConnectionsPerServer { get; set; }
 
-    [Option("no-ssl-cert-check", HelpText = "Skip SSL/TLS certificate checks (for self-signed certificates)")]
+    [Option("no-ssl-cert-check", HelpText = "Skip SSL/TLS certificate checks (for self-signed certificates)"
+        + $"\nJSON config: $.{nameof(core.AppConfig.JiraServer)}.{nameof(jira.ServerConfig.SkipSslCertificateCheck)}")]
     public bool? SkipSslCertificateCheck { get; set; }
 
     public core.AppConfig ToAppConfig()
