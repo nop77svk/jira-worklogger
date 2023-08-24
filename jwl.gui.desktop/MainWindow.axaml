@@ -5,5 +5,21 @@
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="jwl.gui.desktop.MainWindow"
         Title="jwl.gui.desktop">
-    Welcome to Avalonia!
+  <Border Background="LightBlue"
+          BorderBrush="Black"
+          BorderThickness="2"
+          Padding="15">
+    <StackPanel Background="White"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Top">
+      <TextBlock Margin="5,0"
+                 FontSize="18"
+                 HorizontalAlignment="Center">
+        Alignment, Margin and Padding Sample
+      </TextBlock>
+      <Button HorizontalAlignment="Left" Margin="20">Button 1</Button>
+      <Button HorizontalAlignment="Right" Margin="10">Button 2</Button>
+      <Button HorizontalAlignment="Stretch">Button 3</Button>
+    </StackPanel>
+  </Border>
 </Window>
