@@ -2,24 +2,40 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        xmlns:vm="using:jwl.gui.desktop"
+        mc:Ignorable="d" d:DesignWidth="1024" d:DesignHeight="768"
+        Width="640" Height="480"
         x:Class="jwl.gui.desktop.MainWindow"
-        Title="jwl.gui.desktop">
-  <Border Background="LightBlue"
-          BorderBrush="Black"
-          BorderThickness="2"
-          Padding="15">
-    <StackPanel Background="White"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Top">
-      <TextBlock Margin="5,0"
-                 FontSize="18"
-                 HorizontalAlignment="Center">
-        Alignment, Margin and Padding Sample
-      </TextBlock>
-      <Button HorizontalAlignment="Left" Margin="20">Button 1</Button>
-      <Button HorizontalAlignment="Right" Margin="10">Button 2</Button>
-      <Button HorizontalAlignment="Stretch">Button 3</Button>
-    </StackPanel>
-  </Border>
+        Title="Jira WorkLogger Desktop">
+
+  <Window.DataContext>
+    <jwl.gui.desktop.MainWindowDataContext/>
+  </Window.DataContext>
+
+  <DockPanel LastChildFill="True">
+
+    <Menu DockPanel.Dock="Top">
+      <MenuItem Header="_File">
+        <MenuItem Header="Open _CSV..."/>
+        <MenuItem Header="_Process"/>
+        <Separator />
+        <MenuItem Header="_Settings"/>
+        <Separator />
+        <MenuItem Header="E_xit" Command="{Binding ExitApplication}"/>
+      </MenuItem>
+      <MenuItem Header="_Process">
+        <MenuItem Header="_Merge to Jira"/>
+        <MenuItem Header="Check _Tempo worklog types"/>
+      </MenuItem>
+      <MenuItem Header="_Help">
+        <MenuItem Header="_About"/>
+        <MenuItem Header="_Usage"/>
+      </MenuItem>
+    </Menu>
+
+    <ProgressBar DockPanel.Dock="Bottom" Value="12" Maximum="100"/>
+  
+    <Border Margin="4">
+    </Border>
+  </DockPanel>
 </Window>
