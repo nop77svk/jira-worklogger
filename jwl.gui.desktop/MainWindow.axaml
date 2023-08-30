@@ -9,7 +9,7 @@
         Title="Jira WorkLogger Desktop">
 
   <Window.DataContext>
-    <jwl.gui.desktop.MainWindowDataContext/>
+    <vm:MainWindowDataContext/>
   </Window.DataContext>
 
   <DockPanel LastChildFill="True">
