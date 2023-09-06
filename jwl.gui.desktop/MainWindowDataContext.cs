@@ -1,13 +1,23 @@
 namespace jwl.gui.desktop;
 using System.Windows.Input;
 using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Input;
+using Avalonia.Controls.ApplicationLifetimes;
+using CommunityToolkit.Mvvm.Input;
 
-public class MainWindowDataContext
+public class MainWindowViewModel
 {
-    public void ExitApplication()
+    public ICommand MenuFileExitCommand { get; }
+
+    public MainWindowViewModel()
     {
-        // Application?.Current?.Shutdown();
+        MenuFileExitCommand = new RelayCommand(ExitApplication);
+    }
+
+    private void ExitApplication()
+    {
+        if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktopLifetime)
+        {
+            desktopLifetime.MainWindow?.Close();
+        }
     }
 }

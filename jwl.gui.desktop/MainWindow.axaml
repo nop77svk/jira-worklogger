@@ -9,7 +9,7 @@
         Title="Jira WorkLogger Desktop">
 
   <Window.DataContext>
-    <vm:MainWindowDataContext/>
+    <vm:MainWindowViewModel/>
   </Window.DataContext>
 
   <DockPanel LastChildFill="True">
@@ -21,7 +21,7 @@
         <Separator />
         <MenuItem Header="_Settings"/>
         <Separator />
-        <MenuItem Header="E_xit" Command="{Binding ExitApplication}"/>
+        <MenuItem Header="E_xit" Command="{Binding MenuFileExitCommand}"/>
       </MenuItem>
       <MenuItem Header="_Process">
         <MenuItem Header="_Merge to Jira"/>
