@@ -44,6 +44,7 @@ public class JwlCoreProcess : IDisposable
         _httpClient = new HttpClient(_httpClientHandler);
         _jiraClient = new JiraServerApi(_httpClient, _config.JiraServer?.BaseUrl ?? string.Empty);
 
+        /* 2do!...
         _jiraClient.WsClient.HttpRequestPostprocess = req =>
         {
             // 2do! optional logging of request bodies
@@ -53,6 +54,7 @@ public class JwlCoreProcess : IDisposable
         {
             // 2do! optional logging of response bodies
         };
+        */
     }
 
     public async Task PreProcess()

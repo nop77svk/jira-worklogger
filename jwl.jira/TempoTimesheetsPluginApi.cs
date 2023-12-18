@@ -1,5 +1,6 @@
 namespace jwl.jira;
-using NoP77svk.Web.WS;
+using System.Net.Http.Json;
+using jwl.infra;
 
 // https://www.tempo.io/server-api-documentation/timesheets
 public static class TempoTimesheetsPluginApiExt
@@ -30,14 +31,7 @@ public static class TempoTimesheetsPluginApiExt
                     }
             }
         };
-
-        string result = await self.WsClient.EndpointGetString(new JsonRestWsEndpoint(HttpMethod.Post)
-            .AddResourceFolder(@"rest")
-            .AddResourceFolder(@"tempo-timesheets")
-            .AddResourceFolder(@"4")
-            .AddResourceFolder(@"worklogs")
-            .WithContent(request)
-        );
+        await self.HttpClient.PostAsJsonAsync(@"rest/tempo-timesheets/4/worklogs", request);
     }
 
     public static async Task AddWorklog(this JiraServerApi self, string issueKey, string userKey, DateOnly day, int timeSpentSeconds, string tempoWorklogType, string comment)
@@ -47,17 +41,21 @@ public static class TempoTimesheetsPluginApiExt
 
     public static async Task DeleteWorklog(this JiraServerApi self, long worklogId)
     {
-        await self.WsClient.EndpointCall(new JsonRestWsEndpoint(HttpMethod.Delete)
-            .AddResourceFolder(@"rest")
-            .AddResourceFolder(@"tempo-timesheets")
-            .AddResourceFolder(@"4")
-            .AddResourceFolder(@"worklogs")
-            .AddResourceFolder(worklogId.ToString())
-        );
+        UriBuilder uriBuilder = new UriBuilder()
+        {
+            Path = new UriPathBuilder(@"rest/tempo-timesheets/4/worklogs")
+                .Add(worklogId.ToString())
+        };
+        await self.HttpClient.DeleteAsync(uriBuilder.Uri);
     }
 
     public static async Task UpdateWorklogPeriod(this JiraServerApi self, int worklogId, DateOnly dayFrom, DateOnly dayTo, int timeSpentSeconds, string comment, string tempoWorklogType, bool includeNonWorkingDays = false)
     {
+        UriBuilder uriBuilder = new UriBuilder()
+        {
+            Path = new UriPathBuilder(@"rest/tempo-timesheets/4/worklogs")
+                .Add(worklogId.ToString())
+        };
         var request = new api.rest.request.TempoUpdateWorklog()
         {
             Started = new api.rest.common.TempoDate(dayFrom),
@@ -78,15 +76,7 @@ public static class TempoTimesheetsPluginApiExt
                     }
             }
         };
-
-        await self.WsClient.EndpointCall(new JsonRestWsEndpoint(HttpMethod.Put)
-            .AddResourceFolder(@"rest")
-            .AddResourceFolder(@"tempo-timesheets")
-            .AddResourceFolder(@"4")
-            .AddResourceFolder(@"worklogs")
-            .AddResourceFolder(worklogId.ToString())
-            .WithContent(request)
-        );
+        await self.HttpClient.PutAsJsonAsync(uriBuilder.Uri, request);
     }
 
     public static async Task UpdateWorklog(this JiraServerApi self, int worklogId, DateOnly day, int timeSpentSeconds, string comment, string tempoWorklogType)
@@ -96,14 +86,7 @@ public static class TempoTimesheetsPluginApiExt
 
     public static async Task<api.rest.response.TempoWorklogAttributeDefinition[]> GetWorklogAttributesEnum(this JiraServerApi self)
     {
-        IAsyncEnumerable<api.rest.response.TempoWorklogAttributeDefinition[]> response = self.WsClient.EndpointGetObject<api.rest.response.TempoWorklogAttributeDefinition[]>(new JsonRestWsEndpoint(HttpMethod.Get)
-            .AddResourceFolder(@"rest")
-            .AddResourceFolder(@"tempo-core")
-            .AddResourceFolder(@"1")
-            .AddResourceFolder(@"work-attribute")
-        );
-
-        return await response.FirstAsync();
+        return await self.HttpClient.GetJsonAsync<api.rest.response.TempoWorklogAttributeDefinition[]>(@"rest/tempo-core/1/work-attribute");
     }
 
     public static async Task<api.rest.response.TempoWorklog[]> GetIssueWorklogs(this JiraServerApi self, DateOnly from, DateOnly to, IEnumerable<string>? issueKeys, IEnumerable<string>? userKeys)
@@ -113,16 +96,7 @@ public static class TempoTimesheetsPluginApiExt
             IssueKey = issueKeys?.ToArray(),
             UserKey = userKeys?.ToArray()
         };
-
-        IAsyncEnumerable<api.rest.response.TempoWorklog[]> response = self.WsClient.EndpointGetObject<api.rest.response.TempoWorklog[]>(new JsonRestWsEndpoint(HttpMethod.Post)
-            .AddResourceFolder(@"rest")
-            .AddResourceFolder(@"tempo-timesheets")
-            .AddResourceFolder(@"4")
-            .AddResourceFolder(@"worklogs")
-            .AddResourceFolder(@"search")
-            .WithContent(request)
-        );
-
-        return await response.FirstAsync();
+        var response = await self.HttpClient.PostAsJsonAsync(@"rest/tempo-timesheets/4/worklogs/search", request);
+        return await HttpClientJsonExt.DeserializeJsonStream<api.rest.response.TempoWorklog[]>(await response.Content.ReadAsStreamAsync());
     }
 }

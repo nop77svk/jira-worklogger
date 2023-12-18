@@ -1,8 +1,7 @@
+namespace jwl.gui.desktop;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-
-namespace jwl.gui.desktop;
 
 public partial class App : Application
 {
