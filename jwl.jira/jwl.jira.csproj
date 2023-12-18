@@ -29,7 +29,6 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <Compile Include="..\GlobalSuppressions.cs" Link="GlobalSuppressions.cs" />
-    <PackageReference Include="System.Linq.Async" Version="6.0.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\jwl.infra\jwl.infra.csproj" />
