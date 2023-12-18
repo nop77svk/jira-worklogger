@@ -1,24 +1,19 @@
 namespace jwl.jira;
-
 using System.Diagnostics.CodeAnalysis;
-
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using jwl.infra;
-using NoP77svk.Web.WS;
 
 public class JiraServerApi
 {
     public HttpClient HttpClient { get; }
     public Uri BaseUrl { get; }
-    public HttpWebServiceClient WsClient { get; }
-
+    
     public JiraServerApi(HttpClient httpClient, string baseUrl)
     {
         BaseUrl = new Uri(baseUrl, UriKind.Absolute);
         this.HttpClient = httpClient;
-        WsClient = new HttpWebServiceClient(httpClient, BaseUrl.Host, BaseUrl.Port, BaseUrl.Scheme);
     }
 
     public async Task<api.rest.common.JiraUserInfo> GetUserInfo(string userName)

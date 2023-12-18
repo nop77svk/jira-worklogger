@@ -1,9 +1,6 @@
 namespace jwl.jira;
-
 using System.Net.Http.Json;
 using jwl.infra;
-
-using NoP77svk.Web.WS;
 
 // https://www.tempo.io/server-api-documentation/timesheets
 public static class TempoTimesheetsPluginApiExt
