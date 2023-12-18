@@ -9,7 +9,7 @@ public class JiraServerApi
 {
     public HttpClient HttpClient { get; }
     public Uri BaseUrl { get; }
-    
+
     public JiraServerApi(HttpClient httpClient, string baseUrl)
     {
         BaseUrl = new Uri(baseUrl, UriKind.Absolute);
