@@ -1,37 +1,44 @@
-<Project Sdk="Microsoft.NET.Sdk" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
     <ProjectReference Include="..\jwl.core\jwl.core.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="CommandLineParser" Version="2.9.1" />
-    <PackageReference Include="NoP77svk.Console" Version="2023.3.1" />
-<!--    <PackageReference Include="nulastudio.NetBeauty" Version="2.1.2.1" />	-->
-  </ItemGroup>
-
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
-    <RuntimeIdentifiers>win-x86;win-x64;win-arm;linux-x64;linux-arm</RuntimeIdentifiers>
+    <Nullable>enable</Nullable>
+    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+  
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Product>Jira Worklogger</Product>
-    <AssemblyTitle>Jira Worklogger CLI</AssemblyTitle>
+    <AssemblyTitle>Jira Worklogger Desktop</AssemblyTitle>
     <Authors>Peter Hraško</Authors>
     <Company>Open source community</Company>
     <Copyright>Practically copyleft</Copyright>
     <NoWarn>1701;1702;AD0001;NETSDK1182</NoWarn>
-    <RootNamespace>jwl.console</RootNamespace>
-    <AssemblyName>jwlc</AssemblyName>
-    <PackageId>NoP77svk.jwl.console</PackageId>
+    <RootNamespace>jwl.gui.desktop</RootNamespace>
+    <AssemblyName>jwlw</AssemblyName>
+    <PackageId>NoP77svk.jwl.gui.desktop</PackageId>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-    <Version>1.1.0</Version>
+    <Version>0.0.0</Version>
 
 	<BeautyLibsDir>./bin</BeautyLibsDir>
 	<BeautyHiddens>hostfxr;hostpolicy;*.deps.json;*.runtimeconfig*.json;clrjit;coreclr;System.*.dll</BeautyHiddens>
     <BeautyOnPublishOnly>True</BeautyOnPublishOnly>
     <BeautyEnableDebugging>False</BeautyEnableDebugging>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.0.2" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.0.2" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.2" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.0.2" />
+    <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
+    <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.0.2" />
+  </ItemGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DebugType>none</DebugType>
