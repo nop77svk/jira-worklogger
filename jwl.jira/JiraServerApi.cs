@@ -1,101 +1,100 @@
 namespace jwl.jira;
+
+using System.Diagnostics.CodeAnalysis;
+
 using System.Linq;
 using System.Net.Http;
-using System.Text;
+using System.Net.Http.Json;
+using jwl.infra;
 using NoP77svk.Web.WS;
 
 public class JiraServerApi
 {
+    public HttpClient HttpClient { get; }
     public Uri BaseUrl { get; }
-
     public HttpWebServiceClient WsClient { get; }
 
     public JiraServerApi(HttpClient httpClient, string baseUrl)
     {
         BaseUrl = new Uri(baseUrl, UriKind.Absolute);
+        this.HttpClient = httpClient;
         WsClient = new HttpWebServiceClient(httpClient, BaseUrl.Host, BaseUrl.Port, BaseUrl.Scheme);
     }
 
     public async Task<api.rest.common.JiraUserInfo> GetUserInfo(string userName)
     {
-        IAsyncEnumerable<api.rest.common.JiraUserInfo> response = WsClient.EndpointGetObject<api.rest.common.JiraUserInfo>(new JsonRestWsEndpoint(HttpMethod.Get)
-            .AddResourceFolder(@"rest")
-            .AddResourceFolder(@"api")
-            .AddResourceFolder(@"2")
-            .AddResourceFolder(@"user")
-            .AddQuery(@"username", userName)
-        );
-
-        return await response.FirstAsync();
+        UriBuilder uriBuilder = new UriBuilder()
+        {
+            Path = @"rest/api/2/user",
+            Query = new UriQueryBuilder()
+                .Add(@"username", userName)
+        };
+        return await HttpClient.GetJsonAsync<api.rest.common.JiraUserInfo>(uriBuilder.Uri);
     }
 
     public async Task<api.rest.response.JiraIssueWorklogs> GetIssueWorklogs(string issueKey)
     {
-        JsonRestWsEndpoint wsep = new JsonRestWsEndpoint(HttpMethod.Get)
-            .AddResourceFolder(@"rest")
-            .AddResourceFolder(@"api")
-            .AddResourceFolder(@"2")
-            .AddResourceFolder(@"issue")
-            .AddResourceFolder(issueKey)
-            .AddResourceFolder(@"worklog");
-
-        IAsyncEnumerable<api.rest.response.JiraIssueWorklogs> response = WsClient.EndpointGetObject<api.rest.response.JiraIssueWorklogs>(wsep);
-
-        return await response.FirstAsync();
+        UriBuilder uriBuilder = new UriBuilder()
+        {
+            Path = new UriPathBuilder(@"rest/api/2/issue")
+                .Add(issueKey)
+                .Add(@"worklog")
+        };
+        return await HttpClient.GetJsonAsync<api.rest.response.JiraIssueWorklogs>(uriBuilder.Uri);
     }
 
     public async Task DeleteWorklog(long issueId, long worklogId, bool notifyUsers = false)
     {
-        await WsClient.EndpointCall(new JsonRestWsEndpoint(HttpMethod.Delete)
-            .AddResourceFolder(@"rest")
-            .AddResourceFolder(@"api")
-            .AddResourceFolder(@"2")
-            .AddResourceFolder(@"issue")
-            .AddResourceFolder(issueId.ToString())
-            .AddResourceFolder(@"worklog")
-            .AddResourceFolder(worklogId.ToString())
-            .AddQuery(@"notifyUsers", notifyUsers.ToString().ToLower())
-        );
+        UriBuilder uriBuilder = new UriBuilder()
+        {
+            Path = new UriPathBuilder(@"rest/api/2/issue")
+                .Add(issueId.ToString())
+                .Add(@"worklog")
+                .Add(worklogId.ToString()),
+            Query = new UriQueryBuilder()
+                .Add(@"notifyUsers", notifyUsers.ToString().ToLower())
+        };
+        await HttpClient.DeleteAsync(uriBuilder.Uri);
     }
 
     public async Task AddWorklog(string issueKey, DateTime day, int timeSpentSeconds, string comment)
     {
+        UriBuilder uriBuilder = new UriBuilder()
+        {
+            Path = new UriPathBuilder(@"rest/api/2/issue")
+                .Add(issueKey)
+                .Add(@"worklog")
+        };
         var request = new api.rest.request.JiraAddWorklogByIssueKey()
         {
-            Started = day.ToString(@"yyyy-MM-dd""T""hh"";""mm"";""ss.fffzzzz").Replace(":", string.Empty).Replace(';', ':'),
+            Started = day
+                .ToString(@"yyyy-MM-dd""T""hh"";""mm"";""ss.fffzzzz")
+                .Replace(":", string.Empty)
+                .Replace(';', ':'),
             TimeSpentSeconds = timeSpentSeconds,
             Comment = comment
         };
-
-        await WsClient.EndpointCall(new JsonRestWsEndpoint(HttpMethod.Post)
-            .AddResourceFolder(@"rest")
-            .AddResourceFolder(@"api")
-            .AddResourceFolder(@"2")
-            .AddResourceFolder(@"issue")
-            .AddResourceFolder(issueKey)
-            .AddResourceFolder(@"worklog")
-            .WithContent(request)
-        );
+        await HttpClient.PostAsJsonAsync(uriBuilder.Uri, request);
     }
 
     public async Task UpdateWorklog(string issueKey, int worklogId, DateTime day, int timeSpentSeconds, string comment)
     {
+        UriBuilder uriBuilder = new UriBuilder()
+        {
+            Path = new UriPathBuilder(@"rest/api/2/issue")
+                .Add(issueKey)
+                .Add(@"worklog")
+                .Add(worklogId.ToString())
+        };
         var request = new api.rest.request.JiraAddWorklogByIssueKey()
         {
-            Started = day.ToString(@"yyyy-MM-dd""T""hh"";""mm"";""ss.fffzzzz").Replace(":", string.Empty).Replace(';', ':'),
+            Started = day
+                .ToString(@"yyyy-MM-dd""T""hh"";""mm"";""ss.fffzzzz")
+                .Replace(":", string.Empty)
+                .Replace(';', ':'),
             TimeSpentSeconds = timeSpentSeconds,
             Comment = comment
         };
-
-        await WsClient.EndpointCall(new JsonRestWsEndpoint(HttpMethod.Put)
-            .AddResourceFolder(@"rest")
-            .AddResourceFolder(@"api")
-            .AddResourceFolder(@"2")
-            .AddResourceFolder(@"issue")
-            .AddResourceFolder(issueKey)
-            .AddResourceFolder(@"worklog")
-            .AddResourceFolder(worklogId.ToString())
-            .WithContent(request)
-        );
+        await HttpClient.PutAsJsonAsync(uriBuilder.Uri, request);
     }
 }
