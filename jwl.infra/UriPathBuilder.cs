@@ -4,7 +4,11 @@ public class UriPathBuilder
     : List<string>
 {
     public UriPathBuilder(string uriPath)
-        : base(uriPath.Split('/').Select(folder => Uri.UnescapeDataString(folder)))
+        : base(uriPath
+            .Split('/')
+            .Select(folder => Uri.UnescapeDataString(folder))
+            .Where(folder => !string.IsNullOrEmpty(folder))
+        )
     {
     }
 

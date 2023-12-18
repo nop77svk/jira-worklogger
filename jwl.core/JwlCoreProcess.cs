@@ -41,8 +41,11 @@ public class JwlCoreProcess : IDisposable
         if (_config.JiraServer?.SkipSslCertificateCheck ?? false)
             _httpClientHandler.ServerCertificateCustomValidationCallback = (_, _, _, _) => true;
 
-        _httpClient = new HttpClient(_httpClientHandler);
-        _jiraClient = new JiraServerApi(_httpClient, _config.JiraServer?.BaseUrl ?? string.Empty);
+        _httpClient = new HttpClient(_httpClientHandler)
+        {
+            BaseAddress = new Uri(_config.JiraServer?.BaseUrl ?? string.Empty)
+        };
+        _jiraClient = new JiraServerApi(_httpClient);
 
         /* 2do!...
         _jiraClient.WsClient.HttpRequestPostprocess = req =>

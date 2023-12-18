@@ -8,11 +8,9 @@ using jwl.infra;
 public class JiraServerApi
 {
     public HttpClient HttpClient { get; }
-    public Uri BaseUrl { get; }
 
-    public JiraServerApi(HttpClient httpClient, string baseUrl)
+    public JiraServerApi(HttpClient httpClient)
     {
-        BaseUrl = new Uri(baseUrl, UriKind.Absolute);
         this.HttpClient = httpClient;
     }
 
