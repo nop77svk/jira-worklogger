@@ -22,7 +22,7 @@ public class JiraServerApi
             Query = new UriQueryBuilder()
                 .Add(@"username", userName)
         };
-        return await HttpClient.GetJsonAsync<api.rest.common.JiraUserInfo>(uriBuilder.Uri);
+        return await HttpClient.GetAsJsonAsync<api.rest.common.JiraUserInfo>(uriBuilder.Uri.PathAndQuery);
     }
 
     public async Task<api.rest.response.JiraIssueWorklogs> GetIssueWorklogs(string issueKey)
@@ -33,7 +33,7 @@ public class JiraServerApi
                 .Add(issueKey)
                 .Add(@"worklog")
         };
-        return await HttpClient.GetJsonAsync<api.rest.response.JiraIssueWorklogs>(uriBuilder.Uri);
+        return await HttpClient.GetAsJsonAsync<api.rest.response.JiraIssueWorklogs>(uriBuilder.Uri.PathAndQuery);
     }
 
     public async Task DeleteWorklog(long issueId, long worklogId, bool notifyUsers = false)
@@ -47,7 +47,7 @@ public class JiraServerApi
             Query = new UriQueryBuilder()
                 .Add(@"notifyUsers", notifyUsers.ToString().ToLower())
         };
-        await HttpClient.DeleteAsync(uriBuilder.Uri);
+        await HttpClient.DeleteAsync(uriBuilder.Uri.PathAndQuery);
     }
 
     public async Task AddWorklog(string issueKey, DateTime day, int timeSpentSeconds, string comment)
@@ -67,7 +67,7 @@ public class JiraServerApi
             TimeSpentSeconds = timeSpentSeconds,
             Comment = comment
         };
-        await HttpClient.PostAsJsonAsync(uriBuilder.Uri, request);
+        await HttpClient.PostAsJsonAsync(uriBuilder.Uri.PathAndQuery, request);
     }
 
     public async Task UpdateWorklog(string issueKey, int worklogId, DateTime day, int timeSpentSeconds, string comment)
@@ -88,6 +88,6 @@ public class JiraServerApi
             TimeSpentSeconds = timeSpentSeconds,
             Comment = comment
         };
-        await HttpClient.PutAsJsonAsync(uriBuilder.Uri, request);
+        await HttpClient.PutAsJsonAsync(uriBuilder.Uri.PathAndQuery, request);
     }
 }

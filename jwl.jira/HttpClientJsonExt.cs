@@ -3,21 +3,21 @@ using System.Text.Json;
 
 public static class HttpClientJsonExt
 {
-    public static async Task<TResponse> GetJsonAsync<TResponse>(this HttpClient self, string? uri)
+    public static async Task<TResponse> GetAsJsonAsync<TResponse>(this HttpClient self, string uri)
     {
         using Stream response = await self.GetStreamAsync(uri);
-        TResponse result = await HttpClientJsonExt.DeserializeJsonStream<TResponse>(response);
+        TResponse result = await DeserializeJsonStreamAsync<TResponse>(response);
         return result;
     }
 
-    public static async Task<TResponse> GetJsonAsync<TResponse>(this HttpClient self, Uri? uri)
+    public static async Task<TResponse> GetAsJsonAsync<TResponse>(this HttpClient self, Uri uri)
     {
         using Stream response = await self.GetStreamAsync(uri);
-        TResponse result = await HttpClientJsonExt.DeserializeJsonStream<TResponse>(response);
+        TResponse result = await DeserializeJsonStreamAsync<TResponse>(response);
         return result;
     }
 
-    public static async Task<TResponse> DeserializeJsonStream<TResponse>(Stream stream)
+    public static async Task<TResponse> DeserializeJsonStreamAsync<TResponse>(Stream stream)
     {
         JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions()
         {
@@ -25,7 +25,7 @@ public static class HttpClientJsonExt
             IncludeFields = true
         };
         TResponse result = await JsonSerializer.DeserializeAsync<TResponse>(stream, jsonSerializerOptions)
-            ?? throw new InvalidDataException("Cannot deserialize JSON");
+            ?? throw new NullReferenceException("JSON deserialization NULL result");
         return result;
     }
 }

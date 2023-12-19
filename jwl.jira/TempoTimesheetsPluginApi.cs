@@ -46,7 +46,7 @@ public static class TempoTimesheetsPluginApiExt
             Path = new UriPathBuilder(@"rest/tempo-timesheets/4/worklogs")
                 .Add(worklogId.ToString())
         };
-        await self.HttpClient.DeleteAsync(uriBuilder.Uri);
+        await self.HttpClient.DeleteAsync(uriBuilder.Uri.PathAndQuery);
     }
 
     public static async Task UpdateWorklogPeriod(this JiraServerApi self, int worklogId, DateOnly dayFrom, DateOnly dayTo, int timeSpentSeconds, string comment, string tempoWorklogType, bool includeNonWorkingDays = false)
@@ -76,7 +76,7 @@ public static class TempoTimesheetsPluginApiExt
                     }
             }
         };
-        await self.HttpClient.PutAsJsonAsync(uriBuilder.Uri, request);
+        await self.HttpClient.PutAsJsonAsync(uriBuilder.Uri.PathAndQuery, request);
     }
 
     public static async Task UpdateWorklog(this JiraServerApi self, int worklogId, DateOnly day, int timeSpentSeconds, string comment, string tempoWorklogType)
@@ -86,7 +86,7 @@ public static class TempoTimesheetsPluginApiExt
 
     public static async Task<api.rest.response.TempoWorklogAttributeDefinition[]> GetWorklogAttributesEnum(this JiraServerApi self)
     {
-        return await self.HttpClient.GetJsonAsync<api.rest.response.TempoWorklogAttributeDefinition[]>(@"rest/tempo-core/1/work-attribute");
+        return await self.HttpClient.GetAsJsonAsync<api.rest.response.TempoWorklogAttributeDefinition[]>(@"rest/tempo-core/1/work-attribute");
     }
 
     public static async Task<api.rest.response.TempoWorklog[]> GetIssueWorklogs(this JiraServerApi self, DateOnly from, DateOnly to, IEnumerable<string>? issueKeys, IEnumerable<string>? userKeys)
@@ -97,6 +97,6 @@ public static class TempoTimesheetsPluginApiExt
             UserKey = userKeys?.ToArray()
         };
         var response = await self.HttpClient.PostAsJsonAsync(@"rest/tempo-timesheets/4/worklogs/search", request);
-        return await HttpClientJsonExt.DeserializeJsonStream<api.rest.response.TempoWorklog[]>(await response.Content.ReadAsStreamAsync());
+        return await HttpClientJsonExt.DeserializeJsonStreamAsync<api.rest.response.TempoWorklog[]>(await response.Content.ReadAsStreamAsync());
     }
 }
