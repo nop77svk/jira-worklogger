@@ -61,7 +61,7 @@ jobs:
     - name: Release All Builds
       uses: softprops/action-gh-release@v1
       with:
-        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        token: "${{ secrets.GITHUB_TOKEN }}"
         prerelease: false
         files: |
           ./_publish.all/jira-worklogger.*
