@@ -59,7 +59,7 @@ jobs:
         zip -r9v ../_publish.all/jira-worklogger.${VERSION}.portable.zip .
         cd ..
     - name: Release All Builds
-      uses: marvinpinto/action-automatic-releases@latest
+      uses: uses: softprops/action-gh-release@v1
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         prerelease: false
