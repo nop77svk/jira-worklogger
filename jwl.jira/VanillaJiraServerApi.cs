@@ -57,8 +57,7 @@ public class VanillaJiraServerApi
 
         await Task.WhenAll(responseTasks);
 
-        DateTime minDt = from.ToDateTime(TimeOnly.MinValue);
-        DateTime supDt = to.ToDateTime(TimeOnly.MinValue).AddDays(1);
+        (DateTime minDt, DateTime supDt) = DateOnlyUtils.DateOnlyRangeToDateTimeRange(from, to);
 
         var result = responseTasks
             .SelectMany(task => task.Result.Worklogs)
@@ -98,9 +97,23 @@ public class VanillaJiraServerApi
         await _httpClient.PostAsJsonAsync(uriBuilder.Uri.PathAndQuery, request);
     }
 
-    public Task AddWorklogPeriod(string issueKey, DateOnly dayFrom, DateOnly dayTo, int timeSpentSeconds, string? worklogType, string? comment, bool includeNonWorkingDays = false)
+    public async Task AddWorklogPeriod(string issueKey, DateOnly dayFrom, DateOnly dayTo, int timeSpentSeconds, string? worklogType, string? comment, bool includeNonWorkingDays = false)
     {
-        throw new NotImplementedException(); // 2do!
+        DateOnly[] daysInPeriod = Enumerable.Range(0, dayFrom.NumberOfDaysTo(dayTo))
+            .Select(i => dayFrom.AddDays(i))
+            .Where(day => includeNonWorkingDays || day.DayOfWeek is not DayOfWeek.Saturday and not DayOfWeek.Sunday)
+            .ToArray();
+
+        if (!daysInPeriod.Any())
+            return;
+
+        int timeSpentSecondsPerSingleDay = timeSpentSeconds / daysInPeriod.Length;
+
+        Task[] addWorklogTasks = daysInPeriod
+            .Select(day => AddWorklog(issueKey, day, timeSpentSecondsPerSingleDay, worklogType, comment))
+            .ToArray();
+
+        await Task.WhenAll(addWorklogTasks);
     }
 
     public async Task DeleteWorklog(long issueId, long worklogId, bool notifyUsers = false)
