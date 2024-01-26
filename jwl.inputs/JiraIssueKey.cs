@@ -1,4 +1,4 @@
-namespace jwl.jira;
+namespace jwl.inputs;
 
 public struct JiraIssueKey
 {

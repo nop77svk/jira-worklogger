@@ -1,5 +1,5 @@
 #pragma warning disable SA1313
-namespace jwl.jira;
+namespace jwl.inputs;
 
 public struct InputWorkLog
 {
