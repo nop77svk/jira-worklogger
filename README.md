@@ -23,6 +23,13 @@ The jwl.config file is a simple JSON structure. It can be placed in (and will be
  - roaming application data (<code>%USERPROFILE%\AppData\Roaming</code>)
  - jwl's "installation" folder
 
+### "ServerClass" setting
+
+Available values are:
+ - VanillaJira
+ - TempoTimeSheetsPlugin
+ - ICTimePlugin (not implemented yet)
+
 As for the CLI worklogger binary, there are command-line options available as well. Any partial options supplied via CLI will override their respective jwl.config counterparts with the highest priority.
 
 ## The input CSV structure
