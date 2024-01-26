@@ -21,7 +21,7 @@ public class JwlCoreProcess : IDisposable
     private AppConfig _config;
     private HttpClientHandler _httpClientHandler;
     private HttpClient _httpClient;
-    private JiraServerApi _jiraClient;
+    private VanillaJiraServerApi _jiraClient;
 
     private jwl.jira.api.rest.common.JiraUserInfo? _userInfo;
     private Dictionary<string, jira.api.rest.common.TempoWorklogAttributeStaticListValue> availableWorklogTypes = new ();
@@ -45,7 +45,7 @@ public class JwlCoreProcess : IDisposable
         {
             BaseAddress = new Uri(_config.JiraServer?.BaseUrl ?? string.Empty)
         };
-        _jiraClient = new JiraServerApi(_httpClient);
+        _jiraClient = new VanillaJiraServerApi(_httpClient);
 
         /* 2do!...
         _jiraClient.WsClient.HttpRequestPostprocess = req =>
@@ -171,7 +171,7 @@ public class JwlCoreProcess : IDisposable
         IEnumerable<jira.api.rest.response.TempoWorklogAttributeDefinition> attrEnumDefs = await _jiraClient.GetWorklogAttributesEnum();
 
         return attrEnumDefs
-            .Where(attrDef => attrDef.Key?.Equals(TempoTimesheetsPluginApiExt.WorklogTypeAttributeKey) ?? false)
+            .Where(attrDef => attrDef.Key?.Equals(JiraWithTempoPluginApi.WorklogTypeAttributeKey) ?? false)
             .Where(attrDef => attrDef.Type != null
                 && attrDef.Type?.Value == jira.api.rest.common.TempoWorklogAttributeTypeIdentifier.StaticList
             )
