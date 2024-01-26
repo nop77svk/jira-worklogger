@@ -4,9 +4,9 @@ public static class ServerApiFactory
 {
     public enum ServerClass
     {
-        VanillaJira,
-        TempoTimeSheetsPlugin,
-        ICTimePlugin
+        VanillaJira = 0,
+        TempoTimeSheetsPlugin = 1,
+        ICTimePlugin = 2
     }
 
     public static IJiraServerApi CreateApi(HttpClient httpClient, string userName, ServerClass serverClass)
