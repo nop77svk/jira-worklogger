@@ -32,15 +32,17 @@ public class VanillaJiraServerApi
         return await _httpClient.GetAsJsonAsync<api.rest.common.JiraUserInfo>(uriBuilder.Uri.PathAndQuery);
     }
 
-    public async Task<TempoWorklogAttributeDefinition[]> GetWorklogTypes()
+    #pragma warning disable CS1998
+    public async Task<WorkLogType[]> GetWorklogTypes()
     {
-        return Array.Empty<TempoWorklogAttributeDefinition>();
+        return Array.Empty<WorkLogType>();
     }
+    #pragma warning restore
 
-    public async Task<api.rest.response.JiraIssueWorklogsWorklog[]> GetIssueWorklogs(DateOnly from, DateOnly to, IEnumerable<string>? issueKeys)
+    public async Task<WorkLog[]> GetIssueWorklogs(DateOnly from, DateOnly to, IEnumerable<string>? issueKeys)
     {
         if (issueKeys is null)
-            return Array.Empty<api.rest.response.JiraIssueWorklogsWorklog>();
+            return Array.Empty<WorkLog>();
 
         Task<api.rest.response.JiraIssueWorklogs>[] responseTasks = issueKeys
             .Distinct()
@@ -55,12 +57,25 @@ public class VanillaJiraServerApi
 
         await Task.WhenAll(responseTasks);
 
-        Date
+        DateTime minDt = from.ToDateTime(TimeOnly.MinValue);
+        DateTime supDt = to.ToDateTime(TimeOnly.MinValue).AddDays(1);
 
-        return responseTasks
+        var result = responseTasks
             .SelectMany(task => task.Result.Worklogs)
-            .Where(worklog => worklog.Started.Value >= from.ToDateTime(TimeOnly.MinValue) && worklog.Started.Value <
+            .Where(worklog => worklog.Started.Value >= minDt && worklog.Started.Value < supDt)
+            .Select(wl => new WorkLog(
+                Id: wl.Id.Value,
+                IssueId: wl.IssueId.Value,
+                AuthorName: wl.Author.Name,
+                AuthorKey: wl.Author.Key,
+                Created: wl.Created.Value,
+                Started: wl.Started.Value,
+                TimeSpentSeconds: wl.TimeSpentSeconds,
+                Comment: wl.Comment
+            ))
             .ToArray();
+
+        return result;
     }
 
     public async Task AddWorklog(string issueKey, DateOnly day, int timeSpentSeconds, string? worklogType, string? comment)
@@ -121,10 +136,5 @@ public class VanillaJiraServerApi
             Comment = comment
         };
         await _httpClient.PutAsJsonAsync(uriBuilder.Uri.PathAndQuery, request);
-    }
-
-    public Task UpdateWorklogPeriod(string issueKey, long worklogId, DateOnly dayFrom, DateOnly dayTo, int timeSpentSeconds, string? comment, string? tempoWorklogType, bool includeNonWorkingDays = false)
-    {
-        throw new NotImplementedException();
     }
 }

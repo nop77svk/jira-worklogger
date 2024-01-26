@@ -25,25 +25,58 @@ public class JiraWithTempoPluginApi
 
     public async Task<JiraUserInfo> GetUserInfo()
     {
-        return await _vanillaJiraServerApi.GetUserInfo(UserName);
+        return await _vanillaJiraServerApi.GetUserInfo();
     }
 
-    public async Task<api.rest.response.TempoWorklogAttributeDefinition[]> GetWorklogTypes()
+    public async Task<api.rest.response.TempoWorklogAttributeDefinition[]> GetWorklogAttributeDefinitions()
     {
         return await _httpClient.GetAsJsonAsync<api.rest.response.TempoWorklogAttributeDefinition[]>(@"rest/tempo-core/1/work-attribute");
     }
 
-    public async Task<api.rest.response.TempoWorklog[]> GetIssueWorklogs(DateOnly from, DateOnly to, IEnumerable<string>? issueKeys)
+    public async Task<WorkLogType[]> GetWorklogTypes()
+    {
+        api.rest.response.TempoWorklogAttributeDefinition[] attrEnumDefs = await GetWorklogAttributeDefinitions();
+
+        var result = attrEnumDefs
+            .Where(attrDef => attrDef.Key?.Equals(WorklogTypeAttributeKey) ?? false)
+            .Where(attrDef => attrDef.Type != null
+                && attrDef.Type?.Value == TempoWorklogAttributeTypeIdentifier.StaticList
+            )
+            .SelectMany(attrDef => attrDef.StaticListValues)
+            .Where(staticListItem => !string.IsNullOrEmpty(staticListItem.Name) && !string.IsNullOrEmpty(staticListItem.Value))
+            .Select(staticListItem => new WorkLogType(staticListItem.Name ?? string.Empty, staticListItem.Value ?? string.Empty, staticListItem.Sequence ?? -1))
+            .ToArray();
+
+        return result;
+    }
+
+    public async Task<WorkLog[]> GetIssueWorklogs(DateOnly from, DateOnly to, IEnumerable<string>? issueKeys)
     {
         JiraUserInfo userInfo = await GetUserInfo();
+        string userKey = userInfo.Key ?? throw new ArgumentNullException($"{nameof(userInfo)}.{nameof(userInfo.Key)}");
 
         var request = new api.rest.request.TempoFindWorklogs(from, to)
         {
             IssueKey = issueKeys?.ToArray(),
-            UserKey = new string[] { userInfo.Key }
+            UserKey = new string[] { userKey }
         };
         var response = await _httpClient.PostAsJsonAsync(@"rest/tempo-timesheets/4/worklogs/search", request);
-        return await HttpClientJsonExt.DeserializeJsonStreamAsync<api.rest.response.TempoWorklog[]>(await response.Content.ReadAsStreamAsync());
+        var tempoWorkLogs = await HttpClientJsonExt.DeserializeJsonStreamAsync<api.rest.response.TempoWorklog[]>(await response.Content.ReadAsStreamAsync());
+
+        var result = tempoWorkLogs
+            .Select(wl => new WorkLog(
+                Id: wl.Id ?? -1,
+                IssueId: wl.IssueId ?? -1,
+                AuthorName: wl.WorkerKey == userKey ? UserName : null,
+                AuthorKey: wl.WorkerKey,
+                Created: wl.Created?.Value ?? DateTime.MinValue,
+                Started: wl.Started?.Value ?? DateTime.MinValue,
+                TimeSpentSeconds: wl.TimeSpentSeconds ?? -1,
+                Comment: wl.Comment ?? string.Empty
+            ))
+            .ToArray();
+
+        return result;
     }
 
     public async Task AddWorklog(string issueKey, DateOnly day, int timeSpentSeconds, string? worklogType, string? comment)
@@ -51,8 +84,11 @@ public class JiraWithTempoPluginApi
         await AddWorklogPeriod(issueKey, day, day, timeSpentSeconds, worklogType, comment);
     }
 
-    public async Task AddWorklogPeriod(string issueKey, string userKey, DateOnly dayFrom, DateOnly dayTo, int timeSpentSeconds, string? tempoWorklogType, string? comment, bool includeNonWorkingDays = false)
+    public async Task AddWorklogPeriod(string issueKey, DateOnly dayFrom, DateOnly dayTo, int timeSpentSeconds, string? tempoWorklogType, string? comment, bool includeNonWorkingDays = false)
     {
+        JiraUserInfo userInfo = await GetUserInfo();
+        string userKey = userInfo.Key ?? throw new ArgumentNullException($"{nameof(userInfo)}.{nameof(userInfo.Key)}");
+
         var request = new api.rest.request.TempoAddWorklogByIssueKey()
         {
             IssueKey = issueKey,
@@ -94,7 +130,7 @@ public class JiraWithTempoPluginApi
         await UpdateWorklogPeriod(issueKey, worklogId, day, day, timeSpentSeconds, comment, worklogType);
     }
 
-    public async Task UpdateWorklogPeriod(string issueKey, long worklogId, DateOnly dayFrom, DateOnly dayTo, int timeSpentSeconds, string? comment, string? tempoWorklogType, bool includeNonWorkingDays = false)
+    private async Task UpdateWorklogPeriod(string issueKey, long worklogId, DateOnly dayFrom, DateOnly dayTo, int timeSpentSeconds, string? comment, string? tempoWorklogType, bool includeNonWorkingDays = false)
     {
         UriBuilder uriBuilder = new UriBuilder()
         {
