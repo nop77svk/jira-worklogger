@@ -24,7 +24,7 @@ public class JwlCoreProcess : IDisposable
     private VanillaJiraServerApi _jiraClient;
 
     private jwl.jira.api.rest.common.JiraUserInfo? _userInfo;
-    private Dictionary<string, jira.api.rest.common.TempoWorklogAttributeStaticListValue> availableWorklogTypes = new ();
+    private Dictionary<string, WorkLogType> availableWorklogTypes = new ();
 
     public JwlCoreProcess(AppConfig config, ICoreProcessInteraction interaction)
     {
@@ -45,7 +45,7 @@ public class JwlCoreProcess : IDisposable
         {
             BaseAddress = new Uri(_config.JiraServer?.BaseUrl ?? string.Empty)
         };
-        _jiraClient = new VanillaJiraServerApi(_httpClient);
+        _jiraClient = new VanillaJiraServerApi(_httpClient, _config.User?.Name ?? throw new ArgumentNullException($"{nameof(_config)}.{nameof(_config.User)}.{nameof(_config.User.Name)})"));
 
         /* 2do!...
         _jiraClient.WsClient.HttpRequestPostprocess = req =>
@@ -79,11 +79,11 @@ public class JwlCoreProcess : IDisposable
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(@"Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes(jiraUserName + ":" + jiraUserPassword)));
 
         Feedback?.PreloadAvailableWorklogTypesStart();
-        availableWorklogTypes = await PreloadAvailableWorklogTypes();
+        availableWorklogTypes = (await _jiraClient.GetWorklogTypes()).ToDictionary(wlt => wlt.Value);
         Feedback?.PreloadAvailableWorklogTypesEnd();
 
         Feedback?.PreloadUserInfoStart(jiraUserName);
-        _userInfo = await _jiraClient.GetUserInfo(jiraUserName);
+        _userInfo = await _jiraClient.GetUserInfo();
         Feedback?.PreloadUserInfoEnd();
     }
 
@@ -94,13 +94,13 @@ public class JwlCoreProcess : IDisposable
         if (inputFilesFetched.Length > 0)
         {
             Feedback?.ReadCsvInputStart();
-            JiraWorklog[] inputWorklogs = await ReadInputFiles(inputFiles);
+            InputWorkLog[] inputWorklogs = await ReadInputFiles(inputFiles);
             Feedback?.ReadCsvInputEnd();
 
             if (inputWorklogs.Length > 0)
             {
                 Feedback?.RetrieveWorklogsForDeletionStart();
-                jira.api.rest.response.TempoWorklog[] worklogsForDeletion = await RetrieveWorklogsForDeletion(inputWorklogs);
+                WorkLog[] worklogsForDeletion = await RetrieveWorklogsForDeletion(inputWorklogs);
                 Feedback?.RetrieveWorklogsForDeletionEnd();
 
                 Feedback?.FillJiraWithWorklogsStart();
@@ -144,7 +144,7 @@ public class JwlCoreProcess : IDisposable
         }
     }
 
-    private async Task FillJiraWithWorklogs(JiraWorklog[] inputWorklogs, TempoWorklog[] worklogsForDeletion)
+    private async Task FillJiraWithWorklogs(InputWorkLog[] inputWorklogs, WorkLog[] worklogsForDeletion)
     {
         Feedback?.FillJiraWithWorklogsSetTarget(inputWorklogs.Length, worklogsForDeletion.Length);
 
@@ -152,9 +152,9 @@ public class JwlCoreProcess : IDisposable
             throw new ArgumentNullException(@"Unresolved Jira key for the logged-on user");
 
         Task[] fillJiraWithWorklogsTasks = worklogsForDeletion
-            .Select(worklog => _jiraClient.DeleteWorklog(worklog.Id ?? 0))
+            .Select(worklog => _jiraClient.DeleteWorklog(worklog.IssueId, worklog.Id))
             .Concat(inputWorklogs
-                .Select(worklog => _jiraClient.AddWorklog(worklog.IssueKey.ToString(), _userInfo.Key, DateOnly.FromDateTime(worklog.Date), (int)worklog.TimeSpent.TotalSeconds, worklog.TempWorklogType, string.Empty))
+                .Select(worklog => _jiraClient.AddWorklog(worklog.IssueKey.ToString(), DateOnly.FromDateTime(worklog.Date), (int)worklog.TimeSpent.TotalSeconds, worklog.TempWorklogType, string.Empty))
             )
             .ToArray();
 
@@ -166,26 +166,9 @@ public class JwlCoreProcess : IDisposable
         );
     }
 
-    private async Task<Dictionary<string, jira.api.rest.common.TempoWorklogAttributeStaticListValue>> PreloadAvailableWorklogTypes()
+    private async Task<InputWorkLog[]> ReadInputFiles(IEnumerable<string> fileNames)
     {
-        IEnumerable<jira.api.rest.response.TempoWorklogAttributeDefinition> attrEnumDefs = await _jiraClient.GetWorklogAttributesEnum();
-
-        return attrEnumDefs
-            .Where(attrDef => attrDef.Key?.Equals(JiraWithTempoPluginApi.WorklogTypeAttributeKey) ?? false)
-            .Where(attrDef => attrDef.Type != null
-                && attrDef.Type?.Value == jira.api.rest.common.TempoWorklogAttributeTypeIdentifier.StaticList
-            )
-            .Unnest(
-                retrieveNestedCollection: attrDef => attrDef.StaticListValues ?? Array.Empty<jira.api.rest.common.TempoWorklogAttributeStaticListValue>(),
-                resultSelector: (outer, inner) => inner
-            )
-            .Where(staticListItem => !string.IsNullOrEmpty(staticListItem.Value))
-            .ToDictionary(staticListItem => staticListItem.Value ?? string.Empty);
-    }
-
-    private async Task<JiraWorklog[]> ReadInputFiles(IEnumerable<string> fileNames)
-    {
-        Task<JiraWorklog[]>[] readerTasks = fileNames
+        Task<InputWorkLog[]>[] readerTasks = fileNames
             .Select(fileName => ReadInputFile(fileName))
             .ToArray();
 
@@ -201,17 +184,14 @@ public class JwlCoreProcess : IDisposable
             );
         }
 
-        JiraWorklog[] result = readerTasks
-            .Unnest(
-                retrieveNestedCollection: response => response.Result,
-                resultSelector: (response, jiraWorklog) => jiraWorklog
-            )
+        InputWorkLog[] result = readerTasks
+            .SelectMany(response => response.Result)
             .ToArray();
 
         return result;
     }
 
-    private async Task<JiraWorklog[]> ReadInputFile(string fileName)
+    private async Task<InputWorkLog[]> ReadInputFile(string fileName)
     {
         WorklogReaderAggregatedConfig readerConfig = new WorklogReaderAggregatedConfig()
         {
@@ -220,7 +200,7 @@ public class JwlCoreProcess : IDisposable
 
         using IWorklogReader worklogReader = WorklogReaderFactory.GetReaderFromFilePath(fileName, readerConfig);
 
-        Task<JiraWorklog[]> response = Task.Factory.StartNew(() =>
+        Task<InputWorkLog[]> response = Task.Factory.StartNew(() =>
         {
             return worklogReader
                 .Read(row =>
@@ -234,9 +214,9 @@ public class JwlCoreProcess : IDisposable
         return await response;
     }
 
-    private async Task<jira.api.rest.response.TempoWorklog[]> RetrieveWorklogsForDeletion(JiraWorklog[] inputWorklogs)
+    private async Task<WorkLog[]> RetrieveWorklogsForDeletion(InputWorkLog[] inputWorklogs)
     {
-        jira.api.rest.response.TempoWorklog[] result;
+        WorkLog[] result;
 
         if (_userInfo == null)
             throw new ArgumentNullException(@"User info not preloaded from Jira server");
@@ -250,7 +230,7 @@ public class JwlCoreProcess : IDisposable
 
         if (!inputWorklogDays.Any())
         {
-            result = Array.Empty<jira.api.rest.response.TempoWorklog>();
+            result = Array.Empty<WorkLog>();
         }
         else
         {
@@ -263,7 +243,7 @@ public class JwlCoreProcess : IDisposable
                 .OrderByDescending(x => x)
                 .ToArray();
 
-            result = await _jiraClient.GetIssueWorklogs(minInputWorklogDay, maxInputWorklogDay, inputIssueKeys, new string[] { _userInfo.Key });
+            result = await _jiraClient.GetIssueWorklogs(minInputWorklogDay, maxInputWorklogDay, inputIssueKeys);
         }
 
         return result;

@@ -23,7 +23,7 @@ public class WorklogCsvReader : IWorklogReader
         _csvReader = new CsvReader(inputFile, config);
     }
 
-    public IEnumerable<JiraWorklog> Read(Action<JiraWorklog>? postProcessResult = null)
+    public IEnumerable<InputWorkLog> Read(Action<InputWorkLog>? postProcessResult = null)
     {
         string[] dateFormats =
         {
@@ -53,7 +53,7 @@ public class WorklogCsvReader : IWorklogReader
                     continue;
             }
 
-            JiraWorklog result;
+            InputWorkLog result;
 
             try
             {
@@ -64,7 +64,7 @@ public class WorklogCsvReader : IWorklogReader
 
                 TimeSpan worklogTimeSpent = HumanReadableTimeSpan.Parse(row.TimeSpent, timespanTimeFormats);
 
-                result = new JiraWorklog()
+                result = new InputWorkLog()
                 {
                     IssueKey = worklogIssueKey,
                     Date = worklogDate,

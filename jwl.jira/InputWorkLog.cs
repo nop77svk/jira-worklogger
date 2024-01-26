@@ -1,7 +1,7 @@
 #pragma warning disable SA1313
 namespace jwl.jira;
 
-public struct JiraWorklog
+public struct InputWorkLog
 {
     public JiraIssueKey IssueKey;
     public DateTime Date;

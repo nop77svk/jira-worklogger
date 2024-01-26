@@ -2,11 +2,8 @@ namespace jwl.jira;
 
 using System.Collections.Generic;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Security.AccessControl;
 using jwl.infra;
-using jwl.jira.api.rest.response;
 
 public class VanillaJiraServerApi
     : IJiraServerApi
@@ -70,6 +67,7 @@ public class VanillaJiraServerApi
                 Created: wl.Created.Value,
                 Started: wl.Started.Value,
                 TimeSpentSeconds: wl.TimeSpentSeconds,
+                WorkLogType: null,
                 Comment: wl.Comment
             ))
             .ToArray();
