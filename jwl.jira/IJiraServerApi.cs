@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-internal interface IJiraServerApi
+public interface IJiraServerApi
 {
     Task<api.rest.common.JiraUserInfo> GetUserInfo();
 
