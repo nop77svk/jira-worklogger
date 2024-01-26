@@ -20,6 +20,11 @@ public class FillCLI
         + $"\nJSON config: $.{nameof(core.AppConfig.User)}.{nameof(core.UserConfig.Name)} for <user name>")]
     public string? UserCredentials { get; set; }
 
+    [Option("server-class", HelpText = "Jira server class (whether vanilla or with timesheet plugins)"
+        + $"\nJSON config: $.{nameof(core.AppConfig.JiraServer)}.{nameof(jira.ServerConfig.ServerClass)}"
+        + $"\nAvailable values: {nameof(jira.JiraServerClass.VanillaJira)}, {nameof(jira.JiraServerClass.TempoTimeSheetsPlugin)}, {nameof(jira.JiraServerClass.ICTimePlugin)}")]
+    public string? ServerClass { get; set; }
+
     [Option("no-proxy", HelpText = "Turn off proxying the HTTP(S) connections to Jira server"
         + $"\nJSON config: $.{nameof(core.AppConfig.JiraServer)}.{nameof(jira.ServerConfig.UseProxy)} (negated!)")]
     public bool? NoProxy { get; set; }
@@ -50,6 +55,7 @@ public class FillCLI
             UseVerboseFeedback = UseVerboseFeedback,
             JiraServer = new jira.ServerConfig()
             {
+                ServerClass = ServerClass,
                 BaseUrl = jiraServerSpecification,
                 UseProxy = !NoProxy,
                 MaxConnectionsPerServer = MaxConnectionsPerServer,
