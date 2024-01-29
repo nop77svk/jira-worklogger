@@ -5,8 +5,6 @@ using System.Text;
 using jwl.infra;
 using jwl.inputs;
 using jwl.jira;
-using jwl.jira.api.rest.response;
-using Microsoft.Extensions.Configuration;
 using NoP77svk.Linq;
 
 public class JwlCoreProcess : IDisposable
@@ -24,7 +22,6 @@ public class JwlCoreProcess : IDisposable
     private IJiraClient _jiraClient;
 
     private jwl.jira.api.rest.common.JiraUserInfo? _userInfo;
-    private Dictionary<string, WorkLogType> availableWorklogTypes = new ();
 
     public JwlCoreProcess(AppConfig config, ICoreProcessInteraction interaction)
     {
@@ -79,10 +76,6 @@ public class JwlCoreProcess : IDisposable
             throw new ArgumentNullException($"Jira credentials not supplied");
 
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(@"Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes(jiraUserName + ":" + jiraUserPassword)));
-
-        Feedback?.PreloadAvailableWorklogTypesStart();
-        availableWorklogTypes = (await _jiraClient.GetWorklogTypes()).ToDictionary(wlt => wlt.Value);
-        Feedback?.PreloadAvailableWorklogTypesEnd();
 
         Feedback?.PreloadUserInfoStart(jiraUserName);
         _userInfo = await _jiraClient.GetUserInfo();
@@ -156,7 +149,19 @@ public class JwlCoreProcess : IDisposable
         Task[] fillJiraWithWorklogsTasks = worklogsForDeletion
             .Select(worklog => _jiraClient.DeleteWorklog(worklog.IssueId, worklog.Id))
             .Concat(inputWorklogs
-                .Select(worklog => _jiraClient.AddWorklog(worklog.IssueKey.ToString(), DateOnly.FromDateTime(worklog.Date), (int)worklog.TimeSpent.TotalSeconds, worklog.WorkLogActivity, worklog.WorkLogComment))
+                .LeftOuterJoin(
+                    innerTable: _config.JiraServer?.ActivityMap ?? new Dictionary<string, string>(),
+                    outerKeySelector: wl => wl.WorkLogActivity.ToLower(),
+                    innerKeySelector: am => am.Key.ToLower(),
+                    resultSelector: (wl, am) => new ValueTuple<InputWorkLog, string?>(wl, am.Value)
+                )
+                .Select(x => _jiraClient.AddWorklog(
+                    issueKey: x.Item1.IssueKey.ToString(),
+                    day: DateOnly.FromDateTime(x.Item1.Date),
+                    timeSpentSeconds: (int)x.Item1.TimeSpent.TotalSeconds,
+                    activity: !(_config.JiraServer?.ActivityMap?.Any() ?? false) ? x.Item1.WorkLogActivity : x.Item2,
+                    comment: x.Item1.WorkLogComment
+                ))
             )
             .ToArray();
 
@@ -207,8 +212,11 @@ public class JwlCoreProcess : IDisposable
             return worklogReader
                 .Read(row =>
                 {
-                    if (!availableWorklogTypes.ContainsKey(row.WorkLogActivity))
-                        throw new InvalidDataException($"Worklog type {row.WorkLogActivity} not found on server");
+                    if (row.WorkLogActivity is not null)
+                    {
+                        if (!_config.JiraServer?.ActivityMap?.ContainsKey(row.WorkLogActivity) ?? false)
+                            throw new InvalidDataException($"Worklog type {row.WorkLogActivity} not found in activity map");
+                    }
                 })
                 .ToArray();
         });
