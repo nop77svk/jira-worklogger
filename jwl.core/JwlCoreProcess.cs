@@ -156,7 +156,7 @@ public class JwlCoreProcess : IDisposable
         Task[] fillJiraWithWorklogsTasks = worklogsForDeletion
             .Select(worklog => _jiraClient.DeleteWorklog(worklog.IssueId, worklog.Id))
             .Concat(inputWorklogs
-                .Select(worklog => _jiraClient.AddWorklog(worklog.IssueKey.ToString(), DateOnly.FromDateTime(worklog.Date), (int)worklog.TimeSpent.TotalSeconds, worklog.WorkLogActivity, string.Empty))
+                .Select(worklog => _jiraClient.AddWorklog(worklog.IssueKey.ToString(), DateOnly.FromDateTime(worklog.Date), (int)worklog.TimeSpent.TotalSeconds, worklog.WorkLogActivity, worklog.WorkLogComment))
             )
             .ToArray();
 
