@@ -37,6 +37,7 @@ public class WorklogCsvReader : IWorklogReader
 
         string[] timespanTimeFormats =
         {
+            @"hh\:mm\:ss",
             @"hh\:mm",
             @"mm",
             @"hh'h'mm",
@@ -69,8 +70,8 @@ public class WorklogCsvReader : IWorklogReader
                     IssueKey = worklogIssueKey,
                     Date = worklogDate,
                     TimeSpent = worklogTimeSpent,
-                    TempWorklogType = row.TempoWorklogType,
-                    Comment = row.Comment
+                    WorkLogActivity = row.WorkLogActivity,
+                    WorkLogComment = row.WorkLogComment
                 };
             }
             catch (Exception e)

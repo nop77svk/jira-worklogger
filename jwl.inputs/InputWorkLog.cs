@@ -6,6 +6,6 @@ public struct InputWorkLog
     public JiraIssueKey IssueKey;
     public DateTime Date;
     public TimeSpan TimeSpent;
-    public string TempWorklogType;
-    public string Comment;
+    public string WorkLogActivity;
+    public string WorkLogComment;
 }
