@@ -9,9 +9,9 @@ using jwl.infra;
 public class VanillaJiraServerApi
     : IJiraServerApi
 {
-    private readonly HttpClient _httpClient;
-
     public string UserName { get; }
+
+    private readonly HttpClient _httpClient;
 
     public VanillaJiraServerApi(HttpClient httpClient, string userName)
     {

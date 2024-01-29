@@ -5,12 +5,13 @@ using jwl.jira.api.rest.common;
 public class JiraWithICTimePluginApi
     : IJiraServerApi
 {
-    public HttpClient HttpClient { get; }
     public string UserName { get; }
+
+    private readonly HttpClient _httpClient { get; }
 
     public JiraWithICTimePluginApi(HttpClient httpClient, string userName)
     {
-        HttpClient = httpClient;
+        _httpClient = httpClient;
         UserName = userName;
         _vanillaJiraApi = new VanillaJiraServerApi(httpClient, userName);
     }
