@@ -3,6 +3,7 @@ namespace jwl.jira;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Xml.Linq;
 using jwl.infra;
 
 public class VanillaJiraServerApi
@@ -58,6 +59,7 @@ public class VanillaJiraServerApi
 
         var result = responseTasks
             .SelectMany(task => task.Result.Worklogs)
+            .Where(worklog => worklog.Author.Name == UserName)
             .Where(worklog => worklog.Started.Value >= minDt && worklog.Started.Value < supDt)
             .Select(wl => new WorkLog(
                 Id: wl.Id.Value,
@@ -83,15 +85,15 @@ public class VanillaJiraServerApi
                 .Add(issueKey)
                 .Add(@"worklog")
         };
-        var request = new api.rest.request.JiraAddWorklogByIssueKey()
-        {
-            Started = day
+        var request = new api.rest.request.JiraAddWorklogByIssueKey(
+            Started: day
+                .ToDateTime(TimeOnly.MinValue)
                 .ToString(@"yyyy-MM-dd""T""hh"";""mm"";""ss.fffzzzz")
                 .Replace(":", string.Empty)
                 .Replace(';', ':'),
-            TimeSpentSeconds = timeSpentSeconds,
-            Comment = comment
-        };
+            TimeSpentSeconds: timeSpentSeconds,
+            Comment: comment
+        );
         await _httpClient.PostAsJsonAsync(uriBuilder.Uri.PathAndQuery, request);
     }
 
@@ -137,15 +139,15 @@ public class VanillaJiraServerApi
                 .Add(@"worklog")
                 .Add(worklogId.ToString())
         };
-        var request = new api.rest.request.JiraAddWorklogByIssueKey()
-        {
-            Started = day
+        var request = new api.rest.request.JiraAddWorklogByIssueKey(
+            Started: day
+                .ToDateTime(TimeOnly.MinValue)
                 .ToString(@"yyyy-MM-dd""T""hh"";""mm"";""ss.fffzzzz")
                 .Replace(":", string.Empty)
                 .Replace(';', ':'),
-            TimeSpentSeconds = timeSpentSeconds,
-            Comment = comment
-        };
+            TimeSpentSeconds: timeSpentSeconds,
+            Comment: comment
+        );
         await _httpClient.PutAsJsonAsync(uriBuilder.Uri.PathAndQuery, request);
     }
 }
