@@ -21,7 +21,7 @@ public class JwlCoreProcess : IDisposable
     private AppConfig _config;
     private HttpClientHandler _httpClientHandler;
     private HttpClient _httpClient;
-    private VanillaJiraServerApi _jiraClient;
+    private IJiraServerApi _jiraClient;
 
     private jwl.jira.api.rest.common.JiraUserInfo? _userInfo;
     private Dictionary<string, WorkLogType> availableWorklogTypes = new ();
@@ -45,7 +45,9 @@ public class JwlCoreProcess : IDisposable
         {
             BaseAddress = new Uri(_config.JiraServer?.BaseUrl ?? string.Empty)
         };
-        _jiraClient = new VanillaJiraServerApi(_httpClient, _config.User?.Name ?? throw new ArgumentNullException($"{nameof(_config)}.{nameof(_config.User)}.{nameof(_config.User.Name)})"));
+
+        string userName = _config.User?.Name ?? throw new ArgumentNullException($"{nameof(_config)}.{nameof(_config.User)}.{nameof(_config.User.Name)})");
+        _jiraClient = ServerApiFactory.CreateApi(_httpClient, userName, _config.JiraServer?.ServerFlavourId ?? JiraServerFlavour.Vanilla);
 
         /* 2do!...
         _jiraClient.WsClient.HttpRequestPostprocess = req =>
@@ -154,7 +156,7 @@ public class JwlCoreProcess : IDisposable
         Task[] fillJiraWithWorklogsTasks = worklogsForDeletion
             .Select(worklog => _jiraClient.DeleteWorklog(worklog.IssueId, worklog.Id))
             .Concat(inputWorklogs
-                .Select(worklog => _jiraClient.AddWorklog(worklog.IssueKey.ToString(), DateOnly.FromDateTime(worklog.Date), (int)worklog.TimeSpent.TotalSeconds, worklog.TempWorklogType, string.Empty))
+                .Select(worklog => _jiraClient.AddWorklog(worklog.IssueKey.ToString(), DateOnly.FromDateTime(worklog.Date), (int)worklog.TimeSpent.TotalSeconds, worklog.WorkLogActivity, string.Empty))
             )
             .ToArray();
 
@@ -205,8 +207,8 @@ public class JwlCoreProcess : IDisposable
             return worklogReader
                 .Read(row =>
                 {
-                    if (!availableWorklogTypes.ContainsKey(row.TempWorklogType))
-                        throw new InvalidDataException($"Worklog type {row.TempWorklogType} not found on server");
+                    if (!availableWorklogTypes.ContainsKey(row.WorkLogActivity))
+                        throw new InvalidDataException($"Worklog type {row.WorkLogActivity} not found on server");
                 })
                 .ToArray();
         });
