@@ -75,7 +75,7 @@ public class JiraWithTempoPluginApi
                 Created: wl.Created?.Value ?? DateTime.MinValue,
                 Started: wl.Started?.Value ?? DateTime.MinValue,
                 TimeSpentSeconds: wl.TimeSpentSeconds ?? -1,
-                WorkLogType: wl.Attributes?[WorklogTypeAttributeKey].Value,
+                Activity: wl.Attributes?[WorklogTypeAttributeKey].Value,
                 Comment: wl.Comment ?? string.Empty
             ))
             .ToArray();
