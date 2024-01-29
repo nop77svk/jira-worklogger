@@ -5,19 +5,19 @@ using jwl.jira.api.rest.common;
 
 // https://www.tempo.io/server-api-documentation/timesheets
 public class JiraWithTempoPluginApi
-    : IJiraServerApi
+    : IJiraClient
 {
     private const string WorklogTypeAttributeKey = @"_WorklogType_";
 
     private readonly HttpClient _httpClient;
-    private readonly VanillaJiraServerApi _vanillaJiraServerApi;
+    private readonly VanillaJiraClient _vanillaJiraServerApi;
 
     public string UserName { get; }
 
     public JiraWithTempoPluginApi(HttpClient httpClient, string userName)
     {
         _httpClient = httpClient;
-        _vanillaJiraServerApi = new VanillaJiraServerApi(httpClient, userName);
+        _vanillaJiraServerApi = new VanillaJiraClient(httpClient, userName);
 
         UserName = userName;
     }

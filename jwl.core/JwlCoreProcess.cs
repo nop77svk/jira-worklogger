@@ -21,7 +21,7 @@ public class JwlCoreProcess : IDisposable
     private AppConfig _config;
     private HttpClientHandler _httpClientHandler;
     private HttpClient _httpClient;
-    private IJiraServerApi _jiraClient;
+    private IJiraClient _jiraClient;
 
     private jwl.jira.api.rest.common.JiraUserInfo? _userInfo;
     private Dictionary<string, WorkLogType> availableWorklogTypes = new ();

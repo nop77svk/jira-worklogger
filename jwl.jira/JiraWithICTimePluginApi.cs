@@ -3,7 +3,7 @@ using jwl.jira.api.rest.common;
 
 // https://interconcept.atlassian.net/wiki/spaces/ICTIME/pages/31686672/API
 public class JiraWithICTimePluginApi
-    : IJiraServerApi
+    : IJiraClient
 {
     public string UserName { get; }
 
@@ -13,10 +13,10 @@ public class JiraWithICTimePluginApi
     {
         _httpClient = httpClient;
         UserName = userName;
-        _vanillaJiraApi = new VanillaJiraServerApi(httpClient, userName);
+        _vanillaJiraApi = new VanillaJiraClient(httpClient, userName);
     }
 
-    private readonly VanillaJiraServerApi _vanillaJiraApi;
+    private readonly VanillaJiraClient _vanillaJiraApi;
 
     public async Task<JiraUserInfo> GetUserInfo()
     {

@@ -6,14 +6,14 @@ using System.Net.Http.Json;
 using System.Xml.Linq;
 using jwl.infra;
 
-public class VanillaJiraServerApi
-    : IJiraServerApi
+public class VanillaJiraClient
+    : IJiraClient
 {
     public string UserName { get; }
 
     private readonly HttpClient _httpClient;
 
-    public VanillaJiraServerApi(HttpClient httpClient, string userName)
+    public VanillaJiraClient(HttpClient httpClient, string userName)
     {
         _httpClient = httpClient;
         UserName = userName;
