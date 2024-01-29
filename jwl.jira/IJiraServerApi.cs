@@ -13,11 +13,11 @@ public interface IJiraServerApi
 
     Task<WorkLog[]> GetIssueWorklogs(DateOnly from, DateOnly to, IEnumerable<string>? issueKeys);
 
-    Task AddWorklog(string issueKey, DateOnly day, int timeSpentSeconds, string? worklogType, string? comment);
+    Task AddWorklog(string issueKey, DateOnly day, int timeSpentSeconds, string? activity, string? comment);
 
-    Task AddWorklogPeriod(string issueKey, DateOnly dayFrom, DateOnly dayTo, int timeSpentSeconds, string? tempoWorklogType, string? comment, bool includeNonWorkingDays = false);
+    Task AddWorklogPeriod(string issueKey, DateOnly dayFrom, DateOnly dayTo, int timeSpentSeconds, string? activity, string? comment, bool includeNonWorkingDays = false);
 
     Task DeleteWorklog(long issueId, long worklogId, bool notifyUsers = false);
 
-    Task UpdateWorklog(string issueKey, long worklogId, DateOnly day, int timeSpentSeconds, string? worklogType, string? comment);
+    Task UpdateWorklog(string issueKey, long worklogId, DateOnly day, int timeSpentSeconds, string? activity, string? comment);
 }

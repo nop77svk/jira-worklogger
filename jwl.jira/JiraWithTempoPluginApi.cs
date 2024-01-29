@@ -83,9 +83,9 @@ public class JiraWithTempoPluginApi
         return result;
     }
 
-    public async Task AddWorklog(string issueKey, DateOnly day, int timeSpentSeconds, string? worklogType, string? comment)
+    public async Task AddWorklog(string issueKey, DateOnly day, int timeSpentSeconds, string? activity, string? comment)
     {
-        await AddWorklogPeriod(issueKey, day, day, timeSpentSeconds, worklogType, comment);
+        await AddWorklogPeriod(issueKey, day, day, timeSpentSeconds, activity, comment);
     }
 
     public async Task AddWorklogPeriod(string issueKey, DateOnly dayFrom, DateOnly dayTo, int timeSpentSeconds, string? tempoWorklogType, string? comment, bool includeNonWorkingDays = false)
@@ -129,12 +129,12 @@ public class JiraWithTempoPluginApi
         await _httpClient.DeleteAsync(uriBuilder.Uri.PathAndQuery);
     }
 
-    public async Task UpdateWorklog(string issueKey, long worklogId, DateOnly day, int timeSpentSeconds, string? worklogType, string? comment)
+    public async Task UpdateWorklog(string issueKey, long worklogId, DateOnly day, int timeSpentSeconds, string? activity, string? comment)
     {
-        await UpdateWorklogPeriod(issueKey, worklogId, day, day, timeSpentSeconds, comment, worklogType);
+        await UpdateWorklogPeriod(issueKey, worklogId, day, day, timeSpentSeconds, comment, activity);
     }
 
-    private async Task UpdateWorklogPeriod(string issueKey, long worklogId, DateOnly dayFrom, DateOnly dayTo, int timeSpentSeconds, string? comment, string? tempoWorklogType, bool includeNonWorkingDays = false)
+    private async Task UpdateWorklogPeriod(string issueKey, long worklogId, DateOnly dayFrom, DateOnly dayTo, int timeSpentSeconds, string? comment, string? activity, bool includeNonWorkingDays = false)
     {
         UriBuilder uriBuilder = new UriBuilder()
         {
@@ -157,7 +157,7 @@ public class JiraWithTempoPluginApi
                     Key = WorklogTypeAttributeKey,
                     Name = @"Worklog Type",
                     Type = api.rest.common.TempoWorklogAttributeTypeIdentifier.StaticList,
-                    Value = tempoWorklogType
+                    Value = activity
                 }
             }
         };

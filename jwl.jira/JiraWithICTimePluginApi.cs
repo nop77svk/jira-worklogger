@@ -32,12 +32,12 @@ public class JiraWithICTimePluginApi
         throw new NotImplementedException();
     }
 
-    public Task AddWorklog(string issueKey, DateOnly day, int timeSpentSeconds, string? worklogType, string? comment)
+    public Task AddWorklog(string issueKey, DateOnly day, int timeSpentSeconds, string? activity, string? comment)
     {
         throw new NotImplementedException();
     }
 
-    public Task AddWorklogPeriod(string issueKey, DateOnly dayFrom, DateOnly dayTo, int timeSpentSeconds, string? tempoWorklogType, string? comment, bool includeNonWorkingDays = false)
+    public Task AddWorklogPeriod(string issueKey, DateOnly dayFrom, DateOnly dayTo, int timeSpentSeconds, string? activity, string? comment, bool includeNonWorkingDays = false)
     {
         throw new NotImplementedException();
     }
@@ -47,7 +47,7 @@ public class JiraWithICTimePluginApi
         throw new NotImplementedException();
     }
 
-    public Task UpdateWorklog(string issueKey, long worklogId, DateOnly day, int timeSpentSeconds, string? worklogType, string? comment)
+    public Task UpdateWorklog(string issueKey, long worklogId, DateOnly day, int timeSpentSeconds, string? activity, string? comment)
     {
         throw new NotImplementedException();
     }
