@@ -53,6 +53,14 @@
     <CommonAssetFiles Include="../*.md" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
+  <ItemGroup>
+    <CommonAssetFiles Remove="..\README.md" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md" Link="_assets\README.md" />
+  </ItemGroup>
+
   <Target Name="CopyCustomContent" AfterTargets="AfterBuild">
     <Copy SourceFiles="@(CommonAssetFiles)" DestinationFolder="$(OutDir)/%(RecursiveDir)" SkipUnchangedFiles="true" />
   </Target>

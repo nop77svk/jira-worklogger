@@ -28,9 +28,9 @@ As for the CLI worklogger binary, there are command-line options available as we
 ### "ServerClass" setting
 
 Available values are:
- - VanillaJira
- - TempoTimeSheetsPlugin
- - ICTimePlugin (not implemented yet)
+ - Vanilla
+ - TempoTimeSheets
+ - ICTime (not implemented yet)
 
 ## The input CSV structure
 
