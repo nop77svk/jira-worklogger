@@ -3,6 +3,7 @@ namespace jwl.jira;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text;
 using System.Xml.Linq;
 using jwl.infra;
 
@@ -69,7 +70,7 @@ public class VanillaJiraClient
                 Created: wl.Created.Value,
                 Started: wl.Started.Value,
                 TimeSpentSeconds: wl.TimeSpentSeconds,
-                WorkLogType: null,
+                Activity: null,
                 Comment: wl.Comment
             ))
             .ToArray();
@@ -85,6 +86,12 @@ public class VanillaJiraClient
                 .Add(issueKey)
                 .Add(@"worklog")
         };
+
+        StringBuilder commentBuilder = new StringBuilder();
+        if (activity != null)
+            commentBuilder.Append($"({activity}){Environment.NewLine}");
+        commentBuilder.Append(comment);
+
         var request = new api.rest.request.JiraAddWorklogByIssueKey(
             Started: day
                 .ToDateTime(TimeOnly.MinValue)
@@ -92,7 +99,7 @@ public class VanillaJiraClient
                 .Replace(":", string.Empty)
                 .Replace(';', ':'),
             TimeSpentSeconds: timeSpentSeconds,
-            Comment: comment
+            Comment: commentBuilder.ToString()
         );
         await _httpClient.PostAsJsonAsync(uriBuilder.Uri.PathAndQuery, request);
     }
