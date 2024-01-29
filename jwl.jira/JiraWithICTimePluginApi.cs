@@ -7,7 +7,7 @@ public class JiraWithICTimePluginApi
 {
     public string UserName { get; }
 
-    private readonly HttpClient _httpClient { get; }
+    private readonly HttpClient _httpClient;
 
     public JiraWithICTimePluginApi(HttpClient httpClient, string userName)
     {
