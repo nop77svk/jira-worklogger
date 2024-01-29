@@ -6,6 +6,7 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Xml.Linq;
 using jwl.infra;
+using jwl.jira.api.rest.response;
 
 public class VanillaJiraClient
     : IJiraClient
@@ -20,6 +21,14 @@ public class VanillaJiraClient
         UserName = userName;
     }
 
+    public static async Task CheckHttpResponseForErrorMessages(HttpResponseMessage responseMessage)
+    {
+        using Stream responseContentStream = await responseMessage.Content.ReadAsStreamAsync();
+        JiraRestResponse responseContent = await HttpClientJsonExt.DeserializeJsonStreamAsync<JiraRestResponse>(responseContentStream);
+        if (responseContent?.ErrorMessages is not null && responseContent.ErrorMessages.Any())
+            throw new InvalidOperationException(string.Join(Environment.NewLine, responseContent.ErrorMessages));
+    }
+
     public async Task<api.rest.common.JiraUserInfo> GetUserInfo()
     {
         UriBuilder uriBuilder = new UriBuilder()
@@ -32,7 +41,7 @@ public class VanillaJiraClient
     }
 
     #pragma warning disable CS1998
-    public async Task<WorkLogType[]> GetWorklogTypes()
+    public async Task<WorkLogType[]> GetAvailableActivities()
     {
         return Array.Empty<WorkLogType>();
     }
@@ -101,7 +110,9 @@ public class VanillaJiraClient
             TimeSpentSeconds: timeSpentSeconds,
             Comment: commentBuilder.ToString()
         );
-        await _httpClient.PostAsJsonAsync(uriBuilder.Uri.PathAndQuery, request);
+
+        HttpResponseMessage response = await _httpClient.PostAsJsonAsync(uriBuilder.Uri.PathAndQuery, request);
+        await CheckHttpResponseForErrorMessages(response);
     }
 
     public async Task AddWorklogPeriod(string issueKey, DateOnly dayFrom, DateOnly dayTo, int timeSpentSeconds, string? activity, string? comment, bool includeNonWorkingDays = false)
@@ -134,7 +145,9 @@ public class VanillaJiraClient
             Query = new UriQueryBuilder()
                 .Add(@"notifyUsers", notifyUsers.ToString().ToLower())
         };
-        await _httpClient.DeleteAsync(uriBuilder.Uri.PathAndQuery);
+
+        HttpResponseMessage response = await _httpClient.DeleteAsync(uriBuilder.Uri.PathAndQuery);
+        await CheckHttpResponseForErrorMessages(response);
     }
 
     public async Task UpdateWorklog(string issueKey, long worklogId, DateOnly day, int timeSpentSeconds, string? activity, string? comment)
@@ -155,6 +168,8 @@ public class VanillaJiraClient
             TimeSpentSeconds: timeSpentSeconds,
             Comment: comment
         );
-        await _httpClient.PutAsJsonAsync(uriBuilder.Uri.PathAndQuery, request);
+
+        HttpResponseMessage response = await _httpClient.PutAsJsonAsync(uriBuilder.Uri.PathAndQuery, request);
+        await CheckHttpResponseForErrorMessages(response);
     }
 }

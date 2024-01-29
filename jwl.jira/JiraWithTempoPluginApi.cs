@@ -32,7 +32,7 @@ public class JiraWithTempoPluginApi
         return await _httpClient.GetAsJsonAsync<api.rest.response.TempoWorklogAttributeDefinition[]>(@"rest/tempo-core/1/work-attribute");
     }
 
-    public async Task<WorkLogType[]> GetWorklogTypes()
+    public async Task<WorkLogType[]> GetAvailableActivities()
     {
         api.rest.response.TempoWorklogAttributeDefinition[] attrEnumDefs = await GetWorklogAttributeDefinitions();
 
@@ -116,7 +116,8 @@ public class JiraWithTempoPluginApi
             }
         };
 
-        await _httpClient.PostAsJsonAsync(@"rest/tempo-timesheets/4/worklogs", request);
+        HttpResponseMessage response = await _httpClient.PostAsJsonAsync(@"rest/tempo-timesheets/4/worklogs", request);
+        await VanillaJiraClient.CheckHttpResponseForErrorMessages(response);
     }
 
     public async Task DeleteWorklog(long issueId, long worklogId, bool notifyUsers = false)
@@ -126,7 +127,9 @@ public class JiraWithTempoPluginApi
             Path = new UriPathBuilder(@"rest/tempo-timesheets/4/worklogs")
                 .Add(worklogId.ToString())
         };
-        await _httpClient.DeleteAsync(uriBuilder.Uri.PathAndQuery);
+
+        HttpResponseMessage response = await _httpClient.DeleteAsync(uriBuilder.Uri.PathAndQuery);
+        await VanillaJiraClient.CheckHttpResponseForErrorMessages(response);
     }
 
     public async Task UpdateWorklog(string issueKey, long worklogId, DateOnly day, int timeSpentSeconds, string? activity, string? comment)
@@ -161,6 +164,8 @@ public class JiraWithTempoPluginApi
                 }
             }
         };
-        await _httpClient.PutAsJsonAsync(uriBuilder.Uri.PathAndQuery, request);
+
+        HttpResponseMessage response = await _httpClient.PutAsJsonAsync(uriBuilder.Uri.PathAndQuery, request);
+        await VanillaJiraClient.CheckHttpResponseForErrorMessages(response);
     }
 }

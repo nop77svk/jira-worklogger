@@ -2,6 +2,7 @@
 
 using jwl.infra;
 using jwl.jira.api.rest.common;
+using jwl.jira.api.rest.response;
 using System.Diagnostics;
 using System.Net.Http.Json;
 using System.Numerics;
@@ -30,9 +31,9 @@ public class JiraWithICTimePluginApi
         return await _vanillaJiraApi.GetUserInfo();
     }
 
-    public async Task<WorkLogType[]> GetWorklogTypes()
+    public async Task<WorkLogType[]> GetAvailableActivities()
     {
-        return await _vanillaJiraApi.GetWorklogTypes();
+        return await _vanillaJiraApi.GetAvailableActivities();
     }
 
     public async Task<WorkLog[]> GetIssueWorklogs(DateOnly from, DateOnly to, IEnumerable<string>? issueKeys)
@@ -58,7 +59,9 @@ public class JiraWithICTimePluginApi
             Activity: string.IsNullOrEmpty(activity) ? null : int.Parse(activity),
             Comment: comment
         );
-        await _httpClient.PostAsJsonAsync(uriBuilder.Uri.PathAndQuery, request);
+
+        HttpResponseMessage response = await _httpClient.PostAsJsonAsync(uriBuilder.Uri.PathAndQuery, request);
+        await VanillaJiraClient.CheckHttpResponseForErrorMessages(response);
     }
 
     public async Task AddWorklogPeriod(string issueKey, DateOnly dayFrom, DateOnly dayTo, int timeSpentSeconds, string? activity, string? comment, bool includeNonWorkingDays = false)
