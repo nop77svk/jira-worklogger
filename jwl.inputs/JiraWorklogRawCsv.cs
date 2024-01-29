@@ -6,7 +6,7 @@ public record JiraWorklogRawCsv
     string IssueKey,
     string Date,
     string TimeSpent,
-    string TempoWorklogType,
-    string Comment
+    string WorkLogActivity,
+    string WorkLogComment
 )
 { }

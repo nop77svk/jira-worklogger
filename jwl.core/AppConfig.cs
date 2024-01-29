@@ -8,7 +8,7 @@ public class AppConfig
     public jwl.core.UserConfig? User { get; init; }
     public jwl.inputs.CsvFormatConfig? CsvOptions { get; init; }
 
-    private static MapperConfiguration overridingMapperConfiguration = new MapperConfiguration(cfg =>
+    private static Lazy<MapperConfiguration> overridingMapperConfiguration = new (() => new MapperConfiguration(cfg =>
     {
         cfg.CreateMap<AppConfig, AppConfig>()
             .ForAllMembers(m => m.Condition((src, dest, member) => member != null));
@@ -18,14 +18,18 @@ public class AppConfig
             .ForAllMembers(m => m.Condition((src, dest, member) => member != null));
         cfg.CreateMap<core.UserConfig, core.UserConfig>()
             .ForAllMembers(m => m.Condition((src, dest, member) => member != null));
-    });
-    private static IMapper overridingMapper = overridingMapperConfiguration.CreateMapper();
+
+        cfg.AddGlobalIgnore(nameof(AppConfig.JiraServer.ActivityMap));
+    }));
+
+    private static Lazy<IMapper> overridingMapper = new (() => overridingMapperConfiguration.Value.CreateMapper());
 
     public AppConfig OverrideWith(AppConfig? other)
     {
         if (other == null)
             return this;
 
-        return overridingMapper.Map<AppConfig, AppConfig>(other, this);
+        AppConfig result = overridingMapper.Value.Map<AppConfig, AppConfig>(other, this);
+        return result;
     }
 }
