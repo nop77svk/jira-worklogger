@@ -22,7 +22,7 @@ public class FillCLI
 
     [Option("server-flavour", HelpText = "Jira server flavour (whether vanilla or with some timesheet plugins)"
         + $"\nJSON config: $.{nameof(core.AppConfig.JiraServer)}.{nameof(jira.ServerConfig.ServerFlavour)}"
-        + $"\nAvailable values: {nameof(jira.JiraServerFlavour.Vanilla)}, {nameof(jira.JiraServerFlavour.TempoTimeSheets)}, {nameof(jira.JiraServerFlavour.ICTime)}")]
+        + $"\nAvailable values: {nameof(jira.JiraServerFlavour.Vanilla)}, {nameof(jira.JiraServerFlavour.TempoTimeSheets)}, {nameof(jira.JiraServerFlavour.ICTimeMockViaJira)}")]
     public string? ServerClass { get; set; }
 
     [Option("no-proxy", HelpText = "Turn off proxying the HTTP(S) connections to Jira server"

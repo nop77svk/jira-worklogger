@@ -8,6 +8,7 @@ public static class ServerApiFactory
         {
             JiraServerFlavour.Vanilla => new VanillaJiraClient(httpClient, userName),
             JiraServerFlavour.TempoTimeSheets => new JiraWithTempoPluginApi(httpClient, userName),
+            JiraServerFlavour.ICTimeMockViaJira => new JiraWithICTimePluginMock(httpClient, userName),
             _ => throw new NotImplementedException($"Jira server class {nameof(serverClass)} not yet implemented")
         };
     }
