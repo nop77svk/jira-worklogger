@@ -50,6 +50,7 @@ public class JiraWithICTimePluginApi
                 .Add(@"worklog")
         };
         var request = new api.rest.request.ICTimeAddWorklogByIssueKey(
+            IssueKey: issueKey,
             Started: day
                 .ToDateTime(TimeOnly.MinValue)
                 .ToString(@"yyyy-MM-dd""T""hh"";""mm"";""ss.fffzzzz")
@@ -59,6 +60,7 @@ public class JiraWithICTimePluginApi
             Activity: string.IsNullOrEmpty(activity) ? null : int.Parse(activity),
             Comment: comment
         );
+        // 2do! annotate the request.CustomFieldNNN with JSON field name based on ICTime server metadata (retrieved previously)
 
         HttpResponseMessage response = await _httpClient.PostAsJsonAsync(uriBuilder.Uri.PathAndQuery, request);
         await VanillaJiraClient.CheckHttpResponseForErrorMessages(response);
