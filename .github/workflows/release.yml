@@ -62,6 +62,7 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         token: "${{ secrets.GITHUB_TOKEN }}"
+        body: "<changelog should come here>"
         prerelease: false
         files: |
           ./_publish.all/jira-worklogger.*
