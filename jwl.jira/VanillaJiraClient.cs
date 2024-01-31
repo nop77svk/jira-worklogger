@@ -25,15 +25,11 @@ public class VanillaJiraClient
     public static async Task CheckHttpResponseForErrorMessages(HttpResponseMessage responseMessage)
     {
         using Stream responseContentStream = await responseMessage.Content.ReadAsStreamAsync();
-        try
+        if (responseContentStream.Length > 0)
         {
             JiraRestResponse responseContent = await HttpClientJsonExt.DeserializeJsonStreamAsync<JiraRestResponse>(responseContentStream);
             if (responseContent?.ErrorMessages is not null && responseContent.ErrorMessages.Any())
                 throw new InvalidOperationException(string.Join(Environment.NewLine, responseContent.ErrorMessages));
-        }
-        catch (JsonException)
-        {
-            // OK
         }
     }
 
