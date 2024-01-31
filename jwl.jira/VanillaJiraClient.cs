@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
+using System.Text.Json;
 using System.Xml.Linq;
 using jwl.infra;
 using jwl.jira.api.rest.response;
@@ -24,9 +25,16 @@ public class VanillaJiraClient
     public static async Task CheckHttpResponseForErrorMessages(HttpResponseMessage responseMessage)
     {
         using Stream responseContentStream = await responseMessage.Content.ReadAsStreamAsync();
-        JiraRestResponse responseContent = await HttpClientJsonExt.DeserializeJsonStreamAsync<JiraRestResponse>(responseContentStream);
-        if (responseContent?.ErrorMessages is not null && responseContent.ErrorMessages.Any())
-            throw new InvalidOperationException(string.Join(Environment.NewLine, responseContent.ErrorMessages));
+        try
+        {
+            JiraRestResponse responseContent = await HttpClientJsonExt.DeserializeJsonStreamAsync<JiraRestResponse>(responseContentStream);
+            if (responseContent?.ErrorMessages is not null && responseContent.ErrorMessages.Any())
+                throw new InvalidOperationException(string.Join(Environment.NewLine, responseContent.ErrorMessages));
+        }
+        catch (JsonException)
+        {
+            // OK
+        }
     }
 
     public async Task<api.rest.common.JiraUserInfo> GetUserInfo()
