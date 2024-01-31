@@ -2,9 +2,19 @@ namespace jwl.infra;
 
 public static class MultiTask
 {
-    public static async Task WhenAll(IEnumerable<Task> tasks, Action<MultiTaskProgressState, Task?>? progressFeedback, CancellationToken? cancellationToken = null)
+    public enum ProgressState
     {
-        progressFeedback?.Invoke(MultiTaskProgressState.Starting, null);
+        Unknown,
+        Starting,
+        InProgress,
+        Finished,
+        Error,
+        Cancelled
+    }
+
+    public static async Task WhenAll(IEnumerable<Task> tasks, Action<ProgressState, Task?>? progressFeedback, CancellationToken? cancellationToken = null)
+    {
+        progressFeedback?.Invoke(ProgressState.Starting, null);
         HashSet<Task> tasksToExecute = tasks.ToHashSet();
 
         List<Exception> errors = new List<Exception>();
@@ -29,7 +39,7 @@ public static class MultiTask
                     if (tasksToExecute.Contains(taskFinished))
                     {
                         tasksToExecute.Remove(taskFinished);
-                        progressFeedback?.Invoke(MultiTaskProgressState.Finished, taskFinished);
+                        progressFeedback?.Invoke(ProgressState.Finished, taskFinished);
                     }
                     else
                     {
@@ -39,17 +49,17 @@ public static class MultiTask
             }
             catch (AggregateException ex)
             {
-                progressFeedback?.Invoke(MultiTaskProgressState.Error, taskFinished);
+                progressFeedback?.Invoke(ProgressState.Error, taskFinished);
                 errors.AddRange(ex.InnerExceptions);
             }
             catch (TaskCanceledException ex)
             {
-                progressFeedback?.Invoke(MultiTaskProgressState.Cancelled, ex.Task);
+                progressFeedback?.Invoke(ProgressState.Cancelled, ex.Task);
                 errors.Add(ex);
             }
             catch (Exception ex)
             {
-                progressFeedback?.Invoke(MultiTaskProgressState.Error, taskFinished);
+                progressFeedback?.Invoke(ProgressState.Error, taskFinished);
                 errors.Add(ex);
             }
         }
@@ -62,6 +72,6 @@ public static class MultiTask
                 throw new AggregateException(errors);
         }
 
-        progressFeedback?.Invoke(MultiTaskProgressState.Finished, null);
+        progressFeedback?.Invoke(ProgressState.Finished, null);
     }
 }
