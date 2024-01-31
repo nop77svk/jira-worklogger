@@ -2,33 +2,38 @@ namespace jwl.infra;
 
 public class MultiTask
 {
-    public Action<ProgressState>? ProgressStateFeedback { get; init; }
+    public enum ProgressState
+    {
+        Unknown,
+        Starting,
+        BeforeTaskWait,
+        AfterTaskWait,
+        Finished,
+        Error,
+        Cancelled
+    }
+
+    public ProgressState State { get; private set; } = ProgressState.Unknown;
+
+    public Action<MultiTask>? ProcessFeedback { get; init; }
     public Action<Task>? TaskFeedback { get; init; }
 
     public MultiTask()
     {
     }
 
-    public enum ProgressState
-    {
-        Unknown,
-        Starting,
-        InProgress,
-        Finished,
-        Error,
-        Cancelled
-    }
-
     public async Task WhenAll(IEnumerable<Task> tasks, CancellationToken? cancellationToken = null)
     {
-        ProgressStateFeedback?.Invoke(ProgressState.Starting);
+        State = ProgressState.Starting;
+        ProcessFeedback?.Invoke(this);
 
         HashSet<Task> tasksToExecute = tasks.ToHashSet();
         List<Exception> errors = new List<Exception>();
 
         while (tasksToExecute.Any())
         {
-            ProgressStateFeedback?.Invoke(ProgressState.InProgress);
+            State = ProgressState.BeforeTaskWait;
+            ProcessFeedback?.Invoke(this);
 
             Task? taskFinished = null;
             try
@@ -36,6 +41,9 @@ public class MultiTask
                 cancellationToken?.ThrowIfCancellationRequested();
 
                 taskFinished = await Task.WhenAny(tasksToExecute);
+
+                State = ProgressState.AfterTaskWait;
+                ProcessFeedback?.Invoke(this);
                 TaskFeedback?.Invoke(taskFinished);
 
                 if (taskFinished.Status is TaskStatus.Faulted or TaskStatus.Canceled)
@@ -61,17 +69,22 @@ public class MultiTask
 
         if (errors.All(ex => ex is TaskCanceledException))
         {
-            ProgressStateFeedback?.Invoke(ProgressState.Cancelled);
+            State = ProgressState.Cancelled;
+            ProcessFeedback?.Invoke(this);
+
             throw new TaskCanceledException($"All {errors.Count} tasks have been cancelled", new AggregateException(errors));
         }
         else if (errors.Any())
         {
-            ProgressStateFeedback?.Invoke(ProgressState.Error);
+            State = ProgressState.Error;
+            ProcessFeedback?.Invoke(this);
+
             throw new AggregateException(errors);
         }
         else
         {
-            ProgressStateFeedback?.Invoke(ProgressState.Finished);
+            State = ProgressState.Finished;
+            ProcessFeedback?.Invoke(this);
         }
     }
 }
