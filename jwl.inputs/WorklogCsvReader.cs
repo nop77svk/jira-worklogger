@@ -73,6 +73,8 @@ public class WorklogCsvReader : IWorklogReader
                     WorkLogActivity = row.WorkLogActivity,
                     WorkLogComment = row.WorkLogComment
                 };
+
+                postProcessResult?.Invoke(result);
             }
             catch (Exception e)
             {
