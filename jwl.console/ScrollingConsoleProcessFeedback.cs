@@ -36,7 +36,7 @@ public class ScrollingConsoleProcessFeedback
         Console.Error.Write($"\rFilling Jira with worklogs (+{_numberOfWorklogsToInsert}/-{_numberOfWorklogsToDelete})...");
     }
 
-    public void FillJiraWithWorklogsProcess(MultiTaskProgress progress)
+    public void FillJiraWithWorklogsProcess(MultiTaskStats progress)
     {
         Console.Error.Write($"\rFilling Jira with worklogs (+{_numberOfWorklogsToInsert}/-{_numberOfWorklogsToDelete})... {ProgressPercentageAsString(progress)}");
     }
@@ -104,7 +104,7 @@ public class ScrollingConsoleProcessFeedback
         Console.Error.Write($"\rReading {numberOfInputFiles} input files...");
     }
 
-    public void ReadCsvInputProcess(MultiTaskProgress progress)
+    public void ReadCsvInputProcess(MultiTaskStats progress)
     {
         Console.Error.Write($"\rReading {progress.Total} input files... {ProgressPercentageAsString(progress)}");
     }
@@ -124,7 +124,7 @@ public class ScrollingConsoleProcessFeedback
         Console.Error.Write($"\rRetrieving list of worklogs ({count} Jira issues) to be deleted...");
     }
 
-    public void RetrieveWorklogsForDeletionProcess(MultiTaskProgress progress)
+    public void RetrieveWorklogsForDeletionProcess(MultiTaskStats progress)
     {
         throw new NotImplementedException(@"--- checkpoint ---");
     }
@@ -134,7 +134,7 @@ public class ScrollingConsoleProcessFeedback
         Console.Error.WriteLine(" OK");
     }
 
-    protected static string ProgressPercentageAsString(MultiTaskProgress progress)
+    protected static string ProgressPercentageAsString(MultiTaskStats progress)
     {
         string result;
 

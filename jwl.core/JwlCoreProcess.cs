@@ -165,12 +165,13 @@ public class JwlCoreProcess : IDisposable
             )
             .ToArray();
 
-        MultiTaskProgress progress = new MultiTaskProgress(fillJiraWithWorklogsTasks.Length);
+        MultiTaskStats progress = new MultiTaskStats(fillJiraWithWorklogsTasks.Length);
+        MultiTask multiTask = new MultiTask()
+        {
+            TaskFeedback = t => Feedback?.FillJiraWithWorklogsProcess(progress.ApplyTaskStatus(t.Status))
+        };
 
-        await MultiTask.WhenAll(
-            tasks: fillJiraWithWorklogsTasks,
-            progressFeedback: (_, t) => Feedback?.FillJiraWithWorklogsProcess(progress.AddTaskStatus(t?.Status))
-        );
+        await multiTask.WhenAll(fillJiraWithWorklogsTasks);
     }
 
     private async Task<InputWorkLog[]> ReadInputFiles(IEnumerable<string> fileNames)
@@ -181,15 +182,14 @@ public class JwlCoreProcess : IDisposable
 
         Feedback?.ReadCsvInputSetTarget(readerTasks.Length);
 
-        MultiTaskProgress progress = new MultiTaskProgress(readerTasks.Length);
+        MultiTaskStats progressStats = new MultiTaskStats(readerTasks.Length);
+        MultiTask multiTask = new MultiTask()
+        {
+            TaskFeedback = t => Feedback?.ReadCsvInputProcess(progressStats.ApplyTaskStatus(t.Status))
+        };
 
         if (readerTasks.Any())
-        {
-            await MultiTask.WhenAll(
-                tasks: readerTasks,
-                progressFeedback: (_, t) => Feedback?.ReadCsvInputProcess(progress.AddTaskStatus(t?.Status))
-            );
-        }
+            await multiTask.WhenAll(readerTasks);
 
         InputWorkLog[] result = readerTasks
             .SelectMany(response => response.Result)
