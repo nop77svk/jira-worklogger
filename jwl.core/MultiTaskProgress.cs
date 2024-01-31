@@ -1,8 +1,9 @@
-namespace jwl.infra;
+namespace jwl.core;
+using jwl.infra;
 
 public class MultiTaskProgress
 {
-    public ProgressState State { get; private set; }
+    public MultiTask.ProgressState State { get; private set; }
     public int Total { get; private set; }
     public int Succeeded { get; private set; }
     public float SucceededPct => Total > 0 ? (float)Succeeded / Total : float.NaN;
@@ -21,7 +22,7 @@ public class MultiTaskProgress
     public MultiTaskProgress(int total)
     {
         Total = total;
-        State = ProgressState.Unknown;
+        State = MultiTask.ProgressState.Unknown;
         Succeeded = 0;
         Faulted = 0;
         Cancelled = 0;

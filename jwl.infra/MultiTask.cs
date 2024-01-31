@@ -21,57 +21,50 @@ public static class MultiTask
 
         while (tasksToExecute.Any())
         {
+            progressFeedback?.Invoke(ProgressState.InProgress, null);
+
             Task? taskFinished = null;
             try
             {
                 cancellationToken?.ThrowIfCancellationRequested();
 
                 taskFinished = await Task.WhenAny(tasksToExecute);
+                progressFeedback?.Invoke(ProgressState.InProgress, taskFinished);
 
                 if (taskFinished.Status is TaskStatus.Faulted or TaskStatus.Canceled)
                 {
                     tasksToExecute.Remove(taskFinished);
-
                     throw taskFinished.Exception ?? new Exception($"Task ended in {taskFinished.Status} status without exception details");
                 }
                 else if (taskFinished.Status == TaskStatus.RanToCompletion)
                 {
-                    if (tasksToExecute.Contains(taskFinished))
-                    {
-                        tasksToExecute.Remove(taskFinished);
-                        progressFeedback?.Invoke(ProgressState.Finished, taskFinished);
-                    }
-                    else
-                    {
+                    if (!tasksToExecute.Remove(taskFinished))
                         throw new InvalidOperationException("Task reported as finished... again!");
-                    }
                 }
             }
             catch (AggregateException ex)
             {
-                progressFeedback?.Invoke(ProgressState.Error, taskFinished);
                 errors.AddRange(ex.InnerExceptions);
-            }
-            catch (TaskCanceledException ex)
-            {
-                progressFeedback?.Invoke(ProgressState.Cancelled, ex.Task);
-                errors.Add(ex);
             }
             catch (Exception ex)
             {
-                progressFeedback?.Invoke(ProgressState.Error, taskFinished);
                 errors.Add(ex);
             }
         }
 
-        if (errors.Any())
+        if (errors.All(ex => ex is TaskCanceledException))
         {
-            if (errors.All(ex => ex is TaskCanceledException))
-                throw new TaskCanceledException($"All {errors.Count} tasks have been cancelled", new AggregateException(errors));
-            else
-                throw new AggregateException(errors);
+            progressFeedback?.Invoke(ProgressState.Cancelled, null);
+            throw new TaskCanceledException($"All {errors.Count} tasks have been cancelled", new AggregateException(errors));
         }
-
-        progressFeedback?.Invoke(ProgressState.Finished, null);
+        else if (errors.Any())
+        {
+            progressFeedback?.Invoke(ProgressState.Error, null);
+            throw new AggregateException(errors);
+        }
+        else
+        {
+            progressFeedback?.Invoke(ProgressState.Finished, null);
+        }
     }
 }
