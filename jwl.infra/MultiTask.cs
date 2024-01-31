@@ -18,15 +18,29 @@ public static class MultiTask
 
                 taskFinished = await Task.WhenAny(tasksToExecute);
 
-                if (tasksToExecute.Contains(taskFinished))
+                if (taskFinished.Status is TaskStatus.Faulted or TaskStatus.Canceled)
                 {
                     tasksToExecute.Remove(taskFinished);
-                    progressFeedback?.Invoke(MultiTaskProgressState.Finished, taskFinished);
+
+                    throw taskFinished.Exception ?? new Exception($"Task ended in {taskFinished.Status} status without exception details");
                 }
-                else
+                else if (taskFinished.Status == TaskStatus.RanToCompletion)
                 {
-                    throw new InvalidOperationException("Task reported as finished... again!");
+                    if (tasksToExecute.Contains(taskFinished))
+                    {
+                        tasksToExecute.Remove(taskFinished);
+                        progressFeedback?.Invoke(MultiTaskProgressState.Finished, taskFinished);
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException("Task reported as finished... again!");
+                    }
                 }
+            }
+            catch (AggregateException ex)
+            {
+                progressFeedback?.Invoke(MultiTaskProgressState.Error, taskFinished);
+                errors.AddRange(ex.InnerExceptions);
             }
             catch (TaskCanceledException ex)
             {
@@ -43,7 +57,7 @@ public static class MultiTask
         if (errors.Any())
         {
             if (errors.All(ex => ex is TaskCanceledException))
-                throw new TaskCanceledException($"All {errors.Count} multitasks have been cancelled");
+                throw new TaskCanceledException($"All {errors.Count} tasks have been cancelled", new AggregateException(errors));
             else
                 throw new AggregateException(errors);
         }
