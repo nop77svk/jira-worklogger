@@ -37,11 +37,6 @@ public class VanillaJiraClient
         }
     }
 
-    public async Task<api.rest.common.JiraUserInfo> GetUserInfo()
-    {
-        return await GetUserInfo(_httpClient, UserName);
-    }
-
     #pragma warning disable CS1998
     public async Task<WorkLogType[]> GetAvailableActivities()
     {
@@ -186,14 +181,14 @@ public class VanillaJiraClient
         await CheckHttpResponseForErrorMessages(response);
     }
 
-    private static async Task<api.rest.common.JiraUserInfo> GetUserInfo(HttpClient httpClient, string userName)
+    private async Task<api.rest.common.JiraUserInfo> GetUserInfo()
     {
         UriBuilder uriBuilder = new UriBuilder()
         {
             Path = @"rest/api/2/user",
             Query = new UriQueryBuilder()
-                .Add(@"username", userName)
+                .Add(@"username", UserName)
         };
-        return await httpClient.GetAsJsonAsync<api.rest.common.JiraUserInfo>(uriBuilder.Uri.PathAndQuery);
+        return await _httpClient.GetAsJsonAsync<api.rest.common.JiraUserInfo>(uriBuilder.Uri.PathAndQuery);
     }
 }

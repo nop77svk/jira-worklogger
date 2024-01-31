@@ -14,21 +14,16 @@ public class JiraWithICTimePluginApi
     : IJiraClient
 {
     public string UserName { get; }
+    public api.rest.common.JiraUserInfo UserInfo => _vanillaJiraApi.UserInfo;
 
     private readonly HttpClient _httpClient;
+    private readonly VanillaJiraClient _vanillaJiraApi;
 
     public JiraWithICTimePluginApi(HttpClient httpClient, string userName)
     {
         _httpClient = httpClient;
         UserName = userName;
         _vanillaJiraApi = new VanillaJiraClient(httpClient, userName);
-    }
-
-    private readonly VanillaJiraClient _vanillaJiraApi;
-
-    public async Task<JiraUserInfo> GetUserInfo()
-    {
-        return await _vanillaJiraApi.GetUserInfo();
     }
 
     public async Task<WorkLogType[]> GetAvailableActivities()
