@@ -25,6 +25,7 @@ public class VanillaJiraClient
     public static async Task CheckHttpResponseForErrorMessages(HttpResponseMessage responseMessage)
     {
         using Stream responseContentStream = await responseMessage.Content.ReadAsStreamAsync();
+
         if (responseContentStream.Length > 0)
         {
             JiraRestResponse responseContent = await HttpClientJsonExt.DeserializeJsonStreamAsync<JiraRestResponse>(responseContentStream);
