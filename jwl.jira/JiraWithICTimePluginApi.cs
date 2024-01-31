@@ -14,8 +14,10 @@ public class JiraWithICTimePluginApi
     : IJiraClient
 {
     public string UserName { get; }
+    public api.rest.common.JiraUserInfo UserInfo => _vanillaJiraApi.UserInfo;
 
     private readonly HttpClient _httpClient;
+    private readonly VanillaJiraClient _vanillaJiraApi;
 
     public JiraWithICTimePluginApi(HttpClient httpClient, string userName)
     {
@@ -24,16 +26,14 @@ public class JiraWithICTimePluginApi
         _vanillaJiraApi = new VanillaJiraClient(httpClient, userName);
     }
 
-    private readonly VanillaJiraClient _vanillaJiraApi;
-
-    public async Task<JiraUserInfo> GetUserInfo()
-    {
-        return await _vanillaJiraApi.GetUserInfo();
-    }
-
     public async Task<WorkLogType[]> GetAvailableActivities()
     {
         return await _vanillaJiraApi.GetAvailableActivities();
+    }
+
+    public async Task<WorkLog[]> GetIssueWorklogs(DateOnly from, DateOnly to, string issueKey)
+    {
+        return await _vanillaJiraApi.GetIssueWorklogs(from, to, issueKey);
     }
 
     public async Task<WorkLog[]> GetIssueWorklogs(DateOnly from, DateOnly to, IEnumerable<string>? issueKeys)

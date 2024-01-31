@@ -7,9 +7,11 @@ using System.Threading.Tasks;
 
 public interface IJiraClient
 {
-    Task<api.rest.common.JiraUserInfo> GetUserInfo();
+    api.rest.common.JiraUserInfo UserInfo { get; }
 
     Task<WorkLogType[]> GetAvailableActivities();
+
+    Task<WorkLog[]> GetIssueWorklogs(DateOnly from, DateOnly to, string issueKey);
 
     Task<WorkLog[]> GetIssueWorklogs(DateOnly from, DateOnly to, IEnumerable<string>? issueKeys);
 

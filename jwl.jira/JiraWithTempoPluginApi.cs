@@ -10,21 +10,16 @@ public class JiraWithTempoPluginApi
     private const string WorklogTypeAttributeKey = @"_WorklogType_";
 
     private readonly HttpClient _httpClient;
-    private readonly VanillaJiraClient _vanillaJiraServerApi;
+    private readonly VanillaJiraClient _vanillaJiraApi;
 
     public string UserName { get; }
+    public api.rest.common.JiraUserInfo UserInfo => _vanillaJiraApi.UserInfo;
 
     public JiraWithTempoPluginApi(HttpClient httpClient, string userName)
     {
         _httpClient = httpClient;
-        _vanillaJiraServerApi = new VanillaJiraClient(httpClient, userName);
-
         UserName = userName;
-    }
-
-    public async Task<JiraUserInfo> GetUserInfo()
-    {
-        return await _vanillaJiraServerApi.GetUserInfo();
+        _vanillaJiraApi = new VanillaJiraClient(httpClient, userName);
     }
 
     public async Task<api.rest.response.TempoWorklogAttributeDefinition[]> GetWorklogAttributeDefinitions()
@@ -53,10 +48,14 @@ public class JiraWithTempoPluginApi
         return result;
     }
 
+    public async Task<WorkLog[]> GetIssueWorklogs(DateOnly from, DateOnly to, string issueKey)
+    {
+        return await GetIssueWorklogs(from, to, new string[] { issueKey });
+    }
+
     public async Task<WorkLog[]> GetIssueWorklogs(DateOnly from, DateOnly to, IEnumerable<string>? issueKeys)
     {
-        JiraUserInfo userInfo = await GetUserInfo();
-        string userKey = userInfo.Key ?? throw new ArgumentNullException($"{nameof(userInfo)}.{nameof(userInfo.Key)}");
+        string userKey = UserInfo.Key ?? throw new ArgumentNullException($"{nameof(UserInfo)}.{nameof(UserInfo.Key)}");
 
         var request = new api.rest.request.TempoFindWorklogs(from, to)
         {
@@ -90,8 +89,7 @@ public class JiraWithTempoPluginApi
 
     public async Task AddWorklogPeriod(string issueKey, DateOnly dayFrom, DateOnly dayTo, int timeSpentSeconds, string? tempoWorklogType, string? comment, bool includeNonWorkingDays = false)
     {
-        JiraUserInfo userInfo = await GetUserInfo();
-        string userKey = userInfo.Key ?? throw new ArgumentNullException($"{nameof(userInfo)}.{nameof(userInfo.Key)}");
+        string userKey = UserInfo.Key ?? throw new ArgumentNullException($"{nameof(UserInfo)}.{nameof(UserInfo.Key)}");
 
         var request = new api.rest.request.TempoAddWorklogByIssueKey()
         {

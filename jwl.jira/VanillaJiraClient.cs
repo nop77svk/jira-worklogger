@@ -13,13 +13,16 @@ public class VanillaJiraClient
     : IJiraClient
 {
     public string UserName { get; }
+    public api.rest.common.JiraUserInfo UserInfo => _lazyUserInfo.Value;
 
     private readonly HttpClient _httpClient;
+    private readonly Lazy<jwl.jira.api.rest.common.JiraUserInfo> _lazyUserInfo;
 
     public VanillaJiraClient(HttpClient httpClient, string userName)
     {
         _httpClient = httpClient;
         UserName = userName;
+        _lazyUserInfo = new Lazy<api.rest.common.JiraUserInfo>(() => GetUserInfo().Result);
     }
 
     public static async Task CheckHttpResponseForErrorMessages(HttpResponseMessage responseMessage)
@@ -34,17 +37,6 @@ public class VanillaJiraClient
         }
     }
 
-    public async Task<api.rest.common.JiraUserInfo> GetUserInfo()
-    {
-        UriBuilder uriBuilder = new UriBuilder()
-        {
-            Path = @"rest/api/2/user",
-            Query = new UriQueryBuilder()
-                .Add(@"username", UserName)
-        };
-        return await _httpClient.GetAsJsonAsync<api.rest.common.JiraUserInfo>(uriBuilder.Uri.PathAndQuery);
-    }
-
     #pragma warning disable CS1998
     public async Task<WorkLogType[]> GetAvailableActivities()
     {
@@ -52,28 +44,20 @@ public class VanillaJiraClient
     }
     #pragma warning restore
 
-    public async Task<WorkLog[]> GetIssueWorklogs(DateOnly from, DateOnly to, IEnumerable<string>? issueKeys)
+    public async Task<WorkLog[]> GetIssueWorklogs(DateOnly from, DateOnly to, string issueKey)
     {
-        if (issueKeys is null)
-            return Array.Empty<WorkLog>();
+        UriBuilder uriBuilder = new UriBuilder()
+        {
+            Path = new UriPathBuilder(@"rest/api/2/issue")
+                .Add(issueKey)
+                .Add(@"worklog")
+        };
 
-        Task<api.rest.response.JiraIssueWorklogs>[] responseTasks = issueKeys
-            .Distinct()
-            .Select(issueKey => new UriBuilder()
-            {
-                Path = new UriPathBuilder(@"rest/api/2/issue")
-                    .Add(issueKey)
-                    .Add(@"worklog")
-            })
-            .Select(uriBuilder => _httpClient.GetAsJsonAsync<api.rest.response.JiraIssueWorklogs>(uriBuilder.Uri.PathAndQuery))
-            .ToArray();
-
-        await Task.WhenAll(responseTasks);
+        var response = await _httpClient.GetAsJsonAsync<api.rest.response.JiraIssueWorklogs>(uriBuilder.Uri.PathAndQuery);
 
         (DateTime minDt, DateTime supDt) = DateOnlyUtils.DateOnlyRangeToDateTimeRange(from, to);
 
-        var result = responseTasks
-            .SelectMany(task => task.Result.Worklogs)
+        var result = response.Worklogs
             .Where(worklog => worklog.Author.Name == UserName)
             .Where(worklog => worklog.Started.Value >= minDt && worklog.Started.Value < supDt)
             .Select(wl => new WorkLog(
@@ -87,6 +71,25 @@ public class VanillaJiraClient
                 Activity: null,
                 Comment: wl.Comment
             ))
+            .ToArray();
+
+        return result;
+    }
+
+    public async Task<WorkLog[]> GetIssueWorklogs(DateOnly from, DateOnly to, IEnumerable<string>? issueKeys)
+    {
+        if (issueKeys is null)
+            return Array.Empty<WorkLog>();
+
+        Task<WorkLog[]>[] responseTasks = issueKeys
+            .Distinct()
+            .Select(issueKey => GetIssueWorklogs(from, to, issueKey))
+            .ToArray();
+
+        await Task.WhenAll(responseTasks);
+
+        var result = responseTasks
+            .SelectMany(task => task.Result)
             .ToArray();
 
         return result;
@@ -176,5 +179,16 @@ public class VanillaJiraClient
 
         HttpResponseMessage response = await _httpClient.PutAsJsonAsync(uriBuilder.Uri.PathAndQuery, request);
         await CheckHttpResponseForErrorMessages(response);
+    }
+
+    private async Task<api.rest.common.JiraUserInfo> GetUserInfo()
+    {
+        UriBuilder uriBuilder = new UriBuilder()
+        {
+            Path = @"rest/api/2/user",
+            Query = new UriQueryBuilder()
+                .Add(@"username", UserName)
+        };
+        return await _httpClient.GetAsJsonAsync<api.rest.common.JiraUserInfo>(uriBuilder.Uri.PathAndQuery);
     }
 }
