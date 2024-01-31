@@ -21,8 +21,6 @@ public class JwlCoreProcess : IDisposable
     private HttpClient _httpClient;
     private IJiraClient _jiraClient;
 
-    private jwl.jira.api.rest.common.JiraUserInfo? _userInfo;
-
     public JwlCoreProcess(AppConfig config, ICoreProcessInteraction interaction)
     {
         _config = config;
@@ -59,6 +57,7 @@ public class JwlCoreProcess : IDisposable
         */
     }
 
+    #pragma warning disable CS1998
     public async Task PreProcess()
     {
         Feedback?.OverallProcessStart();
@@ -76,11 +75,8 @@ public class JwlCoreProcess : IDisposable
             throw new ArgumentNullException($"Jira credentials not supplied");
 
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(@"Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes(jiraUserName + ":" + jiraUserPassword)));
-
-        Feedback?.PreloadUserInfoStart(jiraUserName);
-        _userInfo = await _jiraClient.GetUserInfo();
-        Feedback?.PreloadUserInfoEnd();
     }
+    #pragma warning restore
 
     public async Task Process(IEnumerable<string> inputFiles)
     {
@@ -143,7 +139,7 @@ public class JwlCoreProcess : IDisposable
     {
         Feedback?.FillJiraWithWorklogsSetTarget(inputWorklogs.Length, worklogsForDeletion.Length);
 
-        if (_userInfo == null || _userInfo.Key == null)
+        if (_jiraClient.UserInfo?.Key is null)
             throw new ArgumentNullException(@"Unresolved Jira key for the logged-on user");
 
         Task[] fillJiraWithWorklogsTasks = worklogsForDeletion
@@ -228,9 +224,7 @@ public class JwlCoreProcess : IDisposable
     {
         WorkLog[] result;
 
-        if (_userInfo == null)
-            throw new ArgumentNullException(@"User info not preloaded from Jira server");
-        if (string.IsNullOrEmpty(_userInfo.Key))
+        if (string.IsNullOrEmpty(_jiraClient.UserInfo?.Key))
             throw new ArgumentNullException(@"Empty user key preloaded from Jira server");
 
         DateTime[] inputWorklogDays = inputWorklogs
