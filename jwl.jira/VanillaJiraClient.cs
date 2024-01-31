@@ -3,19 +3,35 @@ namespace jwl.jira;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text;
+using System.Text.Json;
+using System.Xml.Linq;
 using jwl.infra;
+using jwl.jira.api.rest.response;
 
-public class VanillaJiraServerApi
-    : IJiraServerApi
+public class VanillaJiraClient
+    : IJiraClient
 {
-    private readonly HttpClient _httpClient;
-
     public string UserName { get; }
 
-    public VanillaJiraServerApi(HttpClient httpClient, string userName)
+    private readonly HttpClient _httpClient;
+
+    public VanillaJiraClient(HttpClient httpClient, string userName)
     {
         _httpClient = httpClient;
         UserName = userName;
+    }
+
+    public static async Task CheckHttpResponseForErrorMessages(HttpResponseMessage responseMessage)
+    {
+        using Stream responseContentStream = await responseMessage.Content.ReadAsStreamAsync();
+
+        if (responseContentStream.Length > 0)
+        {
+            JiraRestResponse responseContent = await HttpClientJsonExt.DeserializeJsonStreamAsync<JiraRestResponse>(responseContentStream);
+            if (responseContent?.ErrorMessages is not null && responseContent.ErrorMessages.Any())
+                throw new InvalidOperationException(string.Join(Environment.NewLine, responseContent.ErrorMessages));
+        }
     }
 
     public async Task<api.rest.common.JiraUserInfo> GetUserInfo()
@@ -30,7 +46,7 @@ public class VanillaJiraServerApi
     }
 
     #pragma warning disable CS1998
-    public async Task<WorkLogType[]> GetWorklogTypes()
+    public async Task<WorkLogType[]> GetAvailableActivities()
     {
         return Array.Empty<WorkLogType>();
     }
@@ -58,6 +74,7 @@ public class VanillaJiraServerApi
 
         var result = responseTasks
             .SelectMany(task => task.Result.Worklogs)
+            .Where(worklog => worklog.Author.Name == UserName)
             .Where(worklog => worklog.Started.Value >= minDt && worklog.Started.Value < supDt)
             .Select(wl => new WorkLog(
                 Id: wl.Id.Value,
@@ -67,7 +84,7 @@ public class VanillaJiraServerApi
                 Created: wl.Created.Value,
                 Started: wl.Started.Value,
                 TimeSpentSeconds: wl.TimeSpentSeconds,
-                WorkLogType: null,
+                Activity: null,
                 Comment: wl.Comment
             ))
             .ToArray();
@@ -75,7 +92,7 @@ public class VanillaJiraServerApi
         return result;
     }
 
-    public async Task AddWorklog(string issueKey, DateOnly day, int timeSpentSeconds, string? worklogType, string? comment)
+    public async Task AddWorklog(string issueKey, DateOnly day, int timeSpentSeconds, string? activity, string? comment)
     {
         UriBuilder uriBuilder = new UriBuilder()
         {
@@ -83,19 +100,27 @@ public class VanillaJiraServerApi
                 .Add(issueKey)
                 .Add(@"worklog")
         };
-        var request = new api.rest.request.JiraAddWorklogByIssueKey()
-        {
-            Started = day
+
+        StringBuilder commentBuilder = new StringBuilder();
+        if (activity != null)
+            commentBuilder.Append($"({activity}){Environment.NewLine}");
+        commentBuilder.Append(comment);
+
+        var request = new api.rest.request.JiraAddWorklogByIssueKey(
+            Started: day
+                .ToDateTime(TimeOnly.MinValue)
                 .ToString(@"yyyy-MM-dd""T""hh"";""mm"";""ss.fffzzzz")
                 .Replace(":", string.Empty)
                 .Replace(';', ':'),
-            TimeSpentSeconds = timeSpentSeconds,
-            Comment = comment
-        };
-        await _httpClient.PostAsJsonAsync(uriBuilder.Uri.PathAndQuery, request);
+            TimeSpentSeconds: timeSpentSeconds,
+            Comment: commentBuilder.ToString()
+        );
+
+        HttpResponseMessage response = await _httpClient.PostAsJsonAsync(uriBuilder.Uri.PathAndQuery, request);
+        await CheckHttpResponseForErrorMessages(response);
     }
 
-    public async Task AddWorklogPeriod(string issueKey, DateOnly dayFrom, DateOnly dayTo, int timeSpentSeconds, string? worklogType, string? comment, bool includeNonWorkingDays = false)
+    public async Task AddWorklogPeriod(string issueKey, DateOnly dayFrom, DateOnly dayTo, int timeSpentSeconds, string? activity, string? comment, bool includeNonWorkingDays = false)
     {
         DateOnly[] daysInPeriod = Enumerable.Range(0, dayFrom.NumberOfDaysTo(dayTo))
             .Select(i => dayFrom.AddDays(i))
@@ -108,7 +133,7 @@ public class VanillaJiraServerApi
         int timeSpentSecondsPerSingleDay = timeSpentSeconds / daysInPeriod.Length;
 
         Task[] addWorklogTasks = daysInPeriod
-            .Select(day => AddWorklog(issueKey, day, timeSpentSecondsPerSingleDay, worklogType, comment))
+            .Select(day => AddWorklog(issueKey, day, timeSpentSecondsPerSingleDay, activity, comment))
             .ToArray();
 
         await Task.WhenAll(addWorklogTasks);
@@ -125,10 +150,12 @@ public class VanillaJiraServerApi
             Query = new UriQueryBuilder()
                 .Add(@"notifyUsers", notifyUsers.ToString().ToLower())
         };
-        await _httpClient.DeleteAsync(uriBuilder.Uri.PathAndQuery);
+
+        HttpResponseMessage response = await _httpClient.DeleteAsync(uriBuilder.Uri.PathAndQuery);
+        await CheckHttpResponseForErrorMessages(response);
     }
 
-    public async Task UpdateWorklog(string issueKey, long worklogId, DateOnly day, int timeSpentSeconds, string? worklogType, string? comment)
+    public async Task UpdateWorklog(string issueKey, long worklogId, DateOnly day, int timeSpentSeconds, string? activity, string? comment)
     {
         UriBuilder uriBuilder = new UriBuilder()
         {
@@ -137,15 +164,17 @@ public class VanillaJiraServerApi
                 .Add(@"worklog")
                 .Add(worklogId.ToString())
         };
-        var request = new api.rest.request.JiraAddWorklogByIssueKey()
-        {
-            Started = day
+        var request = new api.rest.request.JiraAddWorklogByIssueKey(
+            Started: day
+                .ToDateTime(TimeOnly.MinValue)
                 .ToString(@"yyyy-MM-dd""T""hh"";""mm"";""ss.fffzzzz")
                 .Replace(":", string.Empty)
                 .Replace(';', ':'),
-            TimeSpentSeconds = timeSpentSeconds,
-            Comment = comment
-        };
-        await _httpClient.PutAsJsonAsync(uriBuilder.Uri.PathAndQuery, request);
+            TimeSpentSeconds: timeSpentSeconds,
+            Comment: comment
+        );
+
+        HttpResponseMessage response = await _httpClient.PutAsJsonAsync(uriBuilder.Uri.PathAndQuery, request);
+        await CheckHttpResponseForErrorMessages(response);
     }
 }

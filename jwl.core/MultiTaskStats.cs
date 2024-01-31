@@ -1,8 +1,8 @@
-namespace jwl.infra;
+namespace jwl.core;
+using jwl.infra;
 
-public class MultiTaskProgress
+public class MultiTaskStats
 {
-    public MultiTaskProgressState State { get; private set; }
     public int Total { get; private set; }
     public int Succeeded { get; private set; }
     public float SucceededPct => Total > 0 ? (float)Succeeded / Total : float.NaN;
@@ -18,10 +18,9 @@ public class MultiTaskProgress
     public int DoneSoFar => Succeeded + ErredSoFar;
     public float DoneSoFarPct => Total > 0 ? (float)DoneSoFar / Total : float.NaN;
 
-    public MultiTaskProgress(int total)
+    public MultiTaskStats(int total)
     {
         Total = total;
-        State = MultiTaskProgressState.Unknown;
         Succeeded = 0;
         Faulted = 0;
         Cancelled = 0;
@@ -30,7 +29,7 @@ public class MultiTaskProgress
 
     private object _locker = new object();
 
-    public MultiTaskProgress AddTaskStatus(TaskStatus? taskStatus)
+    public MultiTaskStats ApplyTaskStatus(TaskStatus? taskStatus)
     {
         if (taskStatus == null)
             return this;

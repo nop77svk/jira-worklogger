@@ -1,8 +1,6 @@
+#pragma warning disable SA1313
 namespace jwl.jira.api.rest.request;
 
-public class JiraAddWorklogByIssueKey
+public record JiraAddWorklogByIssueKey(string Started, int TimeSpentSeconds, string? Comment)
 {
-    public string? Started { get; init; }
-    public int? TimeSpentSeconds { get; init; }
-    public string? Comment { get; init; }
 }

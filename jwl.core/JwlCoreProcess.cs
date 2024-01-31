@@ -5,8 +5,6 @@ using System.Text;
 using jwl.infra;
 using jwl.inputs;
 using jwl.jira;
-using jwl.jira.api.rest.response;
-using Microsoft.Extensions.Configuration;
 using NoP77svk.Linq;
 
 public class JwlCoreProcess : IDisposable
@@ -21,10 +19,9 @@ public class JwlCoreProcess : IDisposable
     private AppConfig _config;
     private HttpClientHandler _httpClientHandler;
     private HttpClient _httpClient;
-    private VanillaJiraServerApi _jiraClient;
+    private IJiraClient _jiraClient;
 
     private jwl.jira.api.rest.common.JiraUserInfo? _userInfo;
-    private Dictionary<string, WorkLogType> availableWorklogTypes = new ();
 
     public JwlCoreProcess(AppConfig config, ICoreProcessInteraction interaction)
     {
@@ -45,7 +42,9 @@ public class JwlCoreProcess : IDisposable
         {
             BaseAddress = new Uri(_config.JiraServer?.BaseUrl ?? string.Empty)
         };
-        _jiraClient = new VanillaJiraServerApi(_httpClient, _config.User?.Name ?? throw new ArgumentNullException($"{nameof(_config)}.{nameof(_config.User)}.{nameof(_config.User.Name)})"));
+
+        string userName = _config.User?.Name ?? throw new ArgumentNullException($"{nameof(_config)}.{nameof(_config.User)}.{nameof(_config.User.Name)})");
+        _jiraClient = ServerApiFactory.CreateApi(_httpClient, userName, _config.JiraServer?.ServerFlavourId ?? JiraServerFlavour.Vanilla);
 
         /* 2do!...
         _jiraClient.WsClient.HttpRequestPostprocess = req =>
@@ -77,10 +76,6 @@ public class JwlCoreProcess : IDisposable
             throw new ArgumentNullException($"Jira credentials not supplied");
 
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(@"Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes(jiraUserName + ":" + jiraUserPassword)));
-
-        Feedback?.PreloadAvailableWorklogTypesStart();
-        availableWorklogTypes = (await _jiraClient.GetWorklogTypes()).ToDictionary(wlt => wlt.Value);
-        Feedback?.PreloadAvailableWorklogTypesEnd();
 
         Feedback?.PreloadUserInfoStart(jiraUserName);
         _userInfo = await _jiraClient.GetUserInfo();
@@ -154,16 +149,29 @@ public class JwlCoreProcess : IDisposable
         Task[] fillJiraWithWorklogsTasks = worklogsForDeletion
             .Select(worklog => _jiraClient.DeleteWorklog(worklog.IssueId, worklog.Id))
             .Concat(inputWorklogs
-                .Select(worklog => _jiraClient.AddWorklog(worklog.IssueKey.ToString(), DateOnly.FromDateTime(worklog.Date), (int)worklog.TimeSpent.TotalSeconds, worklog.TempWorklogType, string.Empty))
+                .LeftOuterJoin(
+                    innerTable: _config.JiraServer?.ActivityMap ?? new Dictionary<string, string>(),
+                    outerKeySelector: wl => wl.WorkLogActivity.ToLower(),
+                    innerKeySelector: am => am.Key.ToLower(),
+                    resultSelector: (wl, am) => new ValueTuple<InputWorkLog, string?>(wl, am.Value)
+                )
+                .Select(x => _jiraClient.AddWorklog(
+                    issueKey: x.Item1.IssueKey.ToString(),
+                    day: DateOnly.FromDateTime(x.Item1.Date),
+                    timeSpentSeconds: (int)x.Item1.TimeSpent.TotalSeconds,
+                    activity: !(_config.JiraServer?.ActivityMap?.Any() ?? false) ? x.Item1.WorkLogActivity : x.Item2,
+                    comment: x.Item1.WorkLogComment
+                ))
             )
             .ToArray();
 
-        MultiTaskProgress progress = new MultiTaskProgress(fillJiraWithWorklogsTasks.Length);
+        MultiTaskStats progress = new MultiTaskStats(fillJiraWithWorklogsTasks.Length);
+        MultiTask multiTask = new MultiTask()
+        {
+            TaskFeedback = t => Feedback?.FillJiraWithWorklogsProcess(progress.ApplyTaskStatus(t.Status))
+        };
 
-        await MultiTask.WhenAll(
-            tasks: fillJiraWithWorklogsTasks,
-            progressFeedback: (_, t) => Feedback?.FillJiraWithWorklogsProcess(progress.AddTaskStatus(t?.Status))
-        );
+        await multiTask.WhenAll(fillJiraWithWorklogsTasks);
     }
 
     private async Task<InputWorkLog[]> ReadInputFiles(IEnumerable<string> fileNames)
@@ -174,15 +182,14 @@ public class JwlCoreProcess : IDisposable
 
         Feedback?.ReadCsvInputSetTarget(readerTasks.Length);
 
-        MultiTaskProgress progress = new MultiTaskProgress(readerTasks.Length);
+        MultiTaskStats progressStats = new MultiTaskStats(readerTasks.Length);
+        MultiTask multiTask = new MultiTask()
+        {
+            TaskFeedback = t => Feedback?.ReadCsvInputProcess(progressStats.ApplyTaskStatus(t.Status))
+        };
 
         if (readerTasks.Any())
-        {
-            await MultiTask.WhenAll(
-                tasks: readerTasks,
-                progressFeedback: (_, t) => Feedback?.ReadCsvInputProcess(progress.AddTaskStatus(t?.Status))
-            );
-        }
+            await multiTask.WhenAll(readerTasks);
 
         InputWorkLog[] result = readerTasks
             .SelectMany(response => response.Result)
@@ -205,8 +212,11 @@ public class JwlCoreProcess : IDisposable
             return worklogReader
                 .Read(row =>
                 {
-                    if (!availableWorklogTypes.ContainsKey(row.TempWorklogType))
-                        throw new InvalidDataException($"Worklog type {row.TempWorklogType} not found on server");
+                    if (row.WorkLogActivity is not null)
+                    {
+                        if (!_config.JiraServer?.ActivityMap?.ContainsKey(row.WorkLogActivity) ?? false)
+                            throw new InvalidDataException($"Worklog type {row.WorkLogActivity} not found in activity map");
+                    }
                 })
                 .ToArray();
         });

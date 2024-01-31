@@ -11,7 +11,7 @@ public class UriQueryBuilder
 
     public UriQueryBuilder(string uriQuery)
         : base(HttpUtility.ParseQueryString(uriQuery)
-            .AsEnumerable()
+            .Cast<KeyValuePair<string?, string?>>()
             .ToList())
     {
     }
