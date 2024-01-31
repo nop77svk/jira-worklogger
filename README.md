@@ -14,9 +14,9 @@ Meet the scripted Jira worklogging! Give it your worklogs in a CSV file (and you
 
 - .NET 6 run-time installed (for simple, cross-platform build) or no .NET runtime necessary (for self-contained, single-exe, Windows-only build); You choose!
 - Jira server (with version 2 REST API)
--- "vanilla" Jira server support: ✔️
--- "Tempo Timesheets" plugin support: ✔️
--- "ICTime" plugin support: ❎ (planned)
+  - "vanilla" Jira server support: ✔️
+  - "Tempo Timesheets" plugin support: ✔️
+  - "ICTime" plugin support: ❎ (planned)
 
 ## Configuration
 
