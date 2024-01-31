@@ -36,6 +36,11 @@ public class JiraWithICTimePluginApi
         return await _vanillaJiraApi.GetAvailableActivities();
     }
 
+    public async Task<WorkLog[]> GetIssueWorklogs(DateOnly from, DateOnly to, string issueKey)
+    {
+        return await _vanillaJiraApi.GetIssueWorklogs(from, to, issueKey);
+    }
+
     public async Task<WorkLog[]> GetIssueWorklogs(DateOnly from, DateOnly to, IEnumerable<string>? issueKeys)
     {
         return await _vanillaJiraApi.GetIssueWorklogs(from, to, issueKeys);

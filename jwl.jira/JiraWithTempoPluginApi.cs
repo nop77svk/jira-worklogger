@@ -53,10 +53,14 @@ public class JiraWithTempoPluginApi
         return result;
     }
 
+    public async Task<WorkLog[]> GetIssueWorklogs(DateOnly from, DateOnly to, string issueKey)
+    {
+        return await GetIssueWorklogs(from, to, new string[] { issueKey });
+    }
+
     public async Task<WorkLog[]> GetIssueWorklogs(DateOnly from, DateOnly to, IEnumerable<string>? issueKeys)
     {
-        JiraUserInfo userInfo = await GetUserInfo();
-        string userKey = userInfo.Key ?? throw new ArgumentNullException($"{nameof(userInfo)}.{nameof(userInfo.Key)}");
+        string userKey = _vanillaJiraServerApi.UserInfo.Key ?? throw new ArgumentNullException($"{nameof(_vanillaJiraServerApi.UserInfo)}.{nameof(_vanillaJiraServerApi.UserInfo.Key)}");
 
         var request = new api.rest.request.TempoFindWorklogs(from, to)
         {
@@ -90,8 +94,7 @@ public class JiraWithTempoPluginApi
 
     public async Task AddWorklogPeriod(string issueKey, DateOnly dayFrom, DateOnly dayTo, int timeSpentSeconds, string? tempoWorklogType, string? comment, bool includeNonWorkingDays = false)
     {
-        JiraUserInfo userInfo = await GetUserInfo();
-        string userKey = userInfo.Key ?? throw new ArgumentNullException($"{nameof(userInfo)}.{nameof(userInfo.Key)}");
+        string userKey = _vanillaJiraServerApi.UserInfo.Key ?? throw new ArgumentNullException($"{nameof(_vanillaJiraServerApi.UserInfo)}.{nameof(_vanillaJiraServerApi.UserInfo.Key)}");
 
         var request = new api.rest.request.TempoAddWorklogByIssueKey()
         {

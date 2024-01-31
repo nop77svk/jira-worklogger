@@ -11,6 +11,8 @@ public interface IJiraClient
 
     Task<WorkLogType[]> GetAvailableActivities();
 
+    Task<WorkLog[]> GetIssueWorklogs(DateOnly from, DateOnly to, string issueKey);
+
     Task<WorkLog[]> GetIssueWorklogs(DateOnly from, DateOnly to, IEnumerable<string>? issueKeys);
 
     Task AddWorklog(string issueKey, DateOnly day, int timeSpentSeconds, string? activity, string? comment);
