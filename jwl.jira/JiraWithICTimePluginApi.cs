@@ -1,15 +1,11 @@
 ﻿namespace jwl.jira;
 
 using jwl.infra;
-using jwl.jira.api.rest.common;
-using jwl.jira.api.rest.response;
-using System.Diagnostics;
 using System.Net.Http.Json;
-using System.Numerics;
-using System.Text;
 
 // https://interconcept.atlassian.net/wiki/spaces/ICTIME/pages/31686672/API
 // https://interconcept.atlassian.net/wiki/spaces/ICBIZ/pages/34701333/REST+Services
+// {{JiraBaseURI}}/rest/ictime/1.0/application.wadl
 public class JiraWithICTimePluginApi
     : IJiraClient
 {
