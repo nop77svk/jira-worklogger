@@ -67,19 +67,22 @@ public class MultiTask
             }
         }
 
-        if (errors.All(ex => ex is TaskCanceledException))
+        if (errors.Any())
         {
-            State = ProgressState.Cancelled;
-            ProcessFeedback?.Invoke(this);
+            if (errors.All(ex => ex is TaskCanceledException))
+            {
+                State = ProgressState.Cancelled;
+                ProcessFeedback?.Invoke(this);
 
-            throw new TaskCanceledException($"All {errors.Count} tasks have been cancelled", new AggregateException(errors));
-        }
-        else if (errors.Any())
-        {
-            State = ProgressState.Error;
-            ProcessFeedback?.Invoke(this);
+                throw new TaskCanceledException($"All {errors.Count} tasks have been cancelled", new AggregateException(errors));
+            }
+            else
+            {
+                State = ProgressState.Error;
+                ProcessFeedback?.Invoke(this);
 
-            throw new AggregateException(errors);
+                throw new AggregateException(errors);
+            }
         }
         else
         {
