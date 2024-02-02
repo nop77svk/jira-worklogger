@@ -21,25 +21,27 @@ Meet the scripted Jira worklogging! Give it your worklogs in a CSV file (and you
 ## Configuration
 
 The jwl.config file is a simple JSON structure. It can be placed in (and will be read by jwl in the priority order of)
- - "current folder" (as in "where your shell's <code>%CD%</code> or <code>${PWD}</code> is at the moment")
- - local application data (<code>%USERPROFILE%\AppData\Local</code>)
- - roaming application data (<code>%USERPROFILE%\AppData\Roaming</code>)
- - jwl's "installation" folder
+- "current folder" (as in "where your shell's <code>%CD%</code> or <code>${PWD}</code> is at the moment")
+- local application data (<code>%USERPROFILE%\AppData\Local</code>)
+- roaming application data (<code>%USERPROFILE%\AppData\Roaming</code>)
+- jwl's "installation" folder
 
 As for the CLI worklogger binary, there are command-line options available as well. Any partial options supplied via CLI will override their respective jwl.config counterparts with the highest priority.
 
 ### "ServerClass" setting
 
 Available values are:
- - Vanilla
- - TempoTimeSheets
- - ICTime (not implemented yet)
+- Vanilla
+- TempoTimeSheets
+- ICTime (not implemented yet)
 
 ## The input CSV structure
 
 Five columns, data delimited (by default) by a colon:
  - <code>Date</code> (string) - worklog day date (valid formats: <code>YYYY-MM-DD</code>, <code>YYYY/MM/DD</code>, <code>DD.MM.YYYY</code>, all with optional <code> HH:MI:SS</code> part)
  - <code>IssueKey</code> (string) - Jira issue key (<code>SOMEPROJECT-1234</code> and the likes)
- - <code>TempoWorklogType</code> (string) - Tempo Timesheets worklog type; values are checked against the available values from Jira server on each execution.
+ - <code>Activity</code> (string) - Tempo Timesheets worklog type or ICTime activity; values are remapped 
  - <code>TimeSpent</code> (string) - time to be logged for the Jira issue and the date (valid formats: <code>HH:MI</code>, <code>MI</code>, <code>HH h MI</code>, <code>HH h MI m</code>)
  - <code>Comment</code> (string) - optional worklog comment
+
+The <code>Activity</code> values are remapped via config <code>$.JiraServer.ActivityMap</code>. The mapping configuration depends on your Jira server+plugins configuration and is a subject of manual setup by yourself.
