@@ -1,5 +1,6 @@
 ﻿namespace jwl.jira.ictime
 {
+    using System.Collections;
     using System.Xml.Serialization;
 
     [XmlRoot("application", Namespace = WadlApplication.XmlNamespace)]

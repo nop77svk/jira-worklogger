@@ -8,7 +8,8 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Xml.Serialization;
 
-public class Tests
+public class WadlTests
+    : IDisposable
 {
     private readonly HttpClientHandler _httpClientHandler;
     private readonly HttpClient _httpClient;
@@ -16,7 +17,7 @@ public class Tests
     private readonly XmlSerializer _wadlSerializer;
     private Stream? _wadlResponseStream;
 
-    public Tests()
+    public WadlTests()
     {
         _httpClientHandler = new HttpClientHandler()
         {
@@ -51,8 +52,6 @@ public class Tests
     public void TearDown()
     {
         _wadlResponseStream?.Dispose();
-        _httpClient.Dispose();
-        _httpClientHandler.Dispose();
     }
 
     [Test]
@@ -67,5 +66,22 @@ public class Tests
         Assert.IsNotNull(wadl);
 
         Assert.IsNotNull(wadl.Resources);
+    }
+
+    [Test]
+    public void CanFlattenWadl()
+    {
+        Assert.IsNotNull(_wadlResponseStream);
+        var wadl = (WadlApplication?)_wadlSerializer.Deserialize(_wadlResponseStream);
+
+        var flatWadl = wadl?.AsEnumerable().ToArray();
+        Assert.IsNotNull(flatWadl);
+        Assert.That(flatWadl.Any());
+    }
+
+    public void Dispose()
+    {
+        _httpClient.Dispose();
+        _httpClientHandler.Dispose();
     }
 }

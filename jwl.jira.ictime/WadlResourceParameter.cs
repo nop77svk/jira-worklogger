@@ -11,7 +11,7 @@ namespace jwl.jira.ictime
         [XmlAttribute("name")]
         public string? Name { get; set; }
 
-        [XmlAttribute("value")]
+        [XmlAttribute("style")]
         public string? Style { get; set; }
         
         [XmlAttribute("type")]
