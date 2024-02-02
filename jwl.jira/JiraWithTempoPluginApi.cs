@@ -2,6 +2,7 @@ namespace jwl.jira;
 using System.Net.Http.Json;
 using jwl.infra;
 using jwl.jira.api.rest.common;
+using NoP77svk.Linq;
 
 // https://www.tempo.io/server-api-documentation/timesheets
 public class JiraWithTempoPluginApi
@@ -27,11 +28,11 @@ public class JiraWithTempoPluginApi
         return await _httpClient.GetAsJsonAsync<api.rest.response.TempoWorklogAttributeDefinition[]>(@"rest/tempo-core/1/work-attribute");
     }
 
-    public async Task<WorkLogType[]> GetAvailableActivities()
+    public async Task<Dictionary<string, WorkLogType[]>> GetAvailableActivities(IEnumerable<string> issueKeys)
     {
         api.rest.response.TempoWorklogAttributeDefinition[] attrEnumDefs = await GetWorklogAttributeDefinitions();
 
-        var result = attrEnumDefs
+        WorkLogType[] activities = attrEnumDefs
             .Where(attrDef => attrDef.Key?.Equals(WorklogTypeAttributeKey) ?? false)
             .Where(attrDef => attrDef.Type != null
                 && attrDef.Type?.Value == TempoWorklogAttributeTypeIdentifier.StaticList
@@ -44,6 +45,13 @@ public class JiraWithTempoPluginApi
                 Sequence: staticListItem.Sequence ?? -1
             ))
             .ToArray();
+
+        Dictionary<string, WorkLogType[]> result = issueKeys
+            .Select(issueKey => new ValueTuple<string, WorkLogType[]>(issueKey, activities))
+            .ToDictionary(
+                keySelector: x => x.Item1,
+                elementSelector: x => x.Item2
+            );
 
         return result;
     }

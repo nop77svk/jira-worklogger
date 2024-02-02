@@ -9,7 +9,7 @@ public interface IJiraClient
 {
     api.rest.common.JiraUserInfo UserInfo { get; }
 
-    Task<WorkLogType[]> GetAvailableActivities();
+    Task<Dictionary<string, WorkLogType[]>> GetAvailableActivities(string issueKey);
 
     Task<WorkLog[]> GetIssueWorklogs(DateOnly from, DateOnly to, string issueKey);
 
