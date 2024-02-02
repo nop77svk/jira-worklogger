@@ -7,7 +7,7 @@ public class WadlTests
     : IDisposable
 {
     private readonly XmlSerializer _wadlSerializer;
-    private Stream _wadlResponseStream;
+    private readonly Stream _wadlResponseStream;
 
     public WadlTests()
     {
