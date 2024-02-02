@@ -21,7 +21,7 @@
         [XmlAttribute("style")]
         public string? Style { get; set; }
         
-        [XmlAttribute("type", Namespace = "http://www.w3.org/2001/XMLSchema")]
+        [XmlAttribute("type")]
         public string? Type { get; set; }
 
         [XmlAttribute("default")]
