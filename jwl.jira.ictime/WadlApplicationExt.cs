@@ -6,15 +6,15 @@
 
     public static class WadlApplicationExt
     {
-        public static IEnumerable<ComposedResourceMethod> AsEnumerable(this WadlApplication self)
+        public static IEnumerable<ComposedWadlMethodDefinition> AsEnumerable(this WadlApplication self)
         {
             if (self.Resources == null)
-                return Enumerable.Empty<ComposedResourceMethod>();
+                return Enumerable.Empty<ComposedWadlMethodDefinition>();
             else
                 return FlattenWadlResources("/", Enumerable.Empty<WadlResourceParameter>(), self.Resources);
         }
 
-        private static IEnumerable<ComposedResourceMethod> FlattenWadlResources(string parentPath, IEnumerable<WadlResourceParameter> parentParameters, IEnumerable<WadlResource> resources)
+        private static IEnumerable<ComposedWadlMethodDefinition> FlattenWadlResources(string parentPath, IEnumerable<WadlResourceParameter> parentParameters, IEnumerable<WadlResource> resources)
         {
             foreach (WadlResource res in resources)
             {
@@ -27,7 +27,7 @@
                 {
                     foreach (WadlResourceMethod method in res.Methods)
                     {
-                        yield return new ComposedResourceMethod()
+                        yield return new ComposedWadlMethodDefinition()
                         {
                             Id = method.Id,
                             ResourcePath = resourcePath,
@@ -41,7 +41,7 @@
 
                 if (res.Resources != null)
                 {
-                    foreach (ComposedResourceMethod resMethod in FlattenWadlResources(resourcePath, resourceParameters, res.Resources))
+                    foreach (ComposedWadlMethodDefinition resMethod in FlattenWadlResources(resourcePath, resourceParameters, res.Resources))
                         yield return resMethod;
                 }
             }

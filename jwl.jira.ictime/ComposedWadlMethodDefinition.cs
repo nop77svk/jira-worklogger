@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using System.Net.Http;
 
-    public struct ComposedResourceMethod
+    public struct ComposedWadlMethodDefinition
     {
         public string ResourcePath;
         public HttpMethod HttpMethod;

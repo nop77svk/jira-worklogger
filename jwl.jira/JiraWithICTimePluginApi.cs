@@ -1,7 +1,9 @@
 ﻿namespace jwl.jira;
 
 using System.Net.Http.Json;
+using System.Xml.Serialization;
 using jwl.infra;
+using jwl.wadl;
 
 // https://interconcept.atlassian.net/wiki/spaces/ICTIME/pages/31686672/API
 // https://interconcept.atlassian.net/wiki/spaces/ICBIZ/pages/34701333/REST+Services
@@ -11,6 +13,20 @@ public class JiraWithICTimePluginApi
 {
     public string UserName { get; }
     public api.rest.common.JiraUserInfo UserInfo => _vanillaJiraApi.UserInfo;
+
+    public string PluginBaseUri { get; } = "rest/ictime/1.0";
+    public Lazy<Dictionary<string, wadl.ComposedWadlMethodDefinition>> Endpoints =>
+        new Lazy<Dictionary<string, ComposedWadlMethodDefinition>>(() => this.GetWADL().Result
+            .AsEnumerable()
+            .Where(res => !string.IsNullOrEmpty(res.Id))
+            .ToDictionary(res => res.Id ?? string.Empty)
+        );
+
+    public const string CreateWorkLogMethodName = "createWorklog";
+    public wadl.ComposedWadlMethodDefinition CreateWorkLogMethodDefinition => Endpoints.Value[CreateWorkLogMethodName];
+
+    public const string GetActivityTypesForProjectMethodName = "getActivityTypesForProject";
+    public wadl.ComposedWadlMethodDefinition GetActivityTypesForProjectMethodDefinition => Endpoints.Value[GetActivityTypesForProjectMethodName];
 
     private readonly HttpClient _httpClient;
     private readonly VanillaJiraClient _vanillaJiraApi;
@@ -90,5 +106,19 @@ public class JiraWithICTimePluginApi
     public async Task UpdateWorklog(string issueKey, long worklogId, DateOnly day, int timeSpentSeconds, string? activity, string? comment)
     {
         await _vanillaJiraApi.UpdateWorklog(issueKey, worklogId, day, timeSpentSeconds, activity, comment);
+    }
+
+    private async Task<WadlApplication> GetWADL()
+    {
+        Uri uri = new Uri($"{PluginBaseUri}/application.wadl", UriKind.Relative);
+        using Stream response = await _httpClient.GetStreamAsync(uri);
+        if (response == null || response.Length <= 0)
+            throw new HttpRequestException($"Empty content received from ${uri}");
+
+        XmlSerializer serializer = new XmlSerializer(typeof(WadlApplication));
+        object resultObj = serializer.Deserialize(response) ?? throw new InvalidDataException($"Empty/null content deserialization result");
+
+        WadlApplication result = (WadlApplication)resultObj;
+        return result;
     }
 }
