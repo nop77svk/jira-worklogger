@@ -38,9 +38,15 @@ public class VanillaJiraClient
     }
 
     #pragma warning disable CS1998
+    public async Task<WorkLogType[]> GetAvailableActivities(string issueKey)
+    {
+        return Array.Empty<WorkLogType>();
+    }
+    #pragma warning restore
+
     public async Task<Dictionary<string, WorkLogType[]>> GetAvailableActivities(IEnumerable<string> issueKeys)
     {
-        WorkLogType[] activities = Array.Empty<WorkLogType>();
+        WorkLogType[] activities = await GetAvailableActivities(string.Empty);
 
         Dictionary<string, WorkLogType[]> result = issueKeys
             .Select(issueKey => new ValueTuple<string, WorkLogType[]>(issueKey, activities))
@@ -51,7 +57,6 @@ public class VanillaJiraClient
 
         return result;
     }
-    #pragma warning restore
 
     public async Task<WorkLog[]> GetIssueWorklogs(DateOnly from, DateOnly to, string issueKey)
     {

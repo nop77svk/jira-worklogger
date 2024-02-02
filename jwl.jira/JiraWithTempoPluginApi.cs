@@ -28,11 +28,11 @@ public class JiraWithTempoPluginApi
         return await _httpClient.GetAsJsonAsync<api.rest.response.TempoWorklogAttributeDefinition[]>(@"rest/tempo-core/1/work-attribute");
     }
 
-    public async Task<Dictionary<string, WorkLogType[]>> GetAvailableActivities(IEnumerable<string> issueKeys)
+    public async Task<WorkLogType[]> GetAvailableActivities(string issueKey)
     {
         api.rest.response.TempoWorklogAttributeDefinition[] attrEnumDefs = await GetWorklogAttributeDefinitions();
 
-        WorkLogType[] activities = attrEnumDefs
+        WorkLogType[] result = attrEnumDefs
             .Where(attrDef => attrDef.Key?.Equals(WorklogTypeAttributeKey) ?? false)
             .Where(attrDef => attrDef.Type != null
                 && attrDef.Type?.Value == TempoWorklogAttributeTypeIdentifier.StaticList
@@ -45,6 +45,13 @@ public class JiraWithTempoPluginApi
                 Sequence: staticListItem.Sequence ?? -1
             ))
             .ToArray();
+
+        return result;
+    }
+
+    public async Task<Dictionary<string, WorkLogType[]>> GetAvailableActivities(IEnumerable<string> issueKeys)
+    {
+        WorkLogType[] activities = await GetAvailableActivities(string.Empty);
 
         Dictionary<string, WorkLogType[]> result = issueKeys
             .Select(issueKey => new ValueTuple<string, WorkLogType[]>(issueKey, activities))

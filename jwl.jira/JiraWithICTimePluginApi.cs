@@ -1,13 +1,14 @@
 ﻿namespace jwl.jira;
 
+using System.Diagnostics;
 using System.Net.Http.Json;
+using System.Xml.Linq;
 using System.Xml.Serialization;
 using jwl.infra;
 using jwl.wadl;
 
 // https://interconcept.atlassian.net/wiki/spaces/ICTIME/pages/31686672/API
 // https://interconcept.atlassian.net/wiki/spaces/ICBIZ/pages/34701333/REST+Services
-// {{JiraBaseURI}}/rest/ictime/1.0/application.wadl
 public class JiraWithICTimePluginApi
     : IJiraClient
 {
@@ -38,9 +39,75 @@ public class JiraWithICTimePluginApi
         _vanillaJiraApi = new VanillaJiraClient(httpClient, userName);
     }
 
-    public async Task<WorkLogType[]> GetAvailableActivities()
+    public async Task<WorkLogType[]> GetAvailableActivities(string issueKey)
     {
-        return await _vanillaJiraApi.GetAvailableActivities();
+        var result = await GetAvailableActivities(new string[] { issueKey });
+        return result[issueKey];
+    }
+
+    public async Task<Dictionary<string, WorkLogType[]>> GetAvailableActivities(IEnumerable<string> issueKeys)
+    {
+        IEnumerable<JiraIssueKey> issueKeysParsed = issueKeys
+            .Select(issueKey => new JiraIssueKey(issueKey))
+            .ToArray();
+
+        IEqualityComparer<JiraIssueKey> projectComparer = new JiraIssueKey.ProjectOnlyEqualityComparer();
+        IEnumerable<JiraIssueKey> distinctProjects = issueKeysParsed
+            .Distinct(projectComparer);
+
+        ComposedWadlMethodDefinition endPoint = GetActivityTypesForProjectMethodDefinition;
+
+        HashSet<string> missingParameters = endPoint.Parameters
+            .Where(par => !string.IsNullOrEmpty(par.Name))
+            .Select(par => par.Name ?? string.Empty)
+            .ToHashSet();
+
+        // define
+        IEnumerable<KeyValuePair<JiraIssueKey, string>> uris = distinctProjects
+            .Select(issueKey => new KeyValuePair<JiraIssueKey, string>(issueKey, endPoint.ResourcePath.Replace("{issueKey}", issueKey.ToString())));
+
+        missingParameters.Remove("issueKey");
+
+        // check
+        if (missingParameters.Any())
+            throw new ArgumentNullException($"Missing assignment of {string.Join(',', missingParameters)} in the call of {endPoint.Id} at resource path {endPoint.ResourcePath}");
+
+        bool providesJsonResponses = endPoint.Response?.Representations?
+            .Any(repr => repr.MediaType == WadlRepresentation.MediaTypes.Json) ?? false;
+
+        if (providesJsonResponses)
+            throw new InvalidDataException($"Method {endPoint.Id} at resource path {endPoint.ResourcePath} does not respond in JSON");
+
+        // execute
+        KeyValuePair<JiraIssueKey, Task<api.rest.response.ICTimeActivityDefinition[]>>[] responseTaks = uris
+            .Select(uri => new KeyValuePair<JiraIssueKey, Task<api.rest.response.ICTimeActivityDefinition[]>>(uri.Key, _httpClient.GetAsJsonAsync<api.rest.response.ICTimeActivityDefinition[]>(uri.Value)))
+            .ToArray();
+
+        await Task.WhenAll(responseTaks.Select(x => x.Value));
+
+        Dictionary<string, WorkLogType[]> result = responseTaks
+            .Join(
+                inner: issueKeysParsed,
+                outerKeySelector: outer => outer.Key,
+                innerKeySelector: inner => inner,
+                resultSelector: (outer, inner) => new KeyValuePair<string, WorkLogType[]>(
+                    outer.Key.ToString(),
+                    outer.Value.Result
+                        .Select((def, ix) => new WorkLogType(
+                            Key: def.Id.ToString(),
+                            Value: def.Name,
+                            Sequence: ix
+                        ))
+                        .ToArray()
+                ),
+                comparer: projectComparer
+            )
+            .ToDictionary(
+                keySelector: x => x.Key,
+                elementSelector: x => x.Value
+            );
+
+        return result;
     }
 
     public async Task<WorkLog[]> GetIssueWorklogs(DateOnly from, DateOnly to, string issueKey)
