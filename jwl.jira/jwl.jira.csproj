@@ -32,6 +32,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\jwl.infra\jwl.infra.csproj" />
+    <ProjectReference Include="..\jwl.jira.ictime\jwl.wadl.csproj" />
   </ItemGroup>
   <Target Name="PostClean" AfterTargets="Clean">
     <RemoveDir Directories="$(BaseIntermediateOutputPath)" />
