@@ -24,4 +24,10 @@
     <ProjectReference Include="..\jwl.jira\jwl.jira.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="_assets\ictime.wadl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
