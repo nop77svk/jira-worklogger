@@ -7,7 +7,7 @@
     {
         public string ResourcePath;
         public HttpMethod HttpMethod;
-        public IEnumerable<WadlResourceParameter> ResourceParameters;
+        public IEnumerable<WadlParameter> Parameters;
         public string? Id;
         public WadlResourceRequest? Request;
         public WadlResourceResponse? Response;

@@ -6,14 +6,12 @@ using jwl.wadl;
 public class WadlTests
     : IDisposable
 {
-    private readonly XmlSerializerFactory _serializerFactory;
     private readonly XmlSerializer _wadlSerializer;
     private Stream _wadlResponseStream;
 
     public WadlTests()
     {
-        _serializerFactory = new XmlSerializerFactory();
-        _wadlSerializer = _serializerFactory.CreateSerializer(typeof(WadlApplication));
+        _wadlSerializer = new XmlSerializer(typeof(WadlApplication));
         _wadlResponseStream = File.Open("_assets/ictime.wadl", FileMode.Open, FileAccess.Read);
     }
 
@@ -21,11 +19,6 @@ public class WadlTests
     public void Setup()
     {
         _wadlResponseStream.Seek(0, SeekOrigin.Begin);
-    }
-
-    [TearDown]
-    public void TearDown()
-    {
     }
 
     [Test]

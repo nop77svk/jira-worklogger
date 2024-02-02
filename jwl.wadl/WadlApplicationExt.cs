@@ -3,6 +3,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Net.Http;
+    using System.Threading.Tasks;
 
     public static class WadlApplicationExt
     {
@@ -11,17 +12,17 @@
             if (self.Resources == null)
                 return Enumerable.Empty<ComposedWadlMethodDefinition>();
             else
-                return FlattenWadlResources("/", Enumerable.Empty<WadlResourceParameter>(), self.Resources);
+                return FlattenWadlResources("/", Enumerable.Empty<WadlParameter>(), self.Resources);
         }
 
-        private static IEnumerable<ComposedWadlMethodDefinition> FlattenWadlResources(string parentPath, IEnumerable<WadlResourceParameter> parentParameters, IEnumerable<WadlResource> resources)
+        private static IEnumerable<ComposedWadlMethodDefinition> FlattenWadlResources(string parentPath, IEnumerable<WadlParameter> parentParameters, IEnumerable<WadlResource> resources)
         {
             foreach (WadlResource res in resources)
             {
                 string resourcePath = parentPath.TrimEnd('/') + '/' + (res.Path?.Trim('/') ?? string.Empty);
 
-                IEnumerable<WadlResourceParameter> resourceParameters = parentParameters
-                    .Concat(res.Parameters ?? Enumerable.Empty<WadlResourceParameter>());
+                IEnumerable<WadlParameter> resourceParameters = parentParameters
+                    .Concat(res.Parameters ?? Enumerable.Empty<WadlParameter>());
 
                 if (res.Methods != null)
                 {
@@ -32,7 +33,7 @@
                             Id = method.Id,
                             ResourcePath = resourcePath,
                             HttpMethod = new HttpMethod(method.CallMethod),
-                            ResourceParameters = resourceParameters,
+                            Parameters = resourceParameters,
                             Request = method.Request,
                             Response = method.Response
                         };

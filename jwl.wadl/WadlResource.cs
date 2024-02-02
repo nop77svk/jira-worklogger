@@ -9,7 +9,7 @@
         public string? Path { get; set; }
 
         [XmlElement("param")]
-        public WadlResourceParameter[]? Parameters { get; set; }
+        public WadlParameter[]? Parameters { get; set; }
 
         [XmlElement("method")]
         public WadlResourceMethod[]? Methods { get; set; }

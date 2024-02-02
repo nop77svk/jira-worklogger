@@ -7,7 +7,6 @@
     {
         public enum MediaTypes
         {
-            Unknown,
             [XmlEnum("text/plain")]
             PlainText,
             [XmlEnum("application/xml")]
@@ -24,6 +23,6 @@
         public MediaTypes MediaType { get; set; }
 
         [XmlElement("param")]
-        public WadlResourceParameter[]? Parameters { get; set; }
+        public WadlParameter[]? Parameters { get; set; }
     }
 }
