@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\jwl.jira.ictime\jwl.wadl.csproj" />
+    <ProjectReference Include="..\jwl.wadl\jwl.wadl.csproj" />
     <ProjectReference Include="..\jwl.jira\jwl.jira.csproj" />
   </ItemGroup>
 
