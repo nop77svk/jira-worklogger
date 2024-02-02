@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Runtime.CompilerServices;
-using System.Text;
-
-namespace jwl.jira.ictime
+﻿namespace jwl.wadl
 {
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Net.Http;
+
     public static class WadlApplicationExt
     {
         public static IEnumerable<ComposedResourceMethod> AsEnumerable(this WadlApplication self)

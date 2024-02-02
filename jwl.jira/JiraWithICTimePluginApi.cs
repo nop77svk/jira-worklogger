@@ -1,8 +1,7 @@
 ﻿namespace jwl.jira;
 
-using jwl.infra;
-using jwl.jira.ictime;
 using System.Net.Http.Json;
+using jwl.infra;
 
 // https://interconcept.atlassian.net/wiki/spaces/ICTIME/pages/31686672/API
 // https://interconcept.atlassian.net/wiki/spaces/ICBIZ/pages/34701333/REST+Services

@@ -1,7 +1,7 @@
-﻿using System.Xml.Serialization;
-
-namespace jwl.jira.ictime
+﻿namespace jwl.wadl
 {
+    using System.Xml.Serialization;
+
     [XmlRoot("representation")]
     public class WadlRepresentation
     {

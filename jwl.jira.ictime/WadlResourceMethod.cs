@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Xml.Serialization;
-
-namespace jwl.jira.ictime
+﻿namespace jwl.wadl
 {
+    using System.Xml.Serialization;
+
     [XmlRoot("method")]
     public class WadlResourceMethod
     {

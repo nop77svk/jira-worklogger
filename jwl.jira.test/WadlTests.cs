@@ -1,12 +1,11 @@
 namespace jwl.jira.test;
 
-using jwl.infra;
-using jwl.jira.ictime;
-using Microsoft.Extensions.Configuration;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Xml.Serialization;
+using Microsoft.Extensions.Configuration;
+using jwl.wadl;
 
 public class WadlTests
     : IDisposable
