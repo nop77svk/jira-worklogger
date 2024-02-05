@@ -164,7 +164,7 @@ public class JwlCoreProcess : IDisposable
         MultiTaskStats progress = new MultiTaskStats(fillJiraWithWorklogsTasks.Length);
         MultiTask multiTask = new MultiTask()
         {
-            TaskFeedback = t => Feedback?.FillJiraWithWorklogsProcess(progress.ApplyTaskStatus(t.Status))
+            OnTaskAwaited = t => Feedback?.FillJiraWithWorklogsProcess(progress.ApplyTaskStatus(t.Status))
         };
 
         await multiTask.WhenAll(fillJiraWithWorklogsTasks);
@@ -181,7 +181,7 @@ public class JwlCoreProcess : IDisposable
         MultiTaskStats progressStats = new MultiTaskStats(readerTasks.Length);
         MultiTask multiTask = new MultiTask()
         {
-            TaskFeedback = t => Feedback?.ReadCsvInputProcess(progressStats.ApplyTaskStatus(t.Status))
+            OnTaskAwaited = t => Feedback?.ReadCsvInputProcess(progressStats.ApplyTaskStatus(t.Status))
         };
 
         if (readerTasks.Any())
