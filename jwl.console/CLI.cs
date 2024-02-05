@@ -21,7 +21,7 @@ public class FillCLI
     public string? UserCredentials { get; set; }
 
     [Option("server-flavour", HelpText = "Jira server flavour (whether vanilla or with some timesheet plugins)"
-        + $"\nJSON config: $.{nameof(core.AppConfig.JiraServer)}.{nameof(jira.ServerConfig.ServerFlavour)}"
+        + $"\nJSON config: $.{nameof(core.AppConfig.JiraServer)}.{nameof(jira.ServerConfig.Flavour)}"
         + $"\nAvailable values: {nameof(jira.JiraServerFlavour.Vanilla)}, {nameof(jira.JiraServerFlavour.TempoTimeSheets)}, {nameof(jira.JiraServerFlavour.ICTime)}")]
     public string? ServerFlavour { get; set; }
 
@@ -55,7 +55,7 @@ public class FillCLI
             UseVerboseFeedback = UseVerboseFeedback,
             JiraServer = new jira.ServerConfig()
             {
-                ServerFlavour = ServerFlavour,
+                Flavour = ServerFlavour,
                 ActivityMap = null,
                 BaseUrl = jiraServerSpecification,
                 UseProxy = !NoProxy,

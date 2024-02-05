@@ -42,7 +42,7 @@ public class JwlCoreProcess : IDisposable
         };
 
         string userName = _config.User?.Name ?? throw new ArgumentNullException($"{nameof(_config)}.{nameof(_config.User)}.{nameof(_config.User.Name)})");
-        _jiraClient = ServerApiFactory.CreateApi(_httpClient, userName, _config.JiraServer?.ServerFlavourId ?? JiraServerFlavour.Vanilla);
+        _jiraClient = ServerApiFactory.CreateApi(_httpClient, userName, _config.JiraServer?.FlavourId ?? JiraServerFlavour.Vanilla);
 
         /* 2do!...
         _jiraClient.WsClient.HttpRequestPostprocess = req =>
