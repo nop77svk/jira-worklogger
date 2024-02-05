@@ -71,6 +71,11 @@ public class JiraWithICTimePluginApi
         missingParameters.Remove("issueKey");
 
         // check
+        HttpMethod expectedMethod = HttpMethod.Get;
+        bool isCorrectHttpMethod = endPoint.HttpMethod == expectedMethod;
+        if (!isCorrectHttpMethod)
+            throw new InvalidOperationException($"Method {endPoint.Id} at resource path {endPoint.ResourcePath} executes via ${endPoint.HttpMethod} method (${expectedMethod.ToString().ToUpperInvariant()} expected)");
+
         if (missingParameters.Any())
             throw new ArgumentNullException($"Missing assignment of {string.Join(',', missingParameters)} in the call of {endPoint.Id} at resource path {endPoint.ResourcePath}");
 
@@ -78,7 +83,7 @@ public class JiraWithICTimePluginApi
             .Any(repr => repr.MediaType == WadlRepresentation.MediaTypes.Json) ?? false;
 
         if (providesJsonResponses)
-            throw new InvalidDataException($"Method {endPoint.Id} at resource path {endPoint.ResourcePath} does not respond in JSON");
+            throw new InvalidOperationException($"Method {endPoint.Id} at resource path {endPoint.ResourcePath} does not respond in JSON");
 
         // execute
         KeyValuePair<JiraIssueKey, Task<api.rest.response.ICTimeActivityDefinition[]>>[] responseTaks = uris
@@ -149,9 +154,10 @@ public class JiraWithICTimePluginApi
         missingParameters.RemoveWhere(elm => args.ContainsKey(elm));
 
         // check
-        bool executesViaPostMethod = endPoint.HttpMethod == HttpMethod.Post;
-        if (!executesViaPostMethod)
-            throw new InvalidOperationException($"Method {endPoint.Id} at resource path {endPoint.ResourcePath} executes via ${endPoint.HttpMethod} method (${HttpMethod.Post} expected)");
+        HttpMethod expectedMethod = HttpMethod.Post;
+        bool isCorrectHttpMethod = endPoint.HttpMethod == expectedMethod;
+        if (!isCorrectHttpMethod)
+            throw new InvalidOperationException($"Method {endPoint.Id} at resource path {endPoint.ResourcePath} executes via ${endPoint.HttpMethod} method (${expectedMethod.ToString().ToUpperInvariant()} expected)");
 
         if (missingParameters.Any())
             throw new ArgumentNullException($"Missing assignment of {string.Join(',', missingParameters)} in the call of {endPoint.Id} at resource path {endPoint.ResourcePath}");
