@@ -2,6 +2,7 @@ namespace jwl.jira;
 using System.Net.Http.Json;
 using jwl.infra;
 using jwl.jira.api.rest.common;
+using jwl.jira.Flavours;
 using NoP77svk.Linq;
 
 // https://www.tempo.io/server-api-documentation/timesheets
@@ -11,21 +12,23 @@ public class JiraWithTempoPluginApi
     private const string WorklogTypeAttributeKey = @"_WorklogType_";
 
     private readonly HttpClient _httpClient;
+    private readonly TempoTimesheetsFlavourOptions _flavourOptions;
     private readonly VanillaJiraClient _vanillaJiraApi;
 
     public string UserName { get; }
     public api.rest.common.JiraUserInfo UserInfo => _vanillaJiraApi.UserInfo;
 
-    public JiraWithTempoPluginApi(HttpClient httpClient, string userName)
+    public JiraWithTempoPluginApi(HttpClient httpClient, string userName, TempoTimesheetsFlavourOptions? flavourOptions)
     {
         _httpClient = httpClient;
         UserName = userName;
-        _vanillaJiraApi = new VanillaJiraClient(httpClient, userName);
+        _flavourOptions = flavourOptions ?? new TempoTimesheetsFlavourOptions();
+        _vanillaJiraApi = new VanillaJiraClient(httpClient, userName, null);
     }
 
     public async Task<api.rest.response.TempoWorklogAttributeDefinition[]> GetWorklogAttributeDefinitions()
     {
-        return await _httpClient.GetAsJsonAsync<api.rest.response.TempoWorklogAttributeDefinition[]>(@"rest/tempo-core/1/work-attribute");
+        return await _httpClient.GetAsJsonAsync<api.rest.response.TempoWorklogAttributeDefinition[]>($"{_flavourOptions.PluginCoreUri}/work-attribute");
     }
 
     public async Task<WorkLogType[]> GetAvailableActivities(string issueKey)
@@ -77,7 +80,7 @@ public class JiraWithTempoPluginApi
             IssueKey = issueKeys?.ToArray(),
             UserKey = new string[] { userKey }
         };
-        var response = await _httpClient.PostAsJsonAsync(@"rest/tempo-timesheets/4/worklogs/search", request);
+        var response = await _httpClient.PostAsJsonAsync($"{_flavourOptions.PluginBaseUri}/worklogs/search", request);
         var tempoWorkLogs = await HttpClientJsonExt.DeserializeJsonStreamAsync<api.rest.response.TempoWorklog[]>(await response.Content.ReadAsStreamAsync());
 
         var result = tempoWorkLogs
@@ -129,7 +132,7 @@ public class JiraWithTempoPluginApi
             }
         };
 
-        HttpResponseMessage response = await _httpClient.PostAsJsonAsync(@"rest/tempo-timesheets/4/worklogs", request);
+        HttpResponseMessage response = await _httpClient.PostAsJsonAsync($"{_flavourOptions.PluginBaseUri}/worklogs", request);
         await VanillaJiraClient.CheckHttpResponseForErrorMessages(response);
     }
 
@@ -137,7 +140,7 @@ public class JiraWithTempoPluginApi
     {
         UriBuilder uriBuilder = new UriBuilder()
         {
-            Path = new UriPathBuilder(@"rest/tempo-timesheets/4/worklogs")
+            Path = new UriPathBuilder($"{_flavourOptions.PluginBaseUri}/worklogs")
                 .Add(worklogId.ToString())
         };
 
@@ -154,7 +157,7 @@ public class JiraWithTempoPluginApi
     {
         UriBuilder uriBuilder = new UriBuilder()
         {
-            Path = new UriPathBuilder(@"rest/tempo-timesheets/4/worklogs")
+            Path = new UriPathBuilder($"{_flavourOptions.PluginBaseUri}/worklogs")
                 .Add(worklogId.ToString())
         };
         var request = new api.rest.request.TempoUpdateWorklog()

@@ -6,6 +6,7 @@ using System.Net.Http.Json;
 using System.Text;
 using jwl.infra;
 using jwl.jira.api.rest.response;
+using jwl.jira.Flavours;
 
 public class VanillaJiraClient
     : IJiraClient
@@ -15,12 +16,14 @@ public class VanillaJiraClient
 
     private readonly HttpClient _httpClient;
     private readonly Lazy<jwl.jira.api.rest.common.JiraUserInfo> _lazyUserInfo;
+    private readonly VanillaJiraFlavourOptions _flavourOptions;
 
-    public VanillaJiraClient(HttpClient httpClient, string userName)
+    public VanillaJiraClient(HttpClient httpClient, string userName, VanillaJiraFlavourOptions? flavourOptions)
     {
         _httpClient = httpClient;
         UserName = userName;
         _lazyUserInfo = new Lazy<api.rest.common.JiraUserInfo>(() => GetUserInfo().Result);
+        _flavourOptions = flavourOptions ?? new VanillaJiraFlavourOptions();
     }
 
     public static async Task CheckHttpResponseForErrorMessages(HttpResponseMessage responseMessage)
@@ -60,7 +63,7 @@ public class VanillaJiraClient
     {
         UriBuilder uriBuilder = new UriBuilder()
         {
-            Path = new UriPathBuilder(@"rest/api/2/issue")
+            Path = new UriPathBuilder($"{_flavourOptions.PluginBaseUri}/issue")
                 .Add(issueKey)
                 .Add(@"worklog")
         };
@@ -111,7 +114,7 @@ public class VanillaJiraClient
     {
         UriBuilder uriBuilder = new UriBuilder()
         {
-            Path = new UriPathBuilder(@"rest/api/2/issue")
+            Path = new UriPathBuilder($"{_flavourOptions.PluginBaseUri}/issue")
                 .Add(issueKey)
                 .Add(@"worklog")
         };
@@ -158,7 +161,7 @@ public class VanillaJiraClient
     {
         UriBuilder uriBuilder = new UriBuilder()
         {
-            Path = new UriPathBuilder(@"rest/api/2/issue")
+            Path = new UriPathBuilder($"{_flavourOptions.PluginBaseUri}/issue")
                 .Add(issueId.ToString())
                 .Add(@"worklog")
                 .Add(worklogId.ToString()),
@@ -174,7 +177,7 @@ public class VanillaJiraClient
     {
         UriBuilder uriBuilder = new UriBuilder()
         {
-            Path = new UriPathBuilder(@"rest/api/2/issue")
+            Path = new UriPathBuilder($"{_flavourOptions.PluginBaseUri}/issue")
                 .Add(issueKey)
                 .Add(@"worklog")
                 .Add(worklogId.ToString())
@@ -197,7 +200,7 @@ public class VanillaJiraClient
     {
         UriBuilder uriBuilder = new UriBuilder()
         {
-            Path = @"rest/api/2/user",
+            Path = $"{_flavourOptions.PluginBaseUri}/user",
             Query = new UriQueryBuilder()
                 .Add(@"username", UserName)
         };

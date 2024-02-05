@@ -1,9 +1,6 @@
 ﻿namespace jwl.jira;
 
-using System.Diagnostics;
 using System.Globalization;
-using System.Net.Http.Json;
-using System.Xml.Linq;
 using System.Xml.Serialization;
 using jwl.infra;
 using jwl.jira.api.rest.request;
@@ -11,14 +8,12 @@ using jwl.jira.Flavours;
 using jwl.wadl;
 
 // https://interconcept.atlassian.net/wiki/spaces/ICTIME/pages/31686672/API
-// https://interconcept.atlassian.net/wiki/spaces/ICBIZ/pages/34701333/REST+Services
 public class JiraWithICTimePluginApi
     : IJiraClient
 {
     public string UserName { get; }
     public api.rest.common.JiraUserInfo UserInfo => _vanillaJiraApi.UserInfo;
 
-    public string PluginBaseUri { get; } = "rest/ictime/1.0";
     public Lazy<Dictionary<string, wadl.ComposedWadlMethodDefinition>> Endpoints =>
         new Lazy<Dictionary<string, ComposedWadlMethodDefinition>>(() => this.GetWADL().Result
             .AsEnumerable()
@@ -42,7 +37,7 @@ public class JiraWithICTimePluginApi
         _httpClient = httpClient;
         UserName = userName;
         _flavourOptions = flavourOptions ?? _defaultFlavourOptions;
-        _vanillaJiraApi = new VanillaJiraClient(httpClient, userName);
+        _vanillaJiraApi = new VanillaJiraClient(httpClient, userName, null);
     }
 
     public async Task<WorkLogType[]> GetAvailableActivities(string issueKey)
@@ -213,7 +208,7 @@ public class JiraWithICTimePluginApi
 
     private async Task<WadlApplication> GetWADL()
     {
-        Uri uri = new Uri($"{PluginBaseUri}/application.wadl", UriKind.Relative);
+        Uri uri = new Uri($"{_flavourOptions.PluginBaseUri}/application.wadl", UriKind.Relative);
         using Stream response = await _httpClient.GetStreamAsync(uri);
         if (response == null || response.Length <= 0)
             throw new HttpRequestException($"Empty content received from ${uri}");

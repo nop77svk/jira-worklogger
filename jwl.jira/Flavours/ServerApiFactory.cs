@@ -2,33 +2,36 @@
 
 public static class ServerApiFactory
 {
-    public static IJiraClient CreateApi(HttpClient httpClient, string userName, JiraServerFlavour serverClass, object? flavourOptions)
+    public static IJiraClient CreateApi(HttpClient httpClient, string userName, JiraServerFlavour serverFlavour, IFlavourOptions? flavourOptions)
     {
-        return serverClass switch
+        try
         {
-            JiraServerFlavour.Vanilla => new VanillaJiraClient(httpClient, userName),
-            JiraServerFlavour.TempoTimeSheets => new JiraWithTempoPluginApi(httpClient, userName),
-            JiraServerFlavour.ICTime => new JiraWithICTimePluginApi(
-                httpClient,
-                userName,
-                flavourOptions is ICTimeFlavourOptions opt ? opt : throw new ArgumentOutOfRangeException(nameof(flavourOptions), "Unexpected flavour options class")
-            ),
-            _ => throw new NotImplementedException($"Jira server class {nameof(serverClass)} not yet implemented")
-        };
+            return serverFlavour switch
+            {
+                JiraServerFlavour.Vanilla => new VanillaJiraClient(httpClient, userName, (VanillaJiraFlavourOptions?)flavourOptions),
+                JiraServerFlavour.TempoTimeSheets => new JiraWithTempoPluginApi(httpClient, userName, (TempoTimesheetsFlavourOptions?)flavourOptions),
+                JiraServerFlavour.ICTime => new JiraWithICTimePluginApi(httpClient, userName, (ICTimeFlavourOptions?)flavourOptions),
+                _ => throw new NotImplementedException($"Jira server flavour {nameof(serverFlavour)} not yet implemented")
+            };
+        }
+        catch (InvalidCastException ex)
+        {
+            throw new ArgumentOutOfRangeException($"Don't know how to instantiate client API for flavour {serverFlavour}", ex);
+        }
     }
 
-    public static JiraServerFlavour? DecodeServerClass(string? serverClass)
+    public static JiraServerFlavour? DecodeServerClass(string? serverFlavour)
     {
         JiraServerFlavour? result;
 
-        if (string.IsNullOrEmpty(serverClass))
+        if (string.IsNullOrEmpty(serverFlavour))
             result = null;
-        else if (int.TryParse(serverClass, out int serverClassIntId))
-            result = (JiraServerFlavour)serverClassIntId;
-        else if (Enum.TryParse(serverClass, true, out JiraServerFlavour serverClassEnumId))
-            result = serverClassEnumId;
+        else if (int.TryParse(serverFlavour, out int serverFlavourIntId))
+            result = (JiraServerFlavour)serverFlavourIntId;
+        else if (Enum.TryParse(serverFlavour, true, out JiraServerFlavour serverFlavourEnumId))
+            result = serverFlavourEnumId;
         else
-            throw new ArgumentOutOfRangeException(nameof(serverClass), serverClass, "Invalid server class configured");
+            throw new ArgumentOutOfRangeException(nameof(serverFlavour), serverFlavour, "Invalid server flavour configured");
 
         return result;
     }

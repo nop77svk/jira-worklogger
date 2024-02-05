@@ -67,13 +67,22 @@ public static class AppConfigFactory
 
             result!.JiraServer.FlavourOptions = flavour switch
             {
+                JiraServerFlavour.Vanilla => flavourConfig.Get<VanillaJiraFlavourOptions>(opt =>
+                {
+                    opt.BindNonPublicProperties = false;
+                    opt.ErrorOnUnknownConfiguration = true;
+                }),
+                JiraServerFlavour.TempoTimeSheets => flavourConfig.Get<TempoTimesheetsFlavourOptions>(opt =>
+                {
+                    opt.BindNonPublicProperties = false;
+                    opt.ErrorOnUnknownConfiguration = true;
+                }),
                 JiraServerFlavour.ICTime => flavourConfig.Get<ICTimeFlavourOptions>(opt =>
                 {
                     opt.BindNonPublicProperties = false;
                     opt.ErrorOnUnknownConfiguration = true;
                 }),
-                JiraServerFlavour.Vanilla or JiraServerFlavour.TempoTimeSheets => null,
-                _ => throw new ArgumentOutOfRangeException(nameof(result.JiraServer.Flavour))
+                _ => throw new ArgumentOutOfRangeException(nameof(result.JiraServer.Flavour), $"Don't know how to read flavour {flavour} specific options config")
             };
         }
 
