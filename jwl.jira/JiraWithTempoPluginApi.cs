@@ -63,12 +63,12 @@ public class JiraWithTempoPluginApi
         return result;
     }
 
-    public async Task<WorkLog[]> GetIssueWorklogs(DateOnly from, DateOnly to, string issueKey)
+    public async Task<WorkLog[]> GetIssueWorkLogs(DateOnly from, DateOnly to, string issueKey)
     {
-        return await GetIssueWorklogs(from, to, new string[] { issueKey });
+        return await GetIssueWorkLogs(from, to, new string[] { issueKey });
     }
 
-    public async Task<WorkLog[]> GetIssueWorklogs(DateOnly from, DateOnly to, IEnumerable<string>? issueKeys)
+    public async Task<WorkLog[]> GetIssueWorkLogs(DateOnly from, DateOnly to, IEnumerable<string>? issueKeys)
     {
         string userKey = UserInfo.Key ?? throw new ArgumentNullException($"{nameof(UserInfo)}.{nameof(UserInfo.Key)}");
 
@@ -97,12 +97,12 @@ public class JiraWithTempoPluginApi
         return result;
     }
 
-    public async Task AddWorklog(string issueKey, DateOnly day, int timeSpentSeconds, string? activity, string? comment)
+    public async Task AddWorkLog(string issueKey, DateOnly day, int timeSpentSeconds, string? activity, string? comment)
     {
-        await AddWorklogPeriod(issueKey, day, day, timeSpentSeconds, activity, comment);
+        await AddWorkLogPeriod(issueKey, day, day, timeSpentSeconds, activity, comment);
     }
 
-    public async Task AddWorklogPeriod(string issueKey, DateOnly dayFrom, DateOnly dayTo, int timeSpentSeconds, string? tempoWorklogType, string? comment, bool includeNonWorkingDays = false)
+    public async Task AddWorkLogPeriod(string issueKey, DateOnly dayFrom, DateOnly dayTo, int timeSpentSeconds, string? tempoWorklogType, string? comment, bool includeNonWorkingDays = false)
     {
         string userKey = UserInfo.Key ?? throw new ArgumentNullException($"{nameof(UserInfo)}.{nameof(UserInfo.Key)}");
 
@@ -133,7 +133,7 @@ public class JiraWithTempoPluginApi
         await VanillaJiraClient.CheckHttpResponseForErrorMessages(response);
     }
 
-    public async Task DeleteWorklog(long issueId, long worklogId, bool notifyUsers = false)
+    public async Task DeleteWorkLog(long issueId, long worklogId, bool notifyUsers = false)
     {
         UriBuilder uriBuilder = new UriBuilder()
         {
@@ -145,7 +145,7 @@ public class JiraWithTempoPluginApi
         await VanillaJiraClient.CheckHttpResponseForErrorMessages(response);
     }
 
-    public async Task UpdateWorklog(string issueKey, long worklogId, DateOnly day, int timeSpentSeconds, string? activity, string? comment)
+    public async Task UpdateWorkLog(string issueKey, long worklogId, DateOnly day, int timeSpentSeconds, string? activity, string? comment)
     {
         await UpdateWorklogPeriod(issueKey, worklogId, day, day, timeSpentSeconds, comment, activity);
     }

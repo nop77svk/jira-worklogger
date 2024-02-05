@@ -143,7 +143,7 @@ public class JwlCoreProcess : IDisposable
             throw new ArgumentNullException(@"Unresolved Jira key for the logged-on user");
 
         Task[] fillJiraWithWorklogsTasks = worklogsForDeletion
-            .Select(worklog => _jiraClient.DeleteWorklog(worklog.IssueId, worklog.Id))
+            .Select(worklog => _jiraClient.DeleteWorkLog(worklog.IssueId, worklog.Id))
             .Concat(inputWorklogs
                 .LeftOuterJoin(
                     innerTable: _config.JiraServer?.ActivityMap ?? new Dictionary<string, string>(),
@@ -151,7 +151,7 @@ public class JwlCoreProcess : IDisposable
                     innerKeySelector: am => am.Key.ToLower(),
                     resultSelector: (wl, am) => new ValueTuple<InputWorkLog, string?>(wl, am.Value)
                 )
-                .Select(x => _jiraClient.AddWorklog(
+                .Select(x => _jiraClient.AddWorkLog(
                     issueKey: x.Item1.IssueKey.ToString(),
                     day: DateOnly.FromDateTime(x.Item1.Date),
                     timeSpentSeconds: (int)x.Item1.TimeSpent.TotalSeconds,
@@ -247,7 +247,7 @@ public class JwlCoreProcess : IDisposable
                 .OrderByDescending(x => x)
                 .ToArray();
 
-            result = await _jiraClient.GetIssueWorklogs(minInputWorklogDay, maxInputWorklogDay, inputIssueKeys);
+            result = await _jiraClient.GetIssueWorkLogs(minInputWorklogDay, maxInputWorklogDay, inputIssueKeys);
         }
 
         return result;

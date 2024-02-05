@@ -58,7 +58,7 @@ public class VanillaJiraClient
         return result;
     }
 
-    public async Task<WorkLog[]> GetIssueWorklogs(DateOnly from, DateOnly to, string issueKey)
+    public async Task<WorkLog[]> GetIssueWorkLogs(DateOnly from, DateOnly to, string issueKey)
     {
         UriBuilder uriBuilder = new UriBuilder()
         {
@@ -90,14 +90,14 @@ public class VanillaJiraClient
         return result;
     }
 
-    public async Task<WorkLog[]> GetIssueWorklogs(DateOnly from, DateOnly to, IEnumerable<string>? issueKeys)
+    public async Task<WorkLog[]> GetIssueWorkLogs(DateOnly from, DateOnly to, IEnumerable<string>? issueKeys)
     {
         if (issueKeys is null)
             return Array.Empty<WorkLog>();
 
         Task<WorkLog[]>[] responseTasks = issueKeys
             .Distinct()
-            .Select(issueKey => GetIssueWorklogs(from, to, issueKey))
+            .Select(issueKey => GetIssueWorkLogs(from, to, issueKey))
             .ToArray();
 
         await Task.WhenAll(responseTasks);
@@ -109,7 +109,7 @@ public class VanillaJiraClient
         return result;
     }
 
-    public async Task AddWorklog(string issueKey, DateOnly day, int timeSpentSeconds, string? activity, string? comment)
+    public async Task AddWorkLog(string issueKey, DateOnly day, int timeSpentSeconds, string? activity, string? comment)
     {
         UriBuilder uriBuilder = new UriBuilder()
         {
@@ -137,7 +137,7 @@ public class VanillaJiraClient
         await CheckHttpResponseForErrorMessages(response);
     }
 
-    public async Task AddWorklogPeriod(string issueKey, DateOnly dayFrom, DateOnly dayTo, int timeSpentSeconds, string? activity, string? comment, bool includeNonWorkingDays = false)
+    public async Task AddWorkLogPeriod(string issueKey, DateOnly dayFrom, DateOnly dayTo, int timeSpentSeconds, string? activity, string? comment, bool includeNonWorkingDays = false)
     {
         DateOnly[] daysInPeriod = Enumerable.Range(0, dayFrom.NumberOfDaysTo(dayTo))
             .Select(i => dayFrom.AddDays(i))
@@ -150,13 +150,13 @@ public class VanillaJiraClient
         int timeSpentSecondsPerSingleDay = timeSpentSeconds / daysInPeriod.Length;
 
         Task[] addWorklogTasks = daysInPeriod
-            .Select(day => AddWorklog(issueKey, day, timeSpentSecondsPerSingleDay, activity, comment))
+            .Select(day => AddWorkLog(issueKey, day, timeSpentSecondsPerSingleDay, activity, comment))
             .ToArray();
 
         await Task.WhenAll(addWorklogTasks);
     }
 
-    public async Task DeleteWorklog(long issueId, long worklogId, bool notifyUsers = false)
+    public async Task DeleteWorkLog(long issueId, long worklogId, bool notifyUsers = false)
     {
         UriBuilder uriBuilder = new UriBuilder()
         {
@@ -172,7 +172,7 @@ public class VanillaJiraClient
         await CheckHttpResponseForErrorMessages(response);
     }
 
-    public async Task UpdateWorklog(string issueKey, long worklogId, DateOnly day, int timeSpentSeconds, string? activity, string? comment)
+    public async Task UpdateWorkLog(string issueKey, long worklogId, DateOnly day, int timeSpentSeconds, string? activity, string? comment)
     {
         UriBuilder uriBuilder = new UriBuilder()
         {

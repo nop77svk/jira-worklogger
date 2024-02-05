@@ -13,15 +13,15 @@ public interface IJiraClient
 
     Task<Dictionary<string, WorkLogType[]>> GetAvailableActivities(IEnumerable<string> issueKeys);
 
-    Task<WorkLog[]> GetIssueWorklogs(DateOnly from, DateOnly to, string issueKey);
+    Task<WorkLog[]> GetIssueWorkLogs(DateOnly from, DateOnly to, string issueKey);
 
-    Task<WorkLog[]> GetIssueWorklogs(DateOnly from, DateOnly to, IEnumerable<string>? issueKeys);
+    Task<WorkLog[]> GetIssueWorkLogs(DateOnly from, DateOnly to, IEnumerable<string>? issueKeys);
 
-    Task AddWorklog(string issueKey, DateOnly day, int timeSpentSeconds, string? activity, string? comment);
+    Task AddWorkLog(string issueKey, DateOnly day, int timeSpentSeconds, string? activity, string? comment);
 
-    Task AddWorklogPeriod(string issueKey, DateOnly dayFrom, DateOnly dayTo, int timeSpentSeconds, string? activity, string? comment, bool includeNonWorkingDays = false);
+    Task AddWorkLogPeriod(string issueKey, DateOnly dayFrom, DateOnly dayTo, int timeSpentSeconds, string? activity, string? comment, bool includeNonWorkingDays = false);
 
-    Task DeleteWorklog(long issueId, long worklogId, bool notifyUsers = false);
+    Task DeleteWorkLog(long issueId, long worklogId, bool notifyUsers = false);
 
-    Task UpdateWorklog(string issueKey, long worklogId, DateOnly day, int timeSpentSeconds, string? activity, string? comment);
+    Task UpdateWorkLog(string issueKey, long worklogId, DateOnly day, int timeSpentSeconds, string? activity, string? comment);
 }
