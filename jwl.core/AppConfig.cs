@@ -19,7 +19,7 @@ public class AppConfig
         cfg.CreateMap<core.UserConfig, core.UserConfig>()
             .ForAllMembers(m => m.Condition((src, dest, member) => member != null));
 
-        cfg.AddGlobalIgnore(nameof(AppConfig.JiraServer.ActivityMap));
+        cfg.AddGlobalIgnore(nameof(AppConfig.JiraServer.FlavourOptions));
     }));
 
     private static Lazy<IMapper> overridingMapper = new (() => overridingMapperConfiguration.Value.CreateMapper());

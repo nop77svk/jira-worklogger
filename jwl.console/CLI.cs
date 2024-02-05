@@ -56,7 +56,7 @@ public class FillCLI
             JiraServer = new jira.ServerConfig()
             {
                 Flavour = ServerFlavour,
-                ActivityMap = null,
+                FlavourOptions = null,
                 BaseUrl = jiraServerSpecification,
                 UseProxy = !NoProxy,
                 MaxConnectionsPerServer = MaxConnectionsPerServer,

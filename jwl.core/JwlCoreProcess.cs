@@ -42,7 +42,7 @@ public class JwlCoreProcess : IDisposable
         };
 
         string userName = _config.User?.Name ?? throw new ArgumentNullException($"{nameof(_config)}.{nameof(_config.User)}.{nameof(_config.User.Name)})");
-        _jiraClient = ServerApiFactory.CreateApi(_httpClient, userName, _config.JiraServer?.FlavourId ?? JiraServerFlavour.Vanilla);
+        _jiraClient = ServerApiFactory.CreateApi(_httpClient, userName, _config.JiraServer?.FlavourId ?? JiraServerFlavour.Vanilla, _config.JiraServer?.FlavourOptions);
 
         /* 2do!...
         _jiraClient.WsClient.HttpRequestPostprocess = req =>
@@ -145,18 +145,12 @@ public class JwlCoreProcess : IDisposable
         Task[] fillJiraWithWorklogsTasks = worklogsForDeletion
             .Select(worklog => _jiraClient.DeleteWorkLog(worklog.IssueId, worklog.Id))
             .Concat(inputWorklogs
-                .LeftOuterJoin(
-                    innerTable: _config.JiraServer?.ActivityMap ?? new Dictionary<string, string>(),
-                    outerKeySelector: wl => wl.WorkLogActivity.ToLower(),
-                    innerKeySelector: am => am.Key.ToLower(),
-                    resultSelector: (wl, am) => new ValueTuple<InputWorkLog, string?>(wl, am.Value)
-                )
                 .Select(x => _jiraClient.AddWorkLog(
-                    issueKey: x.Item1.IssueKey.ToString(),
-                    day: DateOnly.FromDateTime(x.Item1.Date),
-                    timeSpentSeconds: (int)x.Item1.TimeSpent.TotalSeconds,
-                    activity: !(_config.JiraServer?.ActivityMap?.Any() ?? false) ? x.Item1.WorkLogActivity : x.Item2,
-                    comment: x.Item1.WorkLogComment
+                    issueKey: x.IssueKey.ToString(),
+                    day: DateOnly.FromDateTime(x.Date),
+                    timeSpentSeconds: (int)x.TimeSpent.TotalSeconds,
+                    activity: x.WorkLogActivity,
+                    comment: x.WorkLogComment
                 ))
             )
             .ToArray();
@@ -200,24 +194,9 @@ public class JwlCoreProcess : IDisposable
         {
             CsvFormatConfig = _config.CsvOptions
         };
-
         using IWorklogReader worklogReader = WorklogReaderFactory.GetReaderFromFilePath(fileName, readerConfig);
 
-        Task<InputWorkLog[]> response = Task.Factory.StartNew(() =>
-        {
-            return worklogReader
-                .Read(row =>
-                {
-                    if (row.WorkLogActivity is not null)
-                    {
-                        if (!_config.JiraServer?.ActivityMap?.ContainsKey(row.WorkLogActivity) ?? false)
-                            throw new InvalidDataException($"Worklog type {row.WorkLogActivity} not found in activity map");
-                    }
-                })
-                .ToArray();
-        });
-
-        return await response;
+        return await Task.Factory.StartNew(() => worklogReader.Read().ToArray());
     }
 
     private async Task<WorkLog[]> RetrieveWorklogsForDeletion(InputWorkLog[] inputWorklogs)

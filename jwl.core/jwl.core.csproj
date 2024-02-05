@@ -63,6 +63,12 @@
     <None Include="..\README.md" Link="_assets\README.md" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="_assets\jwl.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
   <Target Name="CopyCustomContent" AfterTargets="AfterBuild">
     <Copy SourceFiles="@(CommonAssetFiles)" DestinationFolder="$(OutDir)/%(RecursiveDir)" SkipUnchangedFiles="true" />
   </Target>

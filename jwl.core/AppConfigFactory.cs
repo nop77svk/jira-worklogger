@@ -17,7 +17,7 @@ public static class AppConfigFactory
             JiraServer = new ServerConfig()
             {
                 Flavour = nameof(JiraServerFlavour.Vanilla),
-                ActivityMap = null,
+                FlavourOptions = null,
                 BaseUrl = @"http://jira.my-domain.xyz",
                 MaxConnectionsPerServer = DefaultMaxConnectionsPerServer,
                 SkipSslCertificateCheck = false,

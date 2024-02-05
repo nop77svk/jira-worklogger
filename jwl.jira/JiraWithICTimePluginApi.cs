@@ -7,6 +7,7 @@ using System.Xml.Linq;
 using System.Xml.Serialization;
 using jwl.infra;
 using jwl.jira.api.rest.request;
+using jwl.jira.FlavourOptions;
 using jwl.wadl;
 
 // https://interconcept.atlassian.net/wiki/spaces/ICTIME/pages/31686672/API
@@ -32,12 +33,14 @@ public class JiraWithICTimePluginApi
     public wadl.ComposedWadlMethodDefinition GetActivityTypesForProjectMethodDefinition => Endpoints.Value[GetActivityTypesForProjectMethodName];
 
     private readonly HttpClient _httpClient;
+    private readonly ICTime _flavourOptions;
     private readonly VanillaJiraClient _vanillaJiraApi;
 
-    public JiraWithICTimePluginApi(HttpClient httpClient, string userName)
+    public JiraWithICTimePluginApi(HttpClient httpClient, string userName, FlavourOptions.ICTime flavourOptions)
     {
         _httpClient = httpClient;
         UserName = userName;
+        this._flavourOptions = flavourOptions;
         _vanillaJiraApi = new VanillaJiraClient(httpClient, userName);
     }
 
@@ -143,11 +146,13 @@ public class JiraWithICTimePluginApi
 
         Dictionary<string, string> args = new ()
         {
-            ["date"] = day.ToString("dd/MMM/yyyy", CultureInfo.InvariantCulture),
+            ["date"] = day.ToString(_flavourOptions.DateFormat, CultureInfo.InvariantCulture),
             ["logWorkOption"] = ICTimeAddWorklogByIssueKey.LogWorkOption.Summary.ToString().ToLowerFirstChar(),
             ["comment"] = comment ?? string.Empty,
-            ["timeLogged"] = TimeSpan.FromSeconds(timeSpentSeconds).ToString("ddd\" d \"hh\" h \"mm\" m\""),
-            ["activity"] = activity ?? string.Empty,
+            ["timeLogged"] = TimeSpan.FromSeconds(timeSpentSeconds).ToString(_flavourOptions.TimeSpanFormat),
+            ["activity"] = _flavourOptions.ActivityMap == null || !_flavourOptions.ActivityMap.Any() || string.IsNullOrEmpty(activity)
+                ? activity ?? string.Empty
+                : _flavourOptions.ActivityMap[activity],
             ["user"] = this.UserName,
             ["charged"] = true.ToString().ToLowerInvariant()
         };
