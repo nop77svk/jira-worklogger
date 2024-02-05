@@ -49,7 +49,7 @@ public static class AppConfigFactory
         result = config.Get<AppConfig>(opt =>
         {
             opt.BindNonPublicProperties = false;
-            opt.ErrorOnUnknownConfiguration = true;
+            opt.ErrorOnUnknownConfiguration = false;
         });
 
         return result ?? CreateWithDefaults();

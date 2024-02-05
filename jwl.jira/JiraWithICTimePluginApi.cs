@@ -7,7 +7,6 @@ using System.Xml.Linq;
 using System.Xml.Serialization;
 using jwl.infra;
 using jwl.jira.api.rest.request;
-using jwl.jira.FlavourOptions;
 using jwl.wadl;
 
 // https://interconcept.atlassian.net/wiki/spaces/ICTIME/pages/31686672/API
@@ -33,14 +32,15 @@ public class JiraWithICTimePluginApi
     public wadl.ComposedWadlMethodDefinition GetActivityTypesForProjectMethodDefinition => Endpoints.Value[GetActivityTypesForProjectMethodName];
 
     private readonly HttpClient _httpClient;
-    private readonly ICTime _flavourOptions;
+    private readonly ICTimeFlavourOptions _flavourOptions;
+    private readonly ICTimeFlavourOptions _defaultFlavourOptions = new ICTimeFlavourOptions();
     private readonly VanillaJiraClient _vanillaJiraApi;
 
-    public JiraWithICTimePluginApi(HttpClient httpClient, string userName, FlavourOptions.ICTime flavourOptions)
+    public JiraWithICTimePluginApi(HttpClient httpClient, string userName, ICTimeFlavourOptions? flavourOptions)
     {
         _httpClient = httpClient;
         UserName = userName;
-        this._flavourOptions = flavourOptions;
+        _flavourOptions = flavourOptions ?? _defaultFlavourOptions;
         _vanillaJiraApi = new VanillaJiraClient(httpClient, userName);
     }
 

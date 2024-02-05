@@ -1,9 +1,6 @@
-﻿#pragma warning disable SA1313
-namespace jwl.jira.FlavourOptions;
-using System.Collections.Generic;
+﻿namespace jwl.jira;
 
-public class ICTime
-    : IFlavourOptions
+public class ICTimeFlavourOptions
 {
     public string PluginBaseUri { get; init; } = "rest/ictime/1.0";
     public string DateFormat { get; init; } = "dd/MMM/yyyy";

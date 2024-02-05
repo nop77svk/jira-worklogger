@@ -2,13 +2,13 @@
 
 public static class ServerApiFactory
 {
-    public static IJiraClient CreateApi(HttpClient httpClient, string userName, JiraServerFlavour serverClass)
+    public static IJiraClient CreateApi(HttpClient httpClient, string userName, JiraServerFlavour serverClass, object? flavourOptions)
     {
         return serverClass switch
         {
             JiraServerFlavour.Vanilla => new VanillaJiraClient(httpClient, userName),
             JiraServerFlavour.TempoTimeSheets => new JiraWithTempoPluginApi(httpClient, userName),
-            JiraServerFlavour.ICTime => new JiraWithICTimePluginApi(httpClient, userName, new FlavourOptions.ICTime()),
+            JiraServerFlavour.ICTime => new JiraWithICTimePluginApi(httpClient, userName, new ICTimeFlavourOptions()),
             _ => throw new NotImplementedException($"Jira server class {nameof(serverClass)} not yet implemented")
         };
     }
