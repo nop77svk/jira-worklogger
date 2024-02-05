@@ -16,14 +16,14 @@ public class VanillaJiraClient
 
     private readonly HttpClient _httpClient;
     private readonly Lazy<jwl.jira.api.rest.common.JiraUserInfo> _lazyUserInfo;
-    private readonly VanillaJiraFlavourOptions _flavourOptions;
+    private readonly FlavourVanillaJiraOptions _flavourOptions;
 
-    public VanillaJiraClient(HttpClient httpClient, string userName, VanillaJiraFlavourOptions? flavourOptions)
+    public VanillaJiraClient(HttpClient httpClient, string userName, FlavourVanillaJiraOptions? flavourOptions)
     {
         _httpClient = httpClient;
         UserName = userName;
         _lazyUserInfo = new Lazy<api.rest.common.JiraUserInfo>(() => GetUserInfo().Result);
-        _flavourOptions = flavourOptions ?? new VanillaJiraFlavourOptions();
+        _flavourOptions = flavourOptions ?? new FlavourVanillaJiraOptions();
     }
 
     public static async Task CheckHttpResponseForErrorMessages(HttpResponseMessage responseMessage)

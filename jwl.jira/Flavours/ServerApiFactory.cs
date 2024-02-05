@@ -8,9 +8,9 @@ public static class ServerApiFactory
         {
             return serverFlavour switch
             {
-                JiraServerFlavour.Vanilla => new VanillaJiraClient(httpClient, userName, (VanillaJiraFlavourOptions?)flavourOptions),
-                JiraServerFlavour.TempoTimeSheets => new JiraWithTempoPluginApi(httpClient, userName, (TempoTimesheetsFlavourOptions?)flavourOptions),
-                JiraServerFlavour.ICTime => new JiraWithICTimePluginApi(httpClient, userName, (ICTimeFlavourOptions?)flavourOptions),
+                JiraServerFlavour.Vanilla => new VanillaJiraClient(httpClient, userName, (FlavourVanillaJiraOptions?)flavourOptions),
+                JiraServerFlavour.TempoTimeSheets => new JiraWithTempoPluginApi(httpClient, userName, (FlavourTempoTimesheetsOptions?)flavourOptions),
+                JiraServerFlavour.ICTime => new JiraWithICTimePluginApi(httpClient, userName, (FlavourICTimeOptions?)flavourOptions),
                 _ => throw new NotImplementedException($"Jira server flavour {nameof(serverFlavour)} not yet implemented")
             };
         }

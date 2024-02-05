@@ -1,6 +1,6 @@
 ﻿namespace jwl.jira.Flavours;
 
-public class TempoTimesheetsFlavourOptions
+public class FlavourTempoTimesheetsOptions
     : IFlavourOptions
 {
     public string PluginBaseUri { get; init; } = @"rest/tempo-timesheets/4";

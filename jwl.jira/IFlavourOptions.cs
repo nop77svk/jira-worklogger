@@ -1,4 +1,4 @@
-﻿namespace jwl.jira.Flavours;
+﻿namespace jwl.jira;
 
 public interface IFlavourOptions
 {

@@ -1,6 +1,6 @@
 ﻿namespace jwl.jira.Flavours;
 
-public class VanillaJiraFlavourOptions
+public class FlavourVanillaJiraOptions
     : IFlavourOptions
 {
     public string PluginBaseUri { get; init; } = @"rest/api/2";

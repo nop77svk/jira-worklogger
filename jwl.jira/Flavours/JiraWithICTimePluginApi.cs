@@ -28,11 +28,11 @@ public class JiraWithICTimePluginApi
     public wadl.ComposedWadlMethodDefinition GetActivityTypesForProjectMethodDefinition => Endpoints.Value[GetActivityTypesForProjectMethodName];
 
     private readonly HttpClient _httpClient;
-    private readonly ICTimeFlavourOptions _flavourOptions;
-    private readonly ICTimeFlavourOptions _defaultFlavourOptions = new ICTimeFlavourOptions();
+    private readonly FlavourICTimeOptions _flavourOptions;
+    private readonly FlavourICTimeOptions _defaultFlavourOptions = new FlavourICTimeOptions();
     private readonly VanillaJiraClient _vanillaJiraApi;
 
-    public JiraWithICTimePluginApi(HttpClient httpClient, string userName, ICTimeFlavourOptions? flavourOptions)
+    public JiraWithICTimePluginApi(HttpClient httpClient, string userName, FlavourICTimeOptions? flavourOptions)
     {
         _httpClient = httpClient;
         UserName = userName;

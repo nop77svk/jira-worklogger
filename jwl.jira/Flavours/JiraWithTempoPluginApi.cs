@@ -12,17 +12,17 @@ public class JiraWithTempoPluginApi
     private const string WorklogTypeAttributeKey = @"_WorklogType_";
 
     private readonly HttpClient _httpClient;
-    private readonly TempoTimesheetsFlavourOptions _flavourOptions;
+    private readonly FlavourTempoTimesheetsOptions _flavourOptions;
     private readonly VanillaJiraClient _vanillaJiraApi;
 
     public string UserName { get; }
     public api.rest.common.JiraUserInfo UserInfo => _vanillaJiraApi.UserInfo;
 
-    public JiraWithTempoPluginApi(HttpClient httpClient, string userName, TempoTimesheetsFlavourOptions? flavourOptions)
+    public JiraWithTempoPluginApi(HttpClient httpClient, string userName, FlavourTempoTimesheetsOptions? flavourOptions)
     {
         _httpClient = httpClient;
         UserName = userName;
-        _flavourOptions = flavourOptions ?? new TempoTimesheetsFlavourOptions();
+        _flavourOptions = flavourOptions ?? new FlavourTempoTimesheetsOptions();
         _vanillaJiraApi = new VanillaJiraClient(httpClient, userName, null);
     }
 
