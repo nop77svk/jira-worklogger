@@ -5,6 +5,7 @@ using System.Text;
 using jwl.infra;
 using jwl.inputs;
 using jwl.jira;
+using jwl.jira.Flavours;
 using NoP77svk.Linq;
 
 public class JwlCoreProcess : IDisposable

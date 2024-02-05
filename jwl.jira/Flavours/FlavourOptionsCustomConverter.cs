@@ -1,4 +1,4 @@
-﻿namespace jwl.jira;
+﻿namespace jwl.jira.Flavours;
 
 using System;
 using System.Text.Json;
