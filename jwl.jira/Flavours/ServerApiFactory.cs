@@ -8,7 +8,11 @@ public static class ServerApiFactory
         {
             JiraServerFlavour.Vanilla => new VanillaJiraClient(httpClient, userName),
             JiraServerFlavour.TempoTimeSheets => new JiraWithTempoPluginApi(httpClient, userName),
-            JiraServerFlavour.ICTime => new JiraWithICTimePluginApi(httpClient, userName, new ICTimeFlavourOptions()),
+            JiraServerFlavour.ICTime => new JiraWithICTimePluginApi(
+                httpClient,
+                userName,
+                flavourOptions is ICTimeFlavourOptions opt ? opt : throw new ArgumentOutOfRangeException(nameof(flavourOptions), "Unexpected flavour options class")
+            ),
             _ => throw new NotImplementedException($"Jira server class {nameof(serverClass)} not yet implemented")
         };
     }

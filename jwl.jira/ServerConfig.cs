@@ -8,8 +8,8 @@ public class ServerConfig
     public string? Flavour { get; init; }
     public JiraServerFlavour FlavourId => ServerApiFactory.DecodeServerClass(Flavour) ?? JiraServerFlavour.Vanilla;
 
-    [JsonConverter(typeof(FlavourOptionsCustomConverter))]
-    public object? FlavourOptions { get; init; }
+    [JsonIgnore]
+    public IFlavourOptions? FlavourOptions { get; set; }
     public bool? UseProxy { get; init; }
     public int? MaxConnectionsPerServer { get; init; }
     public bool? SkipSslCertificateCheck { get; init; }

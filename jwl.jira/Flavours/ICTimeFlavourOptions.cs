@@ -1,6 +1,6 @@
 ﻿namespace jwl.jira.Flavours;
 
-public class ICTimeFlavourOptions
+public class ICTimeFlavourOptions : IFlavourOptions
 {
     public string PluginBaseUri { get; init; } = "rest/ictime/1.0";
     public string DateFormat { get; init; } = "dd/MMM/yyyy";
