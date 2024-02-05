@@ -1,10 +1,12 @@
 ﻿namespace jwl.jira;
 
 using System.Diagnostics;
+using System.Globalization;
 using System.Net.Http.Json;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 using jwl.infra;
+using jwl.jira.api.rest.request;
 using jwl.wadl;
 
 // https://interconcept.atlassian.net/wiki/spaces/ICTIME/pages/31686672/API
@@ -122,28 +124,50 @@ public class JiraWithICTimePluginApi
 
     public async Task AddWorklog(string issueKey, DateOnly day, int timeSpentSeconds, string? activity, string? comment)
     {
-        UriBuilder uriBuilder = new UriBuilder()
+        ComposedWadlMethodDefinition endPoint = CreateWorkLogMethodDefinition;
+
+        HashSet<string> missingParameters = endPoint.Parameters
+            .Where(par => !string.IsNullOrEmpty(par.Name))
+            .Select(par => par.Name ?? string.Empty)
+            .ToHashSet();
+
+        // define
+        string uri = endPoint.ResourcePath
+            .Replace("issueKey", issueKey);
+        missingParameters.Remove("issueKey");
+
+        Dictionary<string, string> args = new ()
         {
-            Path = new UriPathBuilder(@"rest/api/2/issue")
-                .Add(issueKey)
-                .Add(@"worklog")
+            ["date"] = day.ToString("dd/MMM/yyyy", CultureInfo.InvariantCulture),
+            ["logWorkOption"] = ICTimeAddWorklogByIssueKey.LogWorkOption.Summary.ToString().ToLowerFirstChar(),
+            ["comment"] = comment ?? string.Empty,
+            ["timeLogged"] = TimeSpan.FromSeconds(timeSpentSeconds).ToString("ddd\" d \"hh\" h \"mm\" m\""),
+            ["activity"] = activity ?? string.Empty,
+            ["user"] = this.UserName,
+            ["charged"] = true.ToString().ToLowerInvariant()
         };
+        missingParameters.RemoveWhere(elm => args.ContainsKey(elm));
 
-        // 2do! annotate the request.CustomFieldNNN with JSON field name based on ICTime server metadata (retrieved previously)
-        var request = new api.rest.request.ICTimeAddWorklogByIssueKey(
-            IssueKey: issueKey,
-            Started: day
-                .ToDateTime(TimeOnly.MinValue)
-                .ToString(@"yyyy-MM-dd""T""hh"";""mm"";""ss.fffzzzz")
-                .Replace(":", string.Empty)
-                .Replace(';', ':'),
-            TimeSpentSeconds: timeSpentSeconds,
-            Activity: string.IsNullOrEmpty(activity) ? null : int.Parse(activity),
-            Comment: comment
-        );
+        // check
+        bool executesViaPostMethod = endPoint.HttpMethod == HttpMethod.Post;
+        if (!executesViaPostMethod)
+            throw new InvalidOperationException($"Method {endPoint.Id} at resource path {endPoint.ResourcePath} executes via ${endPoint.HttpMethod} method (${HttpMethod.Post} expected)");
 
-        HttpResponseMessage response = await _httpClient.PostAsJsonAsync(uriBuilder.Uri.PathAndQuery, request);
-        await VanillaJiraClient.CheckHttpResponseForErrorMessages(response);
+        if (missingParameters.Any())
+            throw new ArgumentNullException($"Missing assignment of {string.Join(',', missingParameters)} in the call of {endPoint.Id} at resource path {endPoint.ResourcePath}");
+
+        bool providesJsonResponses = endPoint.Response?.Representations?
+            .Any(repr => repr.MediaType == WadlRepresentation.MediaTypes.Json) ?? false;
+
+        if (providesJsonResponses)
+            throw new InvalidOperationException($"Method {endPoint.Id} at resource path {endPoint.ResourcePath} does not respond in JSON");
+
+        // execute
+        HttpContent content = new FormUrlEncodedContent(args);
+        HttpResponseMessage response = await _httpClient.PostAsync(uri, content);
+
+        if (providesJsonResponses)
+            await VanillaJiraClient.CheckHttpResponseForErrorMessages(response);
     }
 
     public async Task AddWorklogPeriod(string issueKey, DateOnly dayFrom, DateOnly dayTo, int timeSpentSeconds, string? activity, string? comment, bool includeNonWorkingDays = false)
