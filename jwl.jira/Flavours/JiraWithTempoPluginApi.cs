@@ -81,7 +81,7 @@ public class JiraWithTempoPluginApi
             UserKey = new string[] { userKey }
         };
         var response = await _httpClient.PostAsJsonAsync($"{_flavourOptions.PluginBaseUri}/worklogs/search", request);
-        var tempoWorkLogs = await HttpClientJsonExt.DeserializeJsonStreamAsync<api.rest.response.TempoWorklog[]>(await response.Content.ReadAsStreamAsync());
+        var tempoWorkLogs = await HttpClientExt.DeserializeJsonStreamAsync<api.rest.response.TempoWorklog[]>(await response.Content.ReadAsStreamAsync());
 
         var result = tempoWorkLogs
             .Select(wl => new WorkLog(

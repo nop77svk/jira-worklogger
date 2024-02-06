@@ -1,6 +1,7 @@
 ﻿namespace jwl.jira;
 
 using System.Globalization;
+using System.Net.Http.Headers;
 using System.Xml.Serialization;
 using jwl.infra;
 using jwl.jira.api.rest.request;
@@ -68,7 +69,14 @@ public class JiraWithICTimePluginApi
 
         // define
         IEnumerable<KeyValuePair<JiraIssueKey, string>> uris = distinctProjects
-            .Select(issueKey => new KeyValuePair<JiraIssueKey, string>(issueKey, endPoint.ResourcePath.Replace("{issueKey}", issueKey.ToString())));
+            .Select(issueKey => new KeyValuePair<JiraIssueKey, string>(
+                issueKey,
+                _flavourOptions.PluginBaseUri.Trim('/')
+                    + "/"
+                    + endPoint.ResourcePath
+                        .Replace("{issueKey}", issueKey.ToString())
+                        .Trim('/')
+            ));
 
         missingParameters.Remove("issueKey");
 
@@ -140,21 +148,43 @@ public class JiraWithICTimePluginApi
             .ToHashSet();
 
         // define
-        string uri = endPoint.ResourcePath
-            .Replace("{issueKey}", issueKey);
+        string uri = this._flavourOptions.PluginBaseUri.Trim('/') + "/" + endPoint.ResourcePath
+            .Replace("{issueKey}", issueKey)
+            .Trim('/');
         missingParameters.Remove("issueKey");
 
+        string activityArg;
+        try
+        {
+            activityArg = _flavourOptions.ActivityMap == null || !_flavourOptions.ActivityMap.Any() || string.IsNullOrEmpty(activity)
+                ? activity ?? string.Empty
+                : _flavourOptions.ActivityMap[activity];
+        }
+        catch (KeyNotFoundException)
+        {
+            throw new InvalidDataException($"Failed to remap activity \"{activity}\" based on flavour-specific activity map");
+        }
+
+        string dateArg = day
+            .ToDateTime(TimeOnly.MinValue)
+            .ToString(_flavourOptions.DateFormat, CultureInfo.InvariantCulture);
+        string logWorkOptionArg = ICTimeAddWorklogByIssueKey.LogWorkOption.Summary
+            .ToString()
+            .ToLowerFirstChar();
+        string timeLoggedArg = TimeSpan.FromSeconds(timeSpentSeconds)
+            .ToString(_flavourOptions.TimeSpanFormat, CultureInfo.InvariantCulture);
+        string chargedArg = true
+            .ToString()
+            .ToLowerInvariant();
         Dictionary<string, string> args = new ()
         {
-            ["date"] = day.ToString(_flavourOptions.DateFormat, CultureInfo.InvariantCulture),
-            ["logWorkOption"] = ICTimeAddWorklogByIssueKey.LogWorkOption.Summary.ToString().ToLowerFirstChar(),
+            ["date"] = dateArg,
+            ["logWorkOption"] = logWorkOptionArg,
             ["comment"] = comment ?? string.Empty,
-            ["timeLogged"] = TimeSpan.FromSeconds(timeSpentSeconds).ToString(_flavourOptions.TimeSpanFormat),
-            ["activity"] = _flavourOptions.ActivityMap == null || !_flavourOptions.ActivityMap.Any() || string.IsNullOrEmpty(activity)
-                ? activity ?? string.Empty
-                : _flavourOptions.ActivityMap[activity],
+            ["timeLogged"] = timeLoggedArg,
+            ["activity"] = activityArg,
             ["user"] = this.UserName,
-            ["charged"] = true.ToString().ToLowerInvariant()
+            ["charged"] = chargedArg
         };
         missingParameters.RemoveWhere(elm => args.ContainsKey(elm));
 
@@ -181,11 +211,17 @@ public class JiraWithICTimePluginApi
             .Any(repr => repr.MediaType == WadlRepresentation.MediaTypes.Json) ?? false;
 
         // execute
-        HttpContent content = new FormUrlEncodedContent(args);
-        HttpResponseMessage response = await _httpClient.PostAsync(uri, content);
+        HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, uri)
+        {
+            Content = new FormUrlEncodedContent(args),
+        };
+        httpRequest.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(WadlRepresentation.MediaTypeJson));
+        HttpResponseMessage response = await _httpClient.SendAsync(httpRequest);
 
-        if (response.Content.Headers.ContentType?.MediaType == WadlRepresentation.MediaTypeJson)
-            await VanillaJiraClient.CheckHttpResponseForErrorMessages(response);
+        if (response.Content.Headers.ContentType?.MediaType != WadlRepresentation.MediaTypeJson)
+            throw new InvalidDataException($"Invalid media type returned ({response.Content.Headers.ContentType?.MediaType ?? string.Empty})");
+
+        await VanillaJiraClient.CheckHttpResponseForErrorMessages(response);
     }
 
     public async Task AddWorkLogPeriod(string issueKey, DateOnly dayFrom, DateOnly dayTo, int timeSpentSeconds, string? activity, string? comment, bool includeNonWorkingDays = false)

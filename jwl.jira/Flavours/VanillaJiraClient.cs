@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
+using System.Text.Json;
+using System.Xml;
 using jwl.infra;
 using jwl.jira.api.rest.response;
 using jwl.jira.Flavours;
@@ -32,9 +34,28 @@ public class VanillaJiraClient
 
         if (responseContentStream.Length > 0)
         {
-            JiraRestResponse responseContent = await HttpClientJsonExt.DeserializeJsonStreamAsync<JiraRestResponse>(responseContentStream);
-            if (responseContent?.ErrorMessages is not null && responseContent.ErrorMessages.Any())
-                throw new InvalidOperationException(string.Join(Environment.NewLine, responseContent.ErrorMessages));
+            try
+            {
+                JiraRestResponse jsonResponseContent = await HttpClientExt.DeserializeJsonStreamAsync<JiraRestResponse>(responseContentStream);
+
+                if (jsonResponseContent.ErrorMessages?.Any() ?? false)
+                    throw new InvalidOperationException(string.Join(Environment.NewLine, jsonResponseContent.ErrorMessages));
+            }
+            catch (JsonException jsonEx)
+            {
+                try
+                {
+                    responseContentStream.Seek(0, SeekOrigin.Begin);
+                    ICTimeXmlResponse xmlResponseContent = await HttpClientExt.DeserializeXmlStreamAsync<ICTimeXmlResponse>(responseContentStream);
+
+                    if (xmlResponseContent.Success == null)
+                        throw new InvalidOperationException(await responseMessage.Content.ReadAsStringAsync());
+                }
+                catch (XmlException xmlEx)
+                {
+                    throw new InvalidOperationException("Cannot deserialize HTTP response to any of the recognized structures", new AggregateException(jsonEx, xmlEx));
+                }
+            }
         }
     }
 
