@@ -4,8 +4,8 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Product>...</Product>
-    <Authors>Peter Hraško</Authors>
+      <Product>Jira Worklogger</Product>
+      <Authors>Peter Hraško</Authors>
     <Company>Open source community</Company>
     <Copyright>Practically copyleft</Copyright>
     <NoWarn>1701;1702;AD0001;NETSDK1182</NoWarn>
@@ -13,6 +13,11 @@
     <AssemblyName>jwl.core</AssemblyName>
     <PackageId>NoP77svk.jwl.core</PackageId>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/nop77svk/jira-worklogger.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <AssemblyVersion>2024.2.1</AssemblyVersion>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DebugType>none</DebugType>
@@ -61,6 +66,14 @@
 
   <ItemGroup>
     <None Include="..\README.md" Link="_assets\README.md" />
+    <None Include="D:\work.private\jira-worklogger\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="D:\work.private\jira-worklogger\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
   <ItemGroup>

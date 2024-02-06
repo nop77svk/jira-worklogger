@@ -15,6 +15,9 @@ public class JwlCoreProcess : IDisposable
     public ICoreProcessFeedback? Feedback { get; init; }
     public ICoreProcessInteraction _interaction { get; }
 
+    public Version? ExeVersion => AssemblyVersioning.GetExeVersion();
+    public Version? CoreVersion => AssemblyVersioning.GetCoreVersion(typeof(JwlCoreProcess));
+
     private bool _isDisposed;
 
     private AppConfig _config;
