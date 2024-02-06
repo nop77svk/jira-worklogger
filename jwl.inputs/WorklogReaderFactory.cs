@@ -1,5 +1,7 @@
 namespace jwl.inputs;
 using jwl.jira;
+using System.Data;
+using System.Diagnostics.CodeAnalysis;
 
 public static class WorklogReaderFactory
 {
@@ -28,7 +30,8 @@ public static class WorklogReaderFactory
         return fileFormat switch
         {
             WorklogReaderFileFormat.Csv => new WorklogCsvReader(new StreamReader(input), csvFormatConfig),
-            _ => throw new NotImplementedException() // 2do
+            WorklogReaderFileFormat.Xlsx => throw new NotImplementedException("Using XLSX inputs not yet implemented"),
+            _ => throw new ArgumentOutOfRangeException(nameof(fileFormat), fileFormat, $"Unrecognized file format")
         };
     }
 }

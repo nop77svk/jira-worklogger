@@ -4,9 +4,6 @@ using CommandLine;
 [Verb("fill", isDefault: true, HelpText = "Fill Jira with worklogs")]
 public class FillCLI
 {
-    [Option('v', "verbose", HelpText = "\nGive more verbose feedback\nNote: Not implemented yet! 2do! :-)", Default = false, Hidden = true)]
-    public bool UseVerboseFeedback { get; set; }
-
     [Option('i', "input", HelpText = "\nInput CSVs with the worklogs", Separator = ',', Required = true)]
     public IEnumerable<string> InputFiles { get; set; } = new string[0];
 
@@ -21,7 +18,7 @@ public class FillCLI
     public string? UserCredentials { get; set; }
 
     [Option("server-flavour", HelpText = "Jira server flavour (whether vanilla or with some timesheet plugins)"
-        + $"\nJSON config: $.{nameof(core.AppConfig.JiraServer)}.{nameof(jira.ServerConfig.ServerFlavour)}"
+        + $"\nJSON config: $.{nameof(core.AppConfig.JiraServer)}.{nameof(jira.ServerConfig.Flavour)}"
         + $"\nAvailable values: {nameof(jira.JiraServerFlavour.Vanilla)}, {nameof(jira.JiraServerFlavour.TempoTimeSheets)}, {nameof(jira.JiraServerFlavour.ICTime)}")]
     public string? ServerFlavour { get; set; }
 
@@ -52,11 +49,10 @@ public class FillCLI
 
         return new core.AppConfig()
         {
-            UseVerboseFeedback = UseVerboseFeedback,
             JiraServer = new jira.ServerConfig()
             {
-                ServerFlavour = ServerFlavour,
-                ActivityMap = null,
+                Flavour = ServerFlavour,
+                FlavourOptions = null,
                 BaseUrl = jiraServerSpecification,
                 UseProxy = !NoProxy,
                 MaxConnectionsPerServer = MaxConnectionsPerServer,

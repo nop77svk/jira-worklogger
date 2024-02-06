@@ -16,7 +16,7 @@ Meet the scripted Jira worklogging! Give it your worklogs in a CSV file (and you
 - Jira server (with version 2 REST API)
   - "vanilla" Jira server support: ✔️
   - "Tempo Timesheets" plugin support: ✔️
-  - "ICTime" plugin support: ❎ (planned)
+  - "ICTime" plugin support: ✔️
 
 ## Configuration
 
@@ -33,7 +33,7 @@ As for the CLI worklogger binary, there are command-line options available as we
 Available values are:
 - Vanilla
 - TempoTimeSheets
-- ICTime (not implemented yet)
+- ICTime
 
 ## The input CSV structure
 
@@ -43,5 +43,3 @@ Five columns, data delimited (by default) by a colon:
  - <code>Activity</code> (string) - Tempo Timesheets worklog type or ICTime activity; values are remapped 
  - <code>TimeSpent</code> (string) - time to be logged for the Jira issue and the date (valid formats: <code>HH:MI</code>, <code>MI</code>, <code>HH h MI</code>, <code>HH h MI m</code>)
  - <code>Comment</code> (string) - optional worklog comment
-
-The <code>Activity</code> values are remapped via config <code>$.JiraServer.ActivityMap</code>. The mapping configuration depends on your Jira server+plugins configuration and is a subject of manual setup by yourself.
