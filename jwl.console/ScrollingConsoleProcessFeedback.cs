@@ -1,11 +1,14 @@
 namespace jwl.console;
 using jwl.core;
 using jwl.infra;
+using System.Reflection;
 
 public class ScrollingConsoleProcessFeedback
     : ICoreProcessFeedback, IDisposable
 {
     public Action? FeedbackDelay { get; init; } = null;
+    public Func<Version?> GetCoreVersion { get; init; }
+    public Func<Version?> GetExeVersion { get; init; }
 
     private bool _isDisposed;
     private int _numberOfWorklogsToInsert = 0;
@@ -64,7 +67,14 @@ public class ScrollingConsoleProcessFeedback
 
     public void OverallProcessStart()
     {
-        Console.Error.WriteLine(@"Jira Worklogger CLI 1.1.0"); // 2do! read from assembly
+        Assembly exe = Assembly.GetExecutingAssembly();
+        string appName = exe.GetName().Name ?? "<unknown project>";
+        string appVersion = exe.GetName().Version?.ToString(3) ?? "?.?.?";
+
+        Assembly? core = Assembly.GetAssembly(typeof(JwlCoreProcess));
+        string coreVersion = core?.GetName().Version?.ToString(3) ?? "?.?.?";
+
+        Console.Error.WriteLine($"{appName} {appVersion}/{coreVersion}");
         Console.Error.WriteLine(@"by Peter H., practically copyleft"); // 2do! read from assembly
         Console.Error.WriteLine(new string('-', Console.WindowWidth - 1));
     }
