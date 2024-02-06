@@ -39,53 +39,47 @@ public static class AppConfigFactory
 
     public static AppConfig ReadConfig()
     {
-        AppConfig? result;
+        const int RootAppConfigId = -1;
 
-        IConfiguration config = new ConfigurationBuilder()
-            .AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ConfigFileName), optional: true)
-            .AddJsonFile(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ConfigFileName), optional: true)
-            .AddJsonFile(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), ConfigFileName), optional: true)
-            .AddJsonFile(Path.Combine(Path.GetFullPath("."), ConfigFileName), optional: true)
-            .Build();
-
-        result = config.Get<AppConfig>(opt =>
+        Action<BinderOptions> binderOptions = opt =>
         {
             opt.BindNonPublicProperties = false;
             opt.ErrorOnUnknownConfiguration = true;
-        });
+        };
 
-        if (result?.JiraServer != null)
-        {
-            JiraServerFlavour flavour = result.JiraServer.FlavourId;
-            string flavourConfigFileName = string.Format(FlavourConfigFileNameTemplate, flavour.ToString().ToLower());
-            IConfiguration flavourConfig = new ConfigurationBuilder()
-                .AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, flavourConfigFileName), optional: true)
-                .AddJsonFile(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), flavourConfigFileName), optional: true)
-                .AddJsonFile(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), flavourConfigFileName), optional: true)
-                .AddJsonFile(Path.Combine(Path.GetFullPath("."), flavourConfigFileName), optional: true)
-                .Build();
+        var config = Enum.GetValues<JiraServerFlavour>()
+            .Select(e => new KeyValuePair<int, string>(
+                (int)e,
+                string.Format(FlavourConfigFileNameTemplate, e.ToString().ToLowerInvariant()))
+            )
+            .Prepend(new KeyValuePair<int, string>(RootAppConfigId, ConfigFileName))
+            .Select(cfg => new KeyValuePair<int, IConfiguration>(
+                cfg.Key,
+                new ConfigurationBuilder()
+                    .AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, cfg.Value), optional: true)
+                    .AddJsonFile(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), cfg.Value), optional: true)
+                    .AddJsonFile(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), cfg.Value), optional: true)
+                    .AddJsonFile(Path.Combine(Path.GetFullPath("."), cfg.Value), optional: true)
+                    .Build()
+            ))
+            .Select(cfg => new KeyValuePair<int, object?>(
+                cfg.Key,
+                cfg.Key switch
+                {
+                    -1 => cfg.Value.Get<AppConfig>(binderOptions),
+                    (int)JiraServerFlavour.Vanilla => cfg.Value.Get<FlavourVanillaJiraOptions>(binderOptions) ?? new FlavourVanillaJiraOptions(),
+                    (int)JiraServerFlavour.TempoTimeSheets => cfg.Value.Get<FlavourTempoTimesheetsOptions>(binderOptions) ?? new FlavourTempoTimesheetsOptions(),
+                    (int)JiraServerFlavour.ICTime => cfg.Value.Get<FlavourICTimeOptions>(binderOptions) ?? new FlavourICTimeOptions(),
+                    _ => throw new IndexOutOfRangeException($"Unrecognized server flavour ID {cfg.Key}")
+                }
+            ))
+            .ToDictionary(cfg => cfg.Key, cfg => cfg.Value);
 
-            result!.JiraServer.FlavourOptions = flavour switch
-            {
-                JiraServerFlavour.Vanilla => flavourConfig.Get<FlavourVanillaJiraOptions>(opt =>
-                {
-                    opt.BindNonPublicProperties = false;
-                    opt.ErrorOnUnknownConfiguration = true;
-                }),
-                JiraServerFlavour.TempoTimeSheets => flavourConfig.Get<FlavourTempoTimesheetsOptions>(opt =>
-                {
-                    opt.BindNonPublicProperties = false;
-                    opt.ErrorOnUnknownConfiguration = true;
-                }),
-                JiraServerFlavour.ICTime => flavourConfig.Get<FlavourICTimeOptions>(opt =>
-                {
-                    opt.BindNonPublicProperties = false;
-                    opt.ErrorOnUnknownConfiguration = true;
-                }),
-                _ => throw new ArgumentOutOfRangeException(nameof(result.JiraServer.Flavour), $"Don't know how to read flavour {flavour} specific options config")
-            };
-        }
+        // 2do! automap the defaults
+        AppConfig result = (AppConfig?)config[RootAppConfigId] ?? CreateWithDefaults();
+        result.JiraServer!.VanillaJiraFlavourOptions = (FlavourVanillaJiraOptions?)config[(int)JiraServerFlavour.Vanilla];
+        result.JiraServer!.FlavourOptions = (IFlavourOptions?)config[(int)result.JiraServer.FlavourId];
 
-        return result ?? CreateWithDefaults();
+        return result;
     }
 }

@@ -20,6 +20,7 @@ public class AppConfig
             .ForAllMembers(m => m.Condition((src, dest, member) => member != null));
 
         cfg.AddGlobalIgnore(nameof(AppConfig.JiraServer.FlavourOptions));
+        cfg.AddGlobalIgnore(nameof(AppConfig.JiraServer.VanillaJiraFlavourOptions));
     }));
 
     private static Lazy<IMapper> overridingMapper = new (() => overridingMapperConfiguration.Value.CreateMapper());

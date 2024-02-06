@@ -9,6 +9,8 @@ public class ServerConfig
     public JiraServerFlavour FlavourId => ServerApiFactory.DecodeServerClass(Flavour) ?? JiraServerFlavour.Vanilla;
 
     [JsonIgnore]
+    public FlavourVanillaJiraOptions? VanillaJiraFlavourOptions { get; set; }
+    [JsonIgnore]
     public IFlavourOptions? FlavourOptions { get; set; }
     public bool? UseProxy { get; init; }
     public int? MaxConnectionsPerServer { get; init; }
