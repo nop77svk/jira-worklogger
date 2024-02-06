@@ -41,7 +41,7 @@ public class WadlTests
         Assert.IsNotNull(_wadlResponseStream);
         var wadl = (WadlApplication?)_wadlSerializer.Deserialize(_wadlResponseStream);
 
-        var flatWadl = wadl?.AsEnumerable().ToArray();
+        var flatWadl = wadl?.AsComposedWadlMethodDefinitionEnumerable().ToArray();
         Assert.IsNotNull(flatWadl);
         Assert.That(flatWadl.Any());
     }

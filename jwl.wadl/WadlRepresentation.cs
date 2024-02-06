@@ -1,21 +1,28 @@
 ﻿namespace jwl.wadl
 {
+    using System.Threading;
     using System.Xml.Serialization;
 
     [XmlRoot("representation")]
     public class WadlRepresentation
     {
+        public const string MediaTypePlainText = @"text/plain";
+        public const string MediaTypeXml = @"application/xml";
+        public const string MediaTypeAtomXml = @"application/atom+xml";
+        public const string MediaTypeJson = @"application/json";
+        public const string MediaTypeFormUrlEncoded = @"application/x-www-form-urlencoded";
+
         public enum MediaTypes
         {
-            [XmlEnum("text/plain")]
+            [XmlEnum(MediaTypePlainText)]
             PlainText,
-            [XmlEnum("application/xml")]
+            [XmlEnum(MediaTypeXml)]
             Xml,
-            [XmlEnum("application/json")]
+            [XmlEnum(MediaTypeJson)]
             Json,
-            [XmlEnum("application/atom+xml")]
+            [XmlEnum(MediaTypeAtomXml)]
             AtomXml,
-            [XmlEnum("application/x-www-form-urlencoded")]
+            [XmlEnum(MediaTypeFormUrlEncoded)]
             WwwFormUrlEncoded
         }
 

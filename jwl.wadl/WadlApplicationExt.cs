@@ -7,7 +7,7 @@
 
     public static class WadlApplicationExt
     {
-        public static IEnumerable<ComposedWadlMethodDefinition> AsEnumerable(this WadlApplication self)
+        public static IEnumerable<ComposedWadlMethodDefinition> AsComposedWadlMethodDefinitionEnumerable(this WadlApplication self)
         {
             if (self.Resources == null)
                 return Enumerable.Empty<ComposedWadlMethodDefinition>();

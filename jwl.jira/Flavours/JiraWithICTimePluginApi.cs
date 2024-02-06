@@ -16,8 +16,10 @@ public class JiraWithICTimePluginApi
 
     public Lazy<Dictionary<string, wadl.ComposedWadlMethodDefinition>> Endpoints =>
         new Lazy<Dictionary<string, ComposedWadlMethodDefinition>>(() => this.GetWADL().Result
-            .AsEnumerable()
+            .AsComposedWadlMethodDefinitionEnumerable()
             .Where(res => !string.IsNullOrEmpty(res.Id))
+            // 2do! a nasty hack! remake to some more clever heuristics
+            .Where(res => res.Id is GetActivityTypesForProjectMethodName or CreateWorkLogMethodName)
             .ToDictionary(res => res.Id ?? string.Empty)
         );
 
@@ -59,6 +61,7 @@ public class JiraWithICTimePluginApi
         ComposedWadlMethodDefinition endPoint = GetActivityTypesForProjectMethodDefinition;
 
         HashSet<string> missingParameters = endPoint.Parameters
+            .Concat(endPoint.Request?.Parameters ?? Array.Empty<WadlParameter>())
             .Where(par => !string.IsNullOrEmpty(par.Name))
             .Select(par => par.Name ?? string.Empty)
             .ToHashSet();
@@ -76,12 +79,12 @@ public class JiraWithICTimePluginApi
             throw new InvalidOperationException($"Method {endPoint.Id} at resource path {endPoint.ResourcePath} executes via ${endPoint.HttpMethod} method (${expectedMethod.ToString().ToUpperInvariant()} expected)");
 
         if (missingParameters.Any())
-            throw new ArgumentNullException($"Missing assignment of {string.Join(',', missingParameters)} in the call of {endPoint.Id} at resource path {endPoint.ResourcePath}");
+            throw new ArgumentException($"Missing assignment of {string.Join(',', missingParameters)} in the call of {endPoint.Id} at resource path {endPoint.ResourcePath}");
 
         bool providesJsonResponses = endPoint.Response?.Representations?
             .Any(repr => repr.MediaType == WadlRepresentation.MediaTypes.Json) ?? false;
 
-        if (providesJsonResponses)
+        if (!providesJsonResponses)
             throw new InvalidOperationException($"Method {endPoint.Id} at resource path {endPoint.ResourcePath} does not respond in JSON");
 
         // execute
@@ -131,13 +134,14 @@ public class JiraWithICTimePluginApi
         ComposedWadlMethodDefinition endPoint = CreateWorkLogMethodDefinition;
 
         HashSet<string> missingParameters = endPoint.Parameters
+            .Concat(endPoint.Request?.Representations?.First().Parameters ?? Array.Empty<WadlParameter>()) // 2do! not just the first representation, but the correct representation
             .Where(par => !string.IsNullOrEmpty(par.Name))
             .Select(par => par.Name ?? string.Empty)
             .ToHashSet();
 
         // define
         string uri = endPoint.ResourcePath
-            .Replace("issueKey", issueKey);
+            .Replace("{issueKey}", issueKey);
         missingParameters.Remove("issueKey");
 
         Dictionary<string, string> args = new ()
@@ -154,6 +158,16 @@ public class JiraWithICTimePluginApi
         };
         missingParameters.RemoveWhere(elm => args.ContainsKey(elm));
 
+        HashSet<string> ignoreParameters = new HashSet<string>()
+        {
+            "startTime",
+            "endTime",
+            "remainingEstimate",
+            "timeSpentCorrected",
+            "noChargeInfo"
+        };
+        missingParameters.RemoveWhere(elm => ignoreParameters.Contains(elm));
+
         // check
         HttpMethod expectedMethod = HttpMethod.Post;
         bool isCorrectHttpMethod = endPoint.HttpMethod == expectedMethod;
@@ -161,19 +175,16 @@ public class JiraWithICTimePluginApi
             throw new InvalidOperationException($"Method {endPoint.Id} at resource path {endPoint.ResourcePath} executes via ${endPoint.HttpMethod} method (${expectedMethod.ToString().ToUpperInvariant()} expected)");
 
         if (missingParameters.Any())
-            throw new ArgumentNullException($"Missing assignment of {string.Join(',', missingParameters)} in the call of {endPoint.Id} at resource path {endPoint.ResourcePath}");
+            throw new ArgumentException($"Missing assignment of {string.Join(',', missingParameters)} in the call of {endPoint.Id} at resource path {endPoint.ResourcePath}");
 
         bool providesJsonResponses = endPoint.Response?.Representations?
             .Any(repr => repr.MediaType == WadlRepresentation.MediaTypes.Json) ?? false;
-
-        if (providesJsonResponses)
-            throw new InvalidOperationException($"Method {endPoint.Id} at resource path {endPoint.ResourcePath} does not respond in JSON");
 
         // execute
         HttpContent content = new FormUrlEncodedContent(args);
         HttpResponseMessage response = await _httpClient.PostAsync(uri, content);
 
-        if (providesJsonResponses)
+        if (response.Content.Headers.ContentType?.MediaType == WadlRepresentation.MediaTypeJson)
             await VanillaJiraClient.CheckHttpResponseForErrorMessages(response);
     }
 
@@ -210,7 +221,7 @@ public class JiraWithICTimePluginApi
     {
         Uri uri = new Uri($"{_flavourOptions.PluginBaseUri}/application.wadl", UriKind.Relative);
         using Stream response = await _httpClient.GetStreamAsync(uri);
-        if (response == null || response.Length <= 0)
+        if (response == null)
             throw new HttpRequestException($"Empty content received from ${uri}");
 
         XmlSerializer serializer = new XmlSerializer(typeof(WadlApplication));
