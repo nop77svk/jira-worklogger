@@ -4,9 +4,6 @@ using CommandLine;
 [Verb("fill", isDefault: true, HelpText = "Fill Jira with worklogs")]
 public class FillCLI
 {
-    [Option('v', "verbose", HelpText = "\nGive more verbose feedback\nNote: Not implemented yet! 2do! :-)", Default = false, Hidden = true)]
-    public bool UseVerboseFeedback { get; set; }
-
     [Option('i', "input", HelpText = "\nInput CSVs with the worklogs", Separator = ',', Required = true)]
     public IEnumerable<string> InputFiles { get; set; } = new string[0];
 

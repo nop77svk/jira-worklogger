@@ -89,9 +89,4 @@ public class WorklogCsvReader : IWorklogReader
     {
         _csvReader.Dispose();
     }
-
-    private void ParseHeader()
-    {
-        // 2do!
-    }
 }

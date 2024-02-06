@@ -1,6 +1,5 @@
 ﻿namespace jwl.jira.api.rest.response;
 
-// 2do!
 public class ICTimeActivityDefinition
 {
     public ICTimeActivityDefinition(int id, string name)

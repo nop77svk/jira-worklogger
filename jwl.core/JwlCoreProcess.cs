@@ -45,17 +45,8 @@ public class JwlCoreProcess : IDisposable
         string userName = _config.User?.Name ?? throw new ArgumentNullException($"{nameof(_config)}.{nameof(_config.User)}.{nameof(_config.User.Name)})");
         _jiraClient = ServerApiFactory.CreateApi(_httpClient, userName, _config.JiraServer);
 
-        /* 2do!...
-        _jiraClient.WsClient.HttpRequestPostprocess = req =>
-        {
-            // 2do! optional logging of request bodies
-        };
-
-        _jiraClient.WsClient.HttpResponsePostprocess = resp =>
-        {
-            // 2do! optional logging of response bodies
-        };
-        */
+        // 2do! optional trace-logging the HTTP requests
+        // 2do! optional trace-logging the HTTP responses
     }
 
     #pragma warning disable CS1998

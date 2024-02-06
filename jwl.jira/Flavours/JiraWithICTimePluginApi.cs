@@ -19,7 +19,7 @@ public class JiraWithICTimePluginApi
         new Lazy<Dictionary<string, ComposedWadlMethodDefinition>>(() => this.GetWADL().Result
             .AsComposedWadlMethodDefinitionEnumerable()
             .Where(res => !string.IsNullOrEmpty(res.Id))
-            // 2do! a nasty hack! remake to some more clever heuristics
+            // 2do! a nasty hack! remake to something more clever!
             .Where(res => res.Id is GetActivityTypesForProjectMethodName or CreateWorkLogMethodName)
             .ToDictionary(res => res.Id ?? string.Empty)
         );
