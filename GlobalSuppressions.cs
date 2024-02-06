@@ -10,15 +10,13 @@
 [assembly: SuppressMessage("Style", "IDE0090")] // Use new (...)
 
 [assembly: SuppressMessage("Usage", "CA1816")] // Dispose methods should call SuppressFinalize
-[assembly: SuppressMessage("Style", "CA2208")] // Wrong paramName to Argument...Exception
 
 [assembly: SuppressMessage("Style", "SA1009")] // Closing parenthesis should not be preceded by a space
 [assembly: SuppressMessage("Style", "SA1011")] // Closing square bracket should be followed by a space
-[assembly: SuppressMessage("Style", "SA1021")] // Negative signe should be preceded by a space
+[assembly: SuppressMessage("Style", "SA1021")] // Negative sign should be preceded by a space
 [assembly: SuppressMessage("Style", "SA1101")] // Prefix local calls with this
 [assembly: SuppressMessage("Style", "SA1111")] // Closing parenthesis should be on line of last parameter
 [assembly: SuppressMessage("Style", "SA1118")] // parameter spans multiple lines
-[assembly: SuppressMessage("Style", "SA1122")] // Use string.Empty
 [assembly: SuppressMessage("Style", "SA1201")] // Enum should not follow a class
 [assembly: SuppressMessage("Style", "SA1300")] // Element ... should begin with an uppercase letter
 [assembly: SuppressMessage("Style", "SA1309")] // Field should not begin with an underscore
