@@ -32,12 +32,12 @@ public class JiraWithICTimePluginApi
     private readonly FlavourICTimeOptions _defaultFlavourOptions = new FlavourICTimeOptions();
     private readonly VanillaJiraClient _vanillaJiraApi;
 
-    public JiraWithICTimePluginApi(HttpClient httpClient, string userName, FlavourICTimeOptions? flavourOptions)
+    public JiraWithICTimePluginApi(HttpClient httpClient, string userName, VanillaJiraClient vanillaJiraClient, FlavourICTimeOptions? flavourOptions)
     {
         _httpClient = httpClient;
         UserName = userName;
         _flavourOptions = flavourOptions ?? _defaultFlavourOptions;
-        _vanillaJiraApi = new VanillaJiraClient(httpClient, userName, null);
+        _vanillaJiraApi = vanillaJiraClient;
     }
 
     public async Task<WorkLogType[]> GetAvailableActivities(string issueKey)

@@ -2,15 +2,21 @@
 
 public static class ServerApiFactory
 {
-    public static IJiraClient CreateApi(HttpClient httpClient, string userName, JiraServerFlavour serverFlavour, IFlavourOptions? flavourOptions)
+    public static IJiraClient CreateApi(HttpClient httpClient, string userName, ServerConfig? serverConfig)
     {
+        FlavourVanillaJiraOptions vanillaJiraOptions = serverConfig?.VanillaJiraFlavourOptions ?? new FlavourVanillaJiraOptions();
+        VanillaJiraClient vanillaJiraClient = new VanillaJiraClient(httpClient, userName, vanillaJiraOptions);
+
+        JiraServerFlavour serverFlavour = serverConfig?.FlavourId ?? JiraServerFlavour.Vanilla;
+        IFlavourOptions? flavourOptions = serverConfig?.FlavourOptions;
+
         try
         {
             return serverFlavour switch
             {
-                JiraServerFlavour.Vanilla => new VanillaJiraClient(httpClient, userName, (FlavourVanillaJiraOptions?)flavourOptions),
-                JiraServerFlavour.TempoTimeSheets => new JiraWithTempoPluginApi(httpClient, userName, (FlavourTempoTimesheetsOptions?)flavourOptions),
-                JiraServerFlavour.ICTime => new JiraWithICTimePluginApi(httpClient, userName, (FlavourICTimeOptions?)flavourOptions),
+                JiraServerFlavour.Vanilla => new VanillaJiraClient(httpClient, userName, vanillaJiraOptions),
+                JiraServerFlavour.TempoTimeSheets => new JiraWithTempoPluginApi(httpClient, userName, vanillaJiraClient, (FlavourTempoTimesheetsOptions?)flavourOptions),
+                JiraServerFlavour.ICTime => new JiraWithICTimePluginApi(httpClient, userName, vanillaJiraClient, (FlavourICTimeOptions?)flavourOptions),
                 _ => throw new NotImplementedException($"Jira server flavour {nameof(serverFlavour)} not yet implemented")
             };
         }

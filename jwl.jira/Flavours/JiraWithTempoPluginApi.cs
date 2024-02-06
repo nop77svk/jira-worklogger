@@ -18,12 +18,12 @@ public class JiraWithTempoPluginApi
     public string UserName { get; }
     public api.rest.common.JiraUserInfo UserInfo => _vanillaJiraApi.UserInfo;
 
-    public JiraWithTempoPluginApi(HttpClient httpClient, string userName, FlavourTempoTimesheetsOptions? flavourOptions)
+    public JiraWithTempoPluginApi(HttpClient httpClient, string userName, VanillaJiraClient vanillaJiraClient, FlavourTempoTimesheetsOptions? flavourOptions)
     {
         _httpClient = httpClient;
         UserName = userName;
         _flavourOptions = flavourOptions ?? new FlavourTempoTimesheetsOptions();
-        _vanillaJiraApi = new VanillaJiraClient(httpClient, userName, null);
+        _vanillaJiraApi = vanillaJiraClient;
     }
 
     public async Task<api.rest.response.TempoWorklogAttributeDefinition[]> GetWorklogAttributeDefinitions()
