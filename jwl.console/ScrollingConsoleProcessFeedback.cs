@@ -66,12 +66,14 @@ public class ScrollingConsoleProcessFeedback
     public void OverallProcessStart()
     {
         Assembly exe = Assembly.GetExecutingAssembly();
-        var productName = exe.CustomAttributes
+        object productName = exe.CustomAttributes
             .First(x => x.AttributeType == typeof(AssemblyTitleAttribute))
-            .ConstructorArguments.First().Value;
-        var cliVersion = exe.CustomAttributes
+            .ConstructorArguments.First().Value
+            ?? "<unknown product>";
+        object cliVersion = exe.CustomAttributes
             .First(x => x.AttributeType == typeof(AssemblyFileVersionAttribute))
-            .ConstructorArguments.First().Value;
+            .ConstructorArguments.First().Value
+            ?? "?.?.?";
 
         Assembly? core = Assembly.GetAssembly(typeof(JwlCoreProcess));
         object coreVersion = core?.CustomAttributes
