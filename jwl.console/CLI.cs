@@ -49,7 +49,6 @@ public class FillCLI
 
         return new core.AppConfig()
         {
-            UseVerboseFeedback = UseVerboseFeedback,
             JiraServer = new jira.ServerConfig()
             {
                 Flavour = ServerFlavour,
