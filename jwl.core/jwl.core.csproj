@@ -4,8 +4,8 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Product>...</Product>
-    <Authors>Peter Hraško</Authors>
+      <Product>Jira Worklogger</Product>
+      <Authors>Peter Hraško</Authors>
     <Company>Open source community</Company>
     <Copyright>Practically copyleft</Copyright>
     <NoWarn>1701;1702;AD0001;NETSDK1182</NoWarn>

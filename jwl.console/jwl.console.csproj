@@ -17,7 +17,7 @@
     <Nullable>enable</Nullable>
     <Product>Jira Worklogger</Product>
     <AssemblyTitle>Jira Worklogger CLI</AssemblyTitle>
-      <AssemblyVersion>1.1.0</AssemblyVersion>
+      <AssemblyVersion>1.2.0</AssemblyVersion>
       <Authors>Peter Hraško</Authors>
     <Company>Open source community</Company>
     <Copyright>Practically copyleft</Copyright>

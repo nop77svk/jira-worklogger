@@ -7,8 +7,6 @@ public class ScrollingConsoleProcessFeedback
     : ICoreProcessFeedback, IDisposable
 {
     public Action? FeedbackDelay { get; init; } = null;
-    public Func<Version?> GetCoreVersion { get; init; }
-    public Func<Version?> GetExeVersion { get; init; }
 
     private bool _isDisposed;
     private int _numberOfWorklogsToInsert = 0;
@@ -68,14 +66,25 @@ public class ScrollingConsoleProcessFeedback
     public void OverallProcessStart()
     {
         Assembly exe = Assembly.GetExecutingAssembly();
-        string appName = exe.GetName().Name ?? "<unknown project>";
-        string appVersion = exe.GetName().Version?.ToString(3) ?? "?.?.?";
+        var productName = exe.CustomAttributes
+            .First(x => x.AttributeType == typeof(AssemblyTitleAttribute))
+            .ConstructorArguments.First().Value;
+        var cliVersion = exe.CustomAttributes
+            .First(x => x.AttributeType == typeof(AssemblyFileVersionAttribute))
+            .ConstructorArguments.First().Value;
 
         Assembly? core = Assembly.GetAssembly(typeof(JwlCoreProcess));
-        string coreVersion = core?.GetName().Version?.ToString(3) ?? "?.?.?";
+        object coreVersion = core?.CustomAttributes
+            .First(x => x.AttributeType == typeof(AssemblyFileVersionAttribute))
+            .ConstructorArguments.First().Value
+            ?? "?.?.?";
+        object coreCopyright = core?.CustomAttributes
+            .First(x => x.AttributeType == typeof(AssemblyCopyrightAttribute))
+            .ConstructorArguments.First().Value
+            ?? "copy rights undetermined";
 
-        Console.Error.WriteLine($"{appName} {appVersion}/{coreVersion}");
-        Console.Error.WriteLine(@"by Peter H., practically copyleft"); // 2do! read from assembly
+        Console.Error.WriteLine($"{productName} {cliVersion} (core {coreVersion})");
+        Console.Error.WriteLine($"by Peter H., {coreCopyright}");
         Console.Error.WriteLine(new string('-', Console.WindowWidth - 1));
     }
 
