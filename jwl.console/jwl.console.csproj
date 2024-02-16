@@ -5,7 +5,7 @@
 
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.9.1" />
-    <PackageReference Include="NoP77svk.Console" Version="2023.3.1" />
+    <PackageReference Include="NoP77svk.Console" Version="2024.1.1" />
 <!--    <PackageReference Include="nulastudio.NetBeauty" Version="2.1.2.1" />	-->
   </ItemGroup>
 
@@ -17,7 +17,8 @@
     <Nullable>enable</Nullable>
     <Product>Jira Worklogger</Product>
     <AssemblyTitle>Jira Worklogger CLI</AssemblyTitle>
-    <Authors>Peter Hraško</Authors>
+      <AssemblyVersion>2003.8.1</AssemblyVersion>
+      <Authors>Peter Hraško</Authors>
     <Company>Open source community</Company>
     <Copyright>Practically copyleft</Copyright>
     <NoWarn>1701;1702;AD0001;NETSDK1182</NoWarn>
@@ -25,7 +26,6 @@
     <AssemblyName>jwlc</AssemblyName>
     <PackageId>NoP77svk.jwl.console</PackageId>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-    <Version>1.1.0</Version>
 
 	<BeautyLibsDir>./bin</BeautyLibsDir>
 	<BeautyHiddens>hostfxr;hostpolicy;*.deps.json;*.runtimeconfig*.json;clrjit;coreclr;System.*.dll</BeautyHiddens>

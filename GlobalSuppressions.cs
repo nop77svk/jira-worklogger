@@ -5,27 +5,25 @@
 
 [assembly: SuppressMessage("Style", "IDE0017")] // Object properties initialization can be simplified
 [assembly: SuppressMessage("Style", "IDE0057")] // Substring can be simplified
-[assembly: SuppressMessage("Style", "IDE0060")] // Remove unused parameter // 2do!
+[assembly: SuppressMessage("Style", "IDE0060")] // Remove unused parameter
 [assembly: SuppressMessage("Style", "IDE0063")] // Use simple 'using' statement
 [assembly: SuppressMessage("Style", "IDE0090")] // Use new (...)
 
 [assembly: SuppressMessage("Usage", "CA1816")] // Dispose methods should call SuppressFinalize
-[assembly: SuppressMessage("Style", "CA2208")] // Wrong paramName to Argument...Exception
 
 [assembly: SuppressMessage("Style", "SA1009")] // Closing parenthesis should not be preceded by a space
 [assembly: SuppressMessage("Style", "SA1011")] // Closing square bracket should be followed by a space
-[assembly: SuppressMessage("Style", "SA1021")] // Negative signe should be preceded by a space
+[assembly: SuppressMessage("Style", "SA1021")] // Negative sign should be preceded by a space
 [assembly: SuppressMessage("Style", "SA1101")] // Prefix local calls with this
 [assembly: SuppressMessage("Style", "SA1111")] // Closing parenthesis should be on line of last parameter
-[assembly: SuppressMessage("Style", "SA1118")] // parameter spans multiple lines // 2do!
-[assembly: SuppressMessage("Style", "SA1122")] // Use string.Empty // 2do!
+[assembly: SuppressMessage("Style", "SA1118")] // parameter spans multiple lines
 [assembly: SuppressMessage("Style", "SA1201")] // Enum should not follow a class
 [assembly: SuppressMessage("Style", "SA1300")] // Element ... should begin with an uppercase letter
 [assembly: SuppressMessage("Style", "SA1309")] // Field should not begin with an underscore
 [assembly: SuppressMessage("Style", "SA1408")] // Conditional expressions should declare precedence
 [assembly: SuppressMessage("Style", "SA1413")] // Use trailing comma in multi-line initializers
 [assembly: SuppressMessage("Style", "SA1503")] // Braces should not be ommitted
-[assembly: SuppressMessage("Style", "SA1515")] // 1-line comments should be preceded by a blank line // 2do!
+[assembly: SuppressMessage("Style", "SA1515")] // 1-line comments should be preceded by a blank line
 [assembly: SuppressMessage("Style", "SA1516")] // Elements should be separated by a blank line
 
 [assembly: SuppressMessage("Style", "SA0001")] // XML comment analysis disabled

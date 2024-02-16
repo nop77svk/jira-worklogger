@@ -5,6 +5,7 @@ using System.Text;
 using jwl.infra;
 using jwl.inputs;
 using jwl.jira;
+using jwl.jira.Flavours;
 using NoP77svk.Linq;
 
 public class JwlCoreProcess : IDisposable
@@ -13,6 +14,9 @@ public class JwlCoreProcess : IDisposable
 
     public ICoreProcessFeedback? Feedback { get; init; }
     public ICoreProcessInteraction _interaction { get; }
+
+    public Version? ExeVersion => AssemblyVersioning.GetExeVersion();
+    public Version? CoreVersion => AssemblyVersioning.GetCoreVersion(typeof(JwlCoreProcess));
 
     private bool _isDisposed;
 
@@ -42,19 +46,10 @@ public class JwlCoreProcess : IDisposable
         };
 
         string userName = _config.User?.Name ?? throw new ArgumentNullException($"{nameof(_config)}.{nameof(_config.User)}.{nameof(_config.User.Name)})");
-        _jiraClient = ServerApiFactory.CreateApi(_httpClient, userName, _config.JiraServer?.ServerFlavourId ?? JiraServerFlavour.Vanilla);
+        _jiraClient = ServerApiFactory.CreateApi(_httpClient, userName, _config.JiraServer);
 
-        /* 2do!...
-        _jiraClient.WsClient.HttpRequestPostprocess = req =>
-        {
-            // 2do! optional logging of request bodies
-        };
-
-        _jiraClient.WsClient.HttpResponsePostprocess = resp =>
-        {
-            // 2do! optional logging of response bodies
-        };
-        */
+        // 2do! optional trace-logging the HTTP requests
+        // 2do! optional trace-logging the HTTP responses
     }
 
     #pragma warning disable CS1998
@@ -143,20 +138,14 @@ public class JwlCoreProcess : IDisposable
             throw new ArgumentNullException(@"Unresolved Jira key for the logged-on user");
 
         Task[] fillJiraWithWorklogsTasks = worklogsForDeletion
-            .Select(worklog => _jiraClient.DeleteWorklog(worklog.IssueId, worklog.Id))
+            .Select(worklog => _jiraClient.DeleteWorkLog(worklog.IssueId, worklog.Id))
             .Concat(inputWorklogs
-                .LeftOuterJoin(
-                    innerTable: _config.JiraServer?.ActivityMap ?? new Dictionary<string, string>(),
-                    outerKeySelector: wl => wl.WorkLogActivity.ToLower(),
-                    innerKeySelector: am => am.Key.ToLower(),
-                    resultSelector: (wl, am) => new ValueTuple<InputWorkLog, string?>(wl, am.Value)
-                )
-                .Select(x => _jiraClient.AddWorklog(
-                    issueKey: x.Item1.IssueKey.ToString(),
-                    day: DateOnly.FromDateTime(x.Item1.Date),
-                    timeSpentSeconds: (int)x.Item1.TimeSpent.TotalSeconds,
-                    activity: !(_config.JiraServer?.ActivityMap?.Any() ?? false) ? x.Item1.WorkLogActivity : x.Item2,
-                    comment: x.Item1.WorkLogComment
+                .Select(x => _jiraClient.AddWorkLog(
+                    issueKey: x.IssueKey.ToString(),
+                    day: DateOnly.FromDateTime(x.Date),
+                    timeSpentSeconds: (int)x.TimeSpent.TotalSeconds,
+                    activity: x.WorkLogActivity,
+                    comment: x.WorkLogComment
                 ))
             )
             .ToArray();
@@ -164,7 +153,7 @@ public class JwlCoreProcess : IDisposable
         MultiTaskStats progress = new MultiTaskStats(fillJiraWithWorklogsTasks.Length);
         MultiTask multiTask = new MultiTask()
         {
-            TaskFeedback = t => Feedback?.FillJiraWithWorklogsProcess(progress.ApplyTaskStatus(t.Status))
+            OnTaskAwaited = t => Feedback?.FillJiraWithWorklogsProcess(progress.ApplyTaskStatus(t.Status))
         };
 
         await multiTask.WhenAll(fillJiraWithWorklogsTasks);
@@ -181,7 +170,7 @@ public class JwlCoreProcess : IDisposable
         MultiTaskStats progressStats = new MultiTaskStats(readerTasks.Length);
         MultiTask multiTask = new MultiTask()
         {
-            TaskFeedback = t => Feedback?.ReadCsvInputProcess(progressStats.ApplyTaskStatus(t.Status))
+            OnTaskAwaited = t => Feedback?.ReadCsvInputProcess(progressStats.ApplyTaskStatus(t.Status))
         };
 
         if (readerTasks.Any())
@@ -200,24 +189,9 @@ public class JwlCoreProcess : IDisposable
         {
             CsvFormatConfig = _config.CsvOptions
         };
-
         using IWorklogReader worklogReader = WorklogReaderFactory.GetReaderFromFilePath(fileName, readerConfig);
 
-        Task<InputWorkLog[]> response = Task.Factory.StartNew(() =>
-        {
-            return worklogReader
-                .Read(row =>
-                {
-                    if (row.WorkLogActivity is not null)
-                    {
-                        if (!_config.JiraServer?.ActivityMap?.ContainsKey(row.WorkLogActivity) ?? false)
-                            throw new InvalidDataException($"Worklog type {row.WorkLogActivity} not found in activity map");
-                    }
-                })
-                .ToArray();
-        });
-
-        return await response;
+        return await Task.Factory.StartNew(() => worklogReader.Read().ToArray());
     }
 
     private async Task<WorkLog[]> RetrieveWorklogsForDeletion(InputWorkLog[] inputWorklogs)
@@ -247,7 +221,7 @@ public class JwlCoreProcess : IDisposable
                 .OrderByDescending(x => x)
                 .ToArray();
 
-            result = await _jiraClient.GetIssueWorklogs(minInputWorklogDay, maxInputWorklogDay, inputIssueKeys);
+            result = await _jiraClient.GetIssueWorkLogs(minInputWorklogDay, maxInputWorklogDay, inputIssueKeys);
         }
 
         return result;

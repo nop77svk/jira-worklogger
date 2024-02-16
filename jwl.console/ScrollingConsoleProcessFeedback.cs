@@ -1,6 +1,7 @@
 namespace jwl.console;
 using jwl.core;
 using jwl.infra;
+using System.Reflection;
 
 public class ScrollingConsoleProcessFeedback
     : ICoreProcessFeedback, IDisposable
@@ -64,8 +65,28 @@ public class ScrollingConsoleProcessFeedback
 
     public void OverallProcessStart()
     {
-        Console.Error.WriteLine(@"Jira Worklogger CLI 1.1.0"); // 2do! read from assembly
-        Console.Error.WriteLine(@"by Peter H., practically copyleft"); // 2do! read from assembly
+        Assembly exe = Assembly.GetExecutingAssembly();
+        object productName = exe.CustomAttributes
+            .First(x => x.AttributeType == typeof(AssemblyTitleAttribute))
+            .ConstructorArguments.First().Value
+            ?? "<unknown product>";
+        object cliVersion = exe.CustomAttributes
+            .First(x => x.AttributeType == typeof(AssemblyFileVersionAttribute))
+            .ConstructorArguments.First().Value
+            ?? "?.?.?";
+
+        Assembly? core = Assembly.GetAssembly(typeof(JwlCoreProcess));
+        object coreVersion = core?.CustomAttributes
+            .First(x => x.AttributeType == typeof(AssemblyFileVersionAttribute))
+            .ConstructorArguments.First().Value
+            ?? "?.?.?";
+        object coreCopyright = core?.CustomAttributes
+            .First(x => x.AttributeType == typeof(AssemblyCopyrightAttribute))
+            .ConstructorArguments.First().Value
+            ?? "copy rights undetermined";
+
+        Console.Error.WriteLine($"{productName} {cliVersion} (core {coreVersion})");
+        Console.Error.WriteLine($"by Peter H., {coreCopyright}");
         Console.Error.WriteLine(new string('-', Console.WindowWidth - 1));
     }
 
