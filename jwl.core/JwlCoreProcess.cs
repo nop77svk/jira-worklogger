@@ -12,11 +12,11 @@ public class JwlCoreProcess : IDisposable
 {
     public const int TotalProcessSteps = 7;
 
-    public ICoreProcessFeedback? Feedback { get; init; }
-    public ICoreProcessInteraction _interaction { get; }
+    public static Version? ExeVersion => AssemblyVersioning.GetExeVersion();
+    public static Version? CoreVersion => AssemblyVersioning.GetCoreVersion(typeof(JwlCoreProcess));
 
-    public Version? ExeVersion => AssemblyVersioning.GetExeVersion();
-    public Version? CoreVersion => AssemblyVersioning.GetCoreVersion(typeof(JwlCoreProcess));
+    public ICoreProcessFeedback? Feedback { get; init; }
+    public ICoreProcessInteraction Interaction { get; }
 
     private bool _isDisposed;
 
@@ -28,7 +28,7 @@ public class JwlCoreProcess : IDisposable
     public JwlCoreProcess(AppConfig config, ICoreProcessInteraction interaction)
     {
         _config = config;
-        _interaction = interaction;
+        Interaction = interaction;
 
         _httpClientFactory = new ConfigDrivenHttpClientFactory(config);
 
@@ -50,8 +50,8 @@ public class JwlCoreProcess : IDisposable
 
         if (string.IsNullOrEmpty(jiraUserName) || string.IsNullOrEmpty(jiraUserPassword))
         {
-            if (_interaction != null)
-                (jiraUserName, jiraUserPassword) = _interaction.AskForCredentials(jiraUserName);
+            if (Interaction != null)
+                (jiraUserName, jiraUserPassword) = Interaction.AskForCredentials(jiraUserName);
         }
 
         if (string.IsNullOrEmpty(jiraUserName) || string.IsNullOrEmpty(jiraUserPassword))

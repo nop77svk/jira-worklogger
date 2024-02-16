@@ -1,9 +1,5 @@
 ﻿namespace jwl.core;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 internal class ConfigDrivenHttpClientFactory
     : IDisposable
@@ -11,16 +7,14 @@ internal class ConfigDrivenHttpClientFactory
     public HttpClientHandler HttpClientHandler => _lazyHttpClientHandler.Value;
     public HttpClient HttpClient => _lazyHttpClient.Value;
 
-    private readonly AppConfig _config;
     private readonly Lazy<HttpClientHandler> _lazyHttpClientHandler;
     private readonly Lazy<HttpClient> _lazyHttpClient;
     private bool _isDisposed;
 
     public ConfigDrivenHttpClientFactory(AppConfig config)
     {
-        _config = config;
-        _lazyHttpClientHandler = new Lazy<HttpClientHandler>(() => InstantiateHttpClientHandler());
-        _lazyHttpClient = new Lazy<HttpClient>(() => InstantiateHttpClient());
+        _lazyHttpClientHandler = new Lazy<HttpClientHandler>(() => InstantiateHttpClientHandler(config));
+        _lazyHttpClient = new Lazy<HttpClient>(() => InstantiateHttpClient(config));
     }
 
     // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
@@ -57,26 +51,26 @@ internal class ConfigDrivenHttpClientFactory
         }
     }
 
-    private HttpClientHandler InstantiateHttpClientHandler()
+    private HttpClientHandler InstantiateHttpClientHandler(AppConfig config)
     {
         HttpClientHandler result = new HttpClientHandler()
         {
-            UseProxy = _config.JiraServer?.UseProxy ?? false,
+            UseProxy = config.JiraServer?.UseProxy ?? false,
             UseDefaultCredentials = false,
-            MaxConnectionsPerServer = _config.JiraServer?.MaxConnectionsPerServer ?? AppConfigFactory.DefaultMaxConnectionsPerServer
+            MaxConnectionsPerServer = config.JiraServer?.MaxConnectionsPerServer ?? AppConfigFactory.DefaultMaxConnectionsPerServer
         };
 
-        if (_config.JiraServer?.SkipSslCertificateCheck ?? false)
+        if (config.JiraServer?.SkipSslCertificateCheck ?? false)
             HttpClientHandler.ServerCertificateCustomValidationCallback = (_, _, _, _) => true;
 
         return result;
     }
 
-    private HttpClient InstantiateHttpClient()
+    private HttpClient InstantiateHttpClient(AppConfig config)
     {
         return new HttpClient(HttpClientHandler)
         {
-            BaseAddress = new Uri(_config.JiraServer?.BaseUrl ?? string.Empty)
+            BaseAddress = new Uri(config.JiraServer?.BaseUrl ?? string.Empty)
         };
     }
 }
