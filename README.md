@@ -13,10 +13,10 @@ Meet the scripted Jira worklogging! Give it your worklogs in a CSV file (and you
 ## Prerequisites
 
 - .NET 6 run-time installed (for simple, cross-platform build) or no .NET runtime necessary (for self-contained, single-exe, Windows-only build); You choose!
-- Jira server (with version 2 REST API)
-  - "vanilla" Jira server support: ✔️
-  - "Tempo Timesheets" plugin support: ✔️
-  - "ICTime" plugin support: ❎ (planned)
+- Jira server
+  - "vanilla" Jira server support: ✔️ (version 2 REST API)
+  - "Tempo Timesheets" plugin support: ✔️ (version 4 REST API)
+  - "ICTime" plugin support: ✔️ (version 1.0 REST API)
 
 ## Configuration
 
@@ -33,7 +33,7 @@ As for the CLI worklogger binary, there are command-line options available as we
 Available values are:
 - Vanilla
 - TempoTimeSheets
-- ICTime (not implemented yet)
+- ICTime
 
 ## The input CSV structure
 
