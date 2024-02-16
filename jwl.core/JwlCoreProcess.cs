@@ -12,40 +12,28 @@ public class JwlCoreProcess : IDisposable
 {
     public const int TotalProcessSteps = 7;
 
-    public ICoreProcessFeedback? Feedback { get; init; }
-    public ICoreProcessInteraction _interaction { get; }
+    public static Version? ExeVersion => AssemblyVersioning.GetExeVersion();
+    public static Version? CoreVersion => AssemblyVersioning.GetCoreVersion(typeof(JwlCoreProcess));
 
-    public Version? ExeVersion => AssemblyVersioning.GetExeVersion();
-    public Version? CoreVersion => AssemblyVersioning.GetCoreVersion(typeof(JwlCoreProcess));
+    public ICoreProcessFeedback? Feedback { get; init; }
+    public ICoreProcessInteraction Interaction { get; }
 
     private bool _isDisposed;
 
     private AppConfig _config;
-    private HttpClientHandler _httpClientHandler;
-    private HttpClient _httpClient;
     private IJiraClient _jiraClient;
+    private HttpClient _httpClient => _httpClientFactory.HttpClient;
+    private readonly ConfigDrivenHttpClientFactory _httpClientFactory;
 
     public JwlCoreProcess(AppConfig config, ICoreProcessInteraction interaction)
     {
         _config = config;
-        _interaction = interaction;
+        Interaction = interaction;
 
-        _httpClientHandler = new HttpClientHandler()
-        {
-            UseProxy = _config.JiraServer?.UseProxy ?? false,
-            UseDefaultCredentials = false,
-            MaxConnectionsPerServer = _config.JiraServer?.MaxConnectionsPerServer ?? AppConfigFactory.DefaultMaxConnectionsPerServer
-        };
+        _httpClientFactory = new ConfigDrivenHttpClientFactory(config);
 
-        if (_config.JiraServer?.SkipSslCertificateCheck ?? false)
-            _httpClientHandler.ServerCertificateCustomValidationCallback = (_, _, _, _) => true;
-
-        _httpClient = new HttpClient(_httpClientHandler)
-        {
-            BaseAddress = new Uri(_config.JiraServer?.BaseUrl ?? string.Empty)
-        };
-
-        string userName = _config.User?.Name ?? throw new ArgumentNullException($"{nameof(_config)}.{nameof(_config.User)}.{nameof(_config.User.Name)})");
+        string userName = _config.User?.Name
+            ?? throw new ArgumentNullException($"{nameof(_config)}.{nameof(_config.User)}.{nameof(_config.User.Name)})");
         _jiraClient = ServerApiFactory.CreateApi(_httpClient, userName, _config.JiraServer);
 
         // 2do! optional trace-logging the HTTP requests
@@ -62,8 +50,8 @@ public class JwlCoreProcess : IDisposable
 
         if (string.IsNullOrEmpty(jiraUserName) || string.IsNullOrEmpty(jiraUserPassword))
         {
-            if (_interaction != null)
-                (jiraUserName, jiraUserPassword) = _interaction.AskForCredentials(jiraUserName);
+            if (Interaction != null)
+                (jiraUserName, jiraUserPassword) = Interaction.AskForCredentials(jiraUserName);
         }
 
         if (string.IsNullOrEmpty(jiraUserName) || string.IsNullOrEmpty(jiraUserPassword))
@@ -124,7 +112,6 @@ public class JwlCoreProcess : IDisposable
             // note: free unmanaged resources (unmanaged objects) and override finalizer
             // note: set large fields to null
             _httpClient?.Dispose();
-            _httpClientHandler?.Dispose();
 
             _isDisposed = true;
         }
