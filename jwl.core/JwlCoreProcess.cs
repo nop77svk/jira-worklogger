@@ -30,6 +30,8 @@ public class JwlCoreProcess : IDisposable
         _config = config;
         Interaction = interaction;
 
+        RestrictThreadPoolToMaxNumberOfConnections();
+
         _httpClientFactory = new ConfigDrivenHttpClientFactory(config);
 
         string userName = _config.User?.Name
@@ -40,7 +42,7 @@ public class JwlCoreProcess : IDisposable
         // 2do! optional trace-logging the HTTP responses
     }
 
-    #pragma warning disable CS1998
+#pragma warning disable CS1998
     public async Task PreProcess()
     {
         Feedback?.OverallProcessStart();
@@ -115,6 +117,15 @@ public class JwlCoreProcess : IDisposable
 
             _isDisposed = true;
         }
+    }
+
+    private void RestrictThreadPoolToMaxNumberOfConnections()
+    {
+        // 2do! Not sure if this is right...
+        ThreadPool.GetMaxThreads(out int maxWorkerThreads, out int maxIoThreads);
+        maxWorkerThreads = Math.Min(maxWorkerThreads, _config.JiraServer?.MaxConnectionsPerServer ?? maxWorkerThreads);
+        maxIoThreads = Math.Min(maxIoThreads, _config.JiraServer?.MaxConnectionsPerServer ?? maxIoThreads);
+        ThreadPool.SetMaxThreads(maxWorkerThreads, maxIoThreads);
     }
 
     private async Task FillJiraWithWorklogs(InputWorkLog[] inputWorklogs, WorkLog[] worklogsForDeletion)
