@@ -188,6 +188,7 @@ public class VanillaJiraClient
                 .Add(worklogId.ToString()),
             Query = new UriQueryBuilder()
                 .Add(@"notifyUsers", notifyUsers.ToString().ToLower())
+                .Add(@"adjustEstimate", "auto")
         };
 
         HttpResponseMessage response = await _httpClient.DeleteAsync(uriBuilder.Uri.PathAndQuery);

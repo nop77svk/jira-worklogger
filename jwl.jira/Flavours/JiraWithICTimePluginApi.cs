@@ -142,13 +142,13 @@ public class JiraWithICTimePluginApi
         ComposedWadlMethodDefinition endPoint = CreateWorkLogMethodDefinition;
 
         HashSet<string> missingParameters = endPoint.Parameters
-            .Concat(endPoint.Request?.Representations?.First().Parameters ?? Array.Empty<WadlParameter>()) // 2do! not just the first representation, but the correct representation
+            .Concat(endPoint.Request?.Representations?[0].Parameters ?? Array.Empty<WadlParameter>()) // 2do! not just the first representation, but the correct representation
             .Where(par => !string.IsNullOrEmpty(par.Name))
             .Select(par => par.Name ?? string.Empty)
             .ToHashSet();
 
         // define
-        string uri = this._flavourOptions.PluginBaseUri.Trim('/') + "/" + endPoint.ResourcePath
+        string uri = _flavourOptions.PluginBaseUri.Trim('/') + "/" + endPoint.ResourcePath
             .Replace("{issueKey}", issueKey)
             .Trim('/');
         missingParameters.Remove("issueKey");
@@ -176,6 +176,9 @@ public class JiraWithICTimePluginApi
         string chargedArg = true
             .ToString()
             .ToLowerInvariant();
+        string adjustEstimate = ICTimeAddWorklogByIssueKey.AdjustEstimate.Auto
+            .ToString()
+            .ToLowerFirstChar();
         Dictionary<string, string> args = new ()
         {
             ["date"] = dateArg,
@@ -183,8 +186,9 @@ public class JiraWithICTimePluginApi
             ["comment"] = comment ?? string.Empty,
             ["timeLogged"] = timeLoggedArg,
             ["activity"] = activityArg,
-            ["user"] = this.UserName,
-            ["charged"] = chargedArg
+            ["user"] = UserName,
+            ["charged"] = chargedArg,
+            ["adjustEstimate"] = adjustEstimate
         };
         missingParameters.RemoveWhere(elm => args.ContainsKey(elm));
 
