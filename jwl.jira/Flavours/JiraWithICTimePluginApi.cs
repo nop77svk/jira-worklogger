@@ -5,6 +5,7 @@ using System.Net.Http.Headers;
 using System.Xml.Serialization;
 using jwl.infra;
 using jwl.jira.api.rest.request;
+using jwl.jira.Exceptions;
 using jwl.jira.Flavours;
 using jwl.wadl;
 
@@ -216,7 +217,16 @@ public class JiraWithICTimePluginApi
             Content = new FormUrlEncodedContent(args),
         };
         httpRequest.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(WadlRepresentation.MediaTypeJson));
-        HttpResponseMessage response = await _httpClient.SendAsync(httpRequest);
+
+        HttpResponseMessage response;
+        try
+        {
+            response = await _httpClient.SendAsync(httpRequest);
+        }
+        catch (Exception ex)
+        {
+            throw new AddWorkLogException(issueKey, day.ToDateTime(TimeOnly.MinValue), timeSpentSeconds, ex);
+        }
 
         if (response.Content.Headers.ContentType?.MediaType != WadlRepresentation.MediaTypeJson)
             throw new InvalidDataException($"Invalid media type returned ({response.Content.Headers.ContentType?.MediaType ?? string.Empty})");
@@ -257,6 +267,7 @@ public class JiraWithICTimePluginApi
     {
         Uri uri = new Uri($"{_flavourOptions.PluginBaseUri}/application.wadl", UriKind.Relative);
         using Stream response = await _httpClient.GetStreamAsync(uri);
+
         if (response == null)
             throw new HttpRequestException($"Empty content received from ${uri}");
 

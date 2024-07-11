@@ -38,10 +38,10 @@ public class UriQueryBuilder
     }
 
     public override string ToString() => this.Any()
-        ? string.Join('&', this
+        ? '?' + string.Join('&', this
             .Where(x => !string.IsNullOrEmpty(x.Key) || !string.IsNullOrEmpty(x.Value))
             .Select(x => Uri.EscapeDataString(x.Key ?? string.Empty) + "=" + Uri.EscapeDataString(x.Value ?? string.Empty))
-            .Prepend("?"))
+        )
         : string.Empty;
 
     public static implicit operator string(UriQueryBuilder self) => self.ToString();
