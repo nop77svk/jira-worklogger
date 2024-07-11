@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Xml;
 using jwl.infra;
 using jwl.jira.api.rest.response;
+using jwl.jira.Exceptions;
 using jwl.jira.Flavours;
 
 public class VanillaJiraClient
@@ -89,7 +90,17 @@ public class VanillaJiraClient
                 .Add(@"worklog")
         };
 
-        var response = await _httpClient.GetAsJsonAsync<api.rest.response.JiraIssueWorklogs>(uriBuilder.Uri.PathAndQuery);
+        string uri = uriBuilder.Uri.PathAndQuery.TrimStart('/');
+
+        JiraIssueWorklogs? response;
+        try
+        {
+            response = await _httpClient.GetAsJsonAsync<JiraIssueWorklogs>(uri);
+        }
+        catch (Exception ex)
+        {
+            throw new GetIssueWorkLogsException(issueKey, from.ToDateTime(TimeOnly.MinValue), to.ToDateTime(TimeOnly.MinValue).AddDays(1), ex);
+        }
 
         (DateTime minDt, DateTime supDt) = DateOnlyUtils.DateOnlyRangeToDateTimeRange(from, to);
 
@@ -141,8 +152,10 @@ public class VanillaJiraClient
         };
 
         StringBuilder commentBuilder = new StringBuilder();
+
         if (activity != null)
             commentBuilder.Append($"({activity}){Environment.NewLine}");
+
         commentBuilder.Append(comment);
 
         var request = new api.rest.request.JiraAddWorklogByIssueKey(
@@ -155,7 +168,20 @@ public class VanillaJiraClient
             Comment: commentBuilder.ToString()
         );
 
-        HttpResponseMessage response = await _httpClient.PostAsJsonAsync(uriBuilder.Uri.PathAndQuery, request);
+        HttpResponseMessage response;
+        try
+        {
+            response = await _httpClient.PostAsJsonAsync(uriBuilder.Uri.PathAndQuery.TrimStart('/'), request);
+        }
+        catch (Exception ex)
+        {
+            throw new AddWorkLogException(issueKey, day.ToDateTime(TimeOnly.MinValue), timeSpentSeconds, ex)
+            {
+                Activity = activity,
+                Comment = comment
+            };
+        }
+
         await CheckHttpResponseForErrorMessages(response);
     }
 
@@ -190,7 +216,16 @@ public class VanillaJiraClient
                 .Add(@"notifyUsers", notifyUsers.ToString().ToLower())
         };
 
-        HttpResponseMessage response = await _httpClient.DeleteAsync(uriBuilder.Uri.PathAndQuery);
+        HttpResponseMessage response;
+        try
+        {
+            response = await _httpClient.DeleteAsync(uriBuilder.Uri.PathAndQuery.TrimStart('/'));
+        }
+        catch (Exception ex)
+        {
+            throw new DeleteWorklogException(issueId, worklogId, ex);
+        }
+
         await CheckHttpResponseForErrorMessages(response);
     }
 
@@ -213,7 +248,20 @@ public class VanillaJiraClient
             Comment: comment
         );
 
-        HttpResponseMessage response = await _httpClient.PutAsJsonAsync(uriBuilder.Uri.PathAndQuery, request);
+        HttpResponseMessage response;
+        try
+        {
+            response = await _httpClient.PutAsJsonAsync(uriBuilder.Uri.PathAndQuery.TrimStart('/'), request);
+        }
+        catch (Exception ex)
+        {
+            throw new UpdateWorklogException(issueKey, worklogId, day.ToDateTime(TimeOnly.MinValue), timeSpentSeconds, ex)
+            {
+                Activity = activity,
+                Comment = comment
+            };
+        }
+
         await CheckHttpResponseForErrorMessages(response);
     }
 
@@ -225,6 +273,14 @@ public class VanillaJiraClient
             Query = new UriQueryBuilder()
                 .Add(@"username", UserName)
         };
-        return await _httpClient.GetAsJsonAsync<api.rest.common.JiraUserInfo>(uriBuilder.Uri.PathAndQuery);
+
+        try
+        {
+            return await _httpClient.GetAsJsonAsync<api.rest.common.JiraUserInfo>(uriBuilder.Uri.PathAndQuery.TrimStart('/'));
+        }
+        catch (Exception ex)
+        {
+            throw new JiraClientException($"Error retrieving user {UserName} info", ex);
+        }
     }
 }
