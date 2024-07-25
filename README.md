@@ -40,6 +40,6 @@ Available values are:
 Five columns, data delimited (by default) by a colon:
  - <code>Date</code> (string) - worklog day date (valid formats: <code>YYYY-MM-DD</code>, <code>YYYY/MM/DD</code>, <code>DD.MM.YYYY</code>, all with optional <code> HH:MI:SS</code> part)
  - <code>IssueKey</code> (string) - Jira issue key (<code>SOMEPROJECT-1234</code> and the likes)
- - <code>Activity</code> (string) - Tempo Timesheets worklog type or ICTime activity; values are remapped 
+ - <code>WorkLogActivity</code> (string) - Tempo Timesheets worklog type or ICTime activity; values are remapped based on a supplied configuration file (2do!)
  - <code>TimeSpent</code> (string) - time to be logged for the Jira issue and the date (valid formats: <code>HH:MI</code>, <code>MI</code>, <code>HH h MI</code>, <code>HH h MI m</code>)
- - <code>Comment</code> (string) - optional worklog comment
+ - <code>WorkLogComment</code> (string) - optional worklog comment

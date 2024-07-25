@@ -1,4 +1,4 @@
-"Date","IssueKey","TempoWorklogType","TimeSpent","Comment"
+"Date","IssueKey","WorkLogActivity","TimeSpent","WorkLogComment"
 "2023-03-20","ADMIN-7","Other","01:23","(null)"
 "2023-03-21","ADMIN-7","Reporting","1 h 23 m","(null)"
 "2023-03-21","ADMIN-8","StudyTraining","1h23","(null)"
