@@ -1,4 +1,5 @@
 namespace jwl.jira.api.rest.common;
+
 using System.Text.Json.Serialization;
 
 public class JiraUserInfo

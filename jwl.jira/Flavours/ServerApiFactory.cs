@@ -17,6 +17,7 @@ public static class ServerApiFactory
                 JiraServerFlavour.Vanilla => new VanillaJiraClient(httpClient, userName, vanillaJiraOptions),
                 JiraServerFlavour.TempoTimeSheets => new JiraWithTempoPluginApi(httpClient, userName, vanillaJiraClient, (FlavourTempoTimesheetsOptions?)flavourOptions),
                 JiraServerFlavour.ICTime => new JiraWithICTimePluginApi(httpClient, userName, vanillaJiraClient, (FlavourICTimeOptions?)flavourOptions),
+                JiraServerFlavour.CloudV2 => new VanillaCloudV2JiraClient(httpClient, userName, (FlavourCloudV2Options?)flavourOptions),
                 _ => throw new NotImplementedException($"Jira server flavour {nameof(serverFlavour)} not yet implemented")
             };
         }

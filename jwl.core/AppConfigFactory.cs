@@ -70,6 +70,7 @@ public static class AppConfigFactory
                     (int)JiraServerFlavour.Vanilla => cfg.Value.Get<FlavourVanillaJiraOptions>(binderOptions) ?? new FlavourVanillaJiraOptions(),
                     (int)JiraServerFlavour.TempoTimeSheets => cfg.Value.Get<FlavourTempoTimesheetsOptions>(binderOptions) ?? new FlavourTempoTimesheetsOptions(),
                     (int)JiraServerFlavour.ICTime => cfg.Value.Get<FlavourICTimeOptions>(binderOptions) ?? new FlavourICTimeOptions(),
+                    (int)JiraServerFlavour.CloudV2 => cfg.Value.Get<FlavourCloudV2Options>(binderOptions) ?? new FlavourCloudV2Options(),
                     _ => throw new IndexOutOfRangeException($"Unrecognized server flavour ID {cfg.Key}")
                 }
             ))
