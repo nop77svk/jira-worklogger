@@ -63,7 +63,7 @@ public class VanillaJiraClient
     public async Task AddWorkLog(string issueKey, DateOnly day, int timeSpentSeconds, string? activity, string? comment)
     {
         string pluginBaseUri = _flavourOptions?.PluginBaseUri
-            ?? throw new ArgumentNullException(nameof(IFlavourOptions.PluginBaseUri));
+            ?? throw new JiraClientException(nameof(IFlavourOptions.PluginBaseUri));
 
         DateTime dayDt = day.ToDateTime(TimeOnly.MinValue);
 
@@ -144,7 +144,7 @@ public class VanillaJiraClient
     public async Task DeleteWorkLog(long issueId, long worklogId, bool notifyUsers = false)
     {
         string pluginBaseUri = _flavourOptions?.PluginBaseUri
-            ?? throw new ArgumentNullException(nameof(IFlavourOptions.PluginBaseUri));
+            ?? throw new JiraClientException(nameof(IFlavourOptions.PluginBaseUri));
 
         UriBuilder uriBuilder = new UriBuilder()
         {
@@ -193,7 +193,7 @@ public class VanillaJiraClient
     public async Task<WorkLog[]> GetIssueWorkLogs(DateOnly from, DateOnly to, string issueKey)
     {
         string pluginBaseUri = _flavourOptions?.PluginBaseUri
-            ?? throw new ArgumentNullException(nameof(IFlavourOptions.PluginBaseUri));
+            ?? throw new JiraClientException(nameof(IFlavourOptions.PluginBaseUri));
 
         (DateTime minDt, DateTime supDt) = DateOnlyUtils.DateOnlyRangeToDateTimeRange(from, to);
 
@@ -259,7 +259,7 @@ public class VanillaJiraClient
     public async Task UpdateWorkLog(string issueKey, long worklogId, DateOnly day, int timeSpentSeconds, string? activity, string? comment)
     {
         string pluginBaseUri = _flavourOptions?.PluginBaseUri
-            ?? throw new ArgumentNullException(nameof(IFlavourOptions.PluginBaseUri));
+            ?? throw new JiraClientException(nameof(IFlavourOptions.PluginBaseUri));
 
         UriBuilder uriBuilder = new UriBuilder()
         {

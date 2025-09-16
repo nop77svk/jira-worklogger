@@ -1,9 +1,9 @@
-﻿namespace jwl.jira.Exceptions;
+namespace jwl.jira.Exceptions;
 
 using System;
 
 public class JiraClientException
-    : ApplicationException
+    : Exception
 {
     public JiraClientException()
     {

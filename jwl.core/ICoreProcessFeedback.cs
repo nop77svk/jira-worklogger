@@ -5,7 +5,7 @@ public interface ICoreProcessFeedback
     : IDisposable
 {
     void FillJiraWithWorklogsStart();
-    void FillJiraWithWorklogsSetTarget(int numberOfWorklogsToInsert, int numbeOfWorklogsToDelete);
+    void FillJiraWithWorklogsSetTarget(int numberOfWorklogsToInsert, int numberOfWorklogsToDelete);
     void FillJiraWithWorklogsProcess(MultiTaskStats progress);
     void FillJiraWithWorklogsEnd();
     void NoExistingWorklogsToDelete();

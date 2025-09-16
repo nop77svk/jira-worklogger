@@ -27,7 +27,7 @@ public class MultiTaskStats
         Unknown = 0;
     }
 
-    private object _locker = new object();
+    private readonly Lock _locker = new ();
 
     public MultiTaskStats ApplyTaskStatus(TaskStatus? taskStatus)
     {

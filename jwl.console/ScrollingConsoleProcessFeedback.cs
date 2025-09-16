@@ -4,7 +4,7 @@ using jwl.infra;
 using System.Reflection;
 
 public class ScrollingConsoleProcessFeedback
-    : ICoreProcessFeedback, IDisposable
+    : ICoreProcessFeedback
 {
     public Action? FeedbackDelay { get; init; } = null;
 
@@ -68,21 +68,21 @@ public class ScrollingConsoleProcessFeedback
         Assembly exe = Assembly.GetExecutingAssembly();
         object productName = exe.CustomAttributes
             .First(x => x.AttributeType == typeof(AssemblyTitleAttribute))
-            .ConstructorArguments.First().Value
+            .ConstructorArguments[0].Value
             ?? "<unknown product>";
         object cliVersion = exe.CustomAttributes
             .First(x => x.AttributeType == typeof(AssemblyFileVersionAttribute))
-            .ConstructorArguments.First().Value
+            .ConstructorArguments[0].Value
             ?? "?.?.?";
 
         Assembly? core = Assembly.GetAssembly(typeof(JwlCoreProcess));
         object coreVersion = core?.CustomAttributes
             .First(x => x.AttributeType == typeof(AssemblyFileVersionAttribute))
-            .ConstructorArguments.First().Value
+            .ConstructorArguments[0].Value
             ?? "?.?.?";
         object coreCopyright = core?.CustomAttributes
             .First(x => x.AttributeType == typeof(AssemblyCopyrightAttribute))
-            .ConstructorArguments.First().Value
+            .ConstructorArguments[0].Value
             ?? "copy rights undetermined";
 
         Console.Error.WriteLine($"{productName} {cliVersion} (core {coreVersion})");

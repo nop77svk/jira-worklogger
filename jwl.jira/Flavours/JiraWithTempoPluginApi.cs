@@ -2,6 +2,7 @@ namespace jwl.jira;
 using System.Net.Http.Json;
 using jwl.infra;
 using jwl.jira.api.rest.common;
+using jwl.jira.Exceptions;
 using jwl.jira.Flavours;
 using NoP77svk.Linq;
 
@@ -73,7 +74,8 @@ public class JiraWithTempoPluginApi
 
     public async Task<WorkLog[]> GetIssueWorkLogs(DateOnly from, DateOnly to, IEnumerable<string>? issueKeys)
     {
-        string userKey = UserInfo.Key ?? throw new ArgumentNullException($"{nameof(UserInfo)}.{nameof(UserInfo.Key)}");
+        string userKey = UserInfo.Key
+            ?? throw new JiraClientException($"{nameof(UserInfo)}.{nameof(UserInfo.Key)} is NULL");
 
         var request = new api.rest.request.TempoFindWorklogs(from, to)
         {
@@ -107,7 +109,8 @@ public class JiraWithTempoPluginApi
 
     public async Task AddWorkLogPeriod(string issueKey, DateOnly dayFrom, DateOnly dayTo, int timeSpentSeconds, string? tempoWorklogType, string? comment, bool includeNonWorkingDays = false)
     {
-        string userKey = UserInfo.Key ?? throw new ArgumentNullException($"{nameof(UserInfo)}.{nameof(UserInfo.Key)}");
+        string userKey = UserInfo.Key
+            ?? throw new JiraClientException($"NULL {nameof(UserInfo)}.{nameof(UserInfo.Key)}");
 
         var request = new api.rest.request.TempoAddWorklogByIssueKey()
         {
@@ -150,10 +153,10 @@ public class JiraWithTempoPluginApi
 
     public async Task UpdateWorkLog(string issueKey, long worklogId, DateOnly day, int timeSpentSeconds, string? activity, string? comment)
     {
-        await UpdateWorklogPeriod(issueKey, worklogId, day, day, timeSpentSeconds, comment, activity);
+        await UpdateWorklogPeriod(worklogId, day, day, timeSpentSeconds, comment, activity);
     }
 
-    private async Task UpdateWorklogPeriod(string issueKey, long worklogId, DateOnly dayFrom, DateOnly dayTo, int timeSpentSeconds, string? comment, string? activity, bool includeNonWorkingDays = false)
+    private async Task UpdateWorklogPeriod(long worklogId, DateOnly dayFrom, DateOnly dayTo, int timeSpentSeconds, string? comment, string? activity, bool includeNonWorkingDays = false)
     {
         UriBuilder uriBuilder = new UriBuilder()
         {

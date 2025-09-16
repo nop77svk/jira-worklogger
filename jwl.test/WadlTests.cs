@@ -1,6 +1,7 @@
 namespace jwl.jira.test;
 
 using System.Xml.Serialization;
+using NUnit.Framework;
 using jwl.wadl;
 
 public class WadlTests
@@ -8,6 +9,7 @@ public class WadlTests
 {
     private readonly XmlSerializer _wadlSerializer;
     private readonly Stream _wadlResponseStream;
+    private bool _disposedValue;
 
     public WadlTests()
     {
@@ -24,30 +26,45 @@ public class WadlTests
     [Test]
     public void CanDeserializeWadl()
     {
-        Assert.IsNotNull(_wadlResponseStream);
+        Assert.That(_wadlResponseStream, Is.Not.Null);
 
         var wadlObj = _wadlSerializer.Deserialize(_wadlResponseStream);
-        Assert.IsNotNull(wadlObj);
-        Assert.IsInstanceOf(typeof(WadlApplication), wadlObj);
-        var wadl = (WadlApplication)wadlObj;
-        Assert.IsNotNull(wadl);
+        Assert.That(wadlObj, Is.Not.Null);
+        Assert.That(wadlObj, Is.InstanceOf<WadlApplication>());
+        var wadl = (WadlApplication?)wadlObj;
+        Assert.That(wadl, Is.Not.Null);
 
-        Assert.IsNotNull(wadl.Resources);
+        Assert.That(wadl?.Resources, Is.Not.Null);
     }
 
     [Test]
     public void CanFlattenWadl()
     {
-        Assert.IsNotNull(_wadlResponseStream);
+        Assert.That(_wadlResponseStream, Is.Not.Null);
         var wadl = (WadlApplication?)_wadlSerializer.Deserialize(_wadlResponseStream);
 
         var flatWadl = wadl?.AsComposedWadlMethodDefinitionEnumerable().ToArray();
-        Assert.IsNotNull(flatWadl);
-        Assert.That(flatWadl.Any());
+        Assert.That(flatWadl, Is.Not.Null);
+        Assert.That(flatWadl?.Any() ?? false);
     }
 
     public void Dispose()
     {
-        _wadlResponseStream.Dispose();
+        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposedValue)
+        {
+            if (disposing)
+            {
+                _wadlResponseStream.Dispose();
+            }
+
+            _disposedValue = true;
+        }
     }
 }

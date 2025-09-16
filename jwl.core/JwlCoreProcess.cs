@@ -1,16 +1,22 @@
 namespace jwl.core;
+
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using jwl.infra;
 using jwl.inputs;
 using jwl.jira;
+using jwl.jira.Exceptions;
 using jwl.jira.Flavours;
 using NoP77svk.Linq;
 
 public class JwlCoreProcess : IDisposable
 {
     public const int TotalProcessSteps = 7;
+
+    private readonly AppConfig _config;
+    private readonly IJiraClient _jiraClient;
+    private readonly ConfigDrivenHttpClientFactory _httpClientFactory;
 
     public static Version? ExeVersion => AssemblyVersioning.GetExeVersion();
     public static Version? CoreVersion => AssemblyVersioning.GetCoreVersion(typeof(JwlCoreProcess));
@@ -20,10 +26,7 @@ public class JwlCoreProcess : IDisposable
 
     private bool _isDisposed;
 
-    private AppConfig _config;
-    private IJiraClient _jiraClient;
     private HttpClient _httpClient => _httpClientFactory.HttpClient;
-    private readonly ConfigDrivenHttpClientFactory _httpClientFactory;
 
     public JwlCoreProcess(AppConfig config, ICoreProcessInteraction interaction)
     {
@@ -33,14 +36,16 @@ public class JwlCoreProcess : IDisposable
         _httpClientFactory = new ConfigDrivenHttpClientFactory(config);
 
         string userName = _config.User?.Name
-            ?? throw new ArgumentNullException($"{nameof(_config)}.{nameof(_config.User)}.{nameof(_config.User.Name)})");
+            ?? throw new JiraClientException($"NULL {nameof(_config)}.{nameof(_config.User)}.{nameof(_config.User.Name)})");
+
         _jiraClient = ServerApiFactory.CreateApi(_httpClient, userName, _config.JiraServer);
 
         // 2do! optional trace-logging the HTTP requests
         // 2do! optional trace-logging the HTTP responses
     }
 
-    #pragma warning disable CS1998
+#pragma warning disable CS1998
+
     public async Task PreProcess()
     {
         Feedback?.OverallProcessStart();
@@ -51,15 +56,18 @@ public class JwlCoreProcess : IDisposable
         if (string.IsNullOrEmpty(jiraUserName) || string.IsNullOrEmpty(jiraUserPassword))
         {
             if (Interaction != null)
+            {
                 (jiraUserName, jiraUserPassword) = Interaction.AskForCredentials(jiraUserName);
+            }
         }
 
         if (string.IsNullOrEmpty(jiraUserName) || string.IsNullOrEmpty(jiraUserPassword))
-            throw new ArgumentNullException($"Jira credentials not supplied");
+            throw new Exception($"Jira credentials not supplied");
 
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(@"Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes(jiraUserName + ":" + jiraUserPassword)));
     }
-    #pragma warning restore
+
+#pragma warning restore
 
     public async Task Process(IEnumerable<string> inputFiles)
     {
@@ -107,11 +115,8 @@ public class JwlCoreProcess : IDisposable
         {
             if (disposing)
             {
+                _httpClient?.Dispose();
             }
-
-            // note: free unmanaged resources (unmanaged objects) and override finalizer
-            // note: set large fields to null
-            _httpClient?.Dispose();
 
             _isDisposed = true;
         }
@@ -193,8 +198,8 @@ public class JwlCoreProcess : IDisposable
         }
         else
         {
-            DateOnly minInputWorklogDay = DateOnly.FromDateTime(inputWorklogDays.First().Date);
-            DateOnly maxInputWorklogDay = DateOnly.FromDateTime(inputWorklogDays.Last().Date);
+            DateOnly minInputWorklogDay = DateOnly.FromDateTime(inputWorklogDays[0].Date);
+            DateOnly maxInputWorklogDay = DateOnly.FromDateTime(inputWorklogDays[^1].Date);
 
             string[] inputIssueKeys = inputWorklogs
                 .Select(worklog => worklog.IssueKey.ToString())

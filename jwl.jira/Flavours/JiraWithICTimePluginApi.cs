@@ -1,4 +1,4 @@
-﻿namespace jwl.jira;
+namespace jwl.jira;
 
 using System.Globalization;
 using System.Net.Http.Headers;
@@ -149,9 +149,10 @@ public class JiraWithICTimePluginApi
             .ToHashSet();
 
         // define
-        string uri = this._flavourOptions.PluginBaseUri.Trim('/') + "/" + endPoint.ResourcePath
-            .Replace("{issueKey}", issueKey)
-            .Trim('/');
+        UriPathBuilder uriPathBuilder = new UriPathBuilder(_flavourOptions.PluginBaseUri)
+            .Add(endPoint.ResourcePath)
+            .Add(issueKey);
+
         missingParameters.Remove("issueKey");
 
         string activityArg;
@@ -212,7 +213,7 @@ public class JiraWithICTimePluginApi
             .Any(repr => repr.MediaType == WadlRepresentation.MediaTypes.Json) ?? false;
 
         // execute
-        HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, uri)
+        using HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, uriPathBuilder.ToString())
         {
             Content = new FormUrlEncodedContent(args),
         };

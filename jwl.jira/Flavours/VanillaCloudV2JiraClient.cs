@@ -1,4 +1,4 @@
-﻿namespace jwl.jira.Flavours;
+namespace jwl.jira.Flavours;
 
 using System;
 using System.Collections.Generic;
@@ -32,7 +32,7 @@ public class VanillaCloudV2JiraClient
     public async Task AddWorkLog(string issueKey, DateOnly day, int timeSpentSeconds, string? activity, string? comment)
     {
         string pluginBaseUri = _flavourOptions?.PluginBaseUri
-            ?? throw new ArgumentNullException(nameof(IFlavourOptions.PluginBaseUri));
+            ?? throw new JiraClientException(nameof(IFlavourOptions.PluginBaseUri));
 
         DateTime dayDt = day.ToDateTime(TimeOnly.MinValue);
 
@@ -113,7 +113,7 @@ public class VanillaCloudV2JiraClient
     public async Task DeleteWorkLog(long issueId, long worklogId, bool notifyUsers = false)
     {
         string pluginBaseUri = _flavourOptions?.PluginBaseUri
-            ?? throw new ArgumentNullException(nameof(IFlavourOptions.PluginBaseUri));
+            ?? throw new JiraClientException(nameof(IFlavourOptions.PluginBaseUri));
 
         UriBuilder uriBuilder = new UriBuilder()
         {
@@ -162,7 +162,7 @@ public class VanillaCloudV2JiraClient
     public async Task<WorkLog[]> GetIssueWorkLogs(DateOnly from, DateOnly to, string issueKey)
     {
         string pluginBaseUri = _flavourOptions?.PluginBaseUri
-            ?? throw new ArgumentNullException(nameof(IFlavourOptions.PluginBaseUri));
+            ?? throw new JiraClientException(nameof(IFlavourOptions.PluginBaseUri));
 
         (DateTime minDt, DateTime supDt) = DateOnlyUtils.DateOnlyRangeToDateTimeRange(from, to);
 
@@ -233,7 +233,7 @@ public class VanillaCloudV2JiraClient
     private async Task<CloudFindUsersResponseElement[]> FindUsers(string userName)
     {
         string pluginBaseUri = _flavourOptions?.PluginBaseUri
-            ?? throw new ArgumentNullException(nameof(IFlavourOptions.PluginBaseUri));
+            ?? throw new JiraClientException(nameof(IFlavourOptions.PluginBaseUri));
 
         UriBuilder uriBuilder = new UriBuilder()
         {
@@ -256,7 +256,7 @@ public class VanillaCloudV2JiraClient
     private async Task<JiraUserInfo> GetUser(string accountId)
     {
         string pluginBaseUri = _flavourOptions?.PluginBaseUri
-            ?? throw new ArgumentNullException(nameof(IFlavourOptions.PluginBaseUri));
+            ?? throw new JiraClientException(nameof(IFlavourOptions.PluginBaseUri));
 
         UriBuilder uriBuilder = new UriBuilder()
         {
