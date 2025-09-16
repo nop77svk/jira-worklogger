@@ -83,7 +83,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Update="_assets\jwl.config">
+        <None Update="_assets/**/*">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>
