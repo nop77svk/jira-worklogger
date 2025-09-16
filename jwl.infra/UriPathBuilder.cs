@@ -1,4 +1,4 @@
-namespace jwl.infra;
+namespace Jwl.Infra;
 
 public class UriPathBuilder
     : List<string>
@@ -27,9 +27,9 @@ public class UriPathBuilder
     {
     }
 
-    public override string ToString() => string.Join('/', this.Select(x => Uri.EscapeDataString(x)));
-
     public static implicit operator string(UriPathBuilder self) => self.ToString();
+
+    public override string ToString() => string.Join('/', this.Select(x => Uri.EscapeDataString(x)));
 
     public new UriPathBuilder Add(string folder)
     {

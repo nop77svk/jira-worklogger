@@ -1,15 +1,16 @@
-namespace jwl.core;
+namespace Jwl.Core;
+
 using System;
 
 internal class ConfigDrivenHttpClientFactory
     : IDisposable
 {
-    public HttpClientHandler HttpClientHandler => _lazyHttpClientHandler.Value;
-    public HttpClient HttpClient => _lazyHttpClient.Value;
-
     private readonly Lazy<HttpClientHandler> _lazyHttpClientHandler;
     private readonly Lazy<HttpClient> _lazyHttpClient;
     private bool _isDisposed;
+
+    public HttpClientHandler HttpClientHandler => _lazyHttpClientHandler.Value;
+    public HttpClient HttpClient => _lazyHttpClient.Value;
 
     public ConfigDrivenHttpClientFactory(AppConfig config)
     {

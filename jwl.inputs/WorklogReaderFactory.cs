@@ -1,7 +1,4 @@
-namespace jwl.inputs;
-using jwl.jira;
-using System.Data;
-using System.Diagnostics.CodeAnalysis;
+namespace Jwl.Inputs;
 
 public static class WorklogReaderFactory
 {

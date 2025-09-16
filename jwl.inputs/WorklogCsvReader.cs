@@ -1,21 +1,22 @@
-namespace jwl.inputs;
+namespace Jwl.Inputs;
+
 using System.Globalization;
+
 using CsvHelper;
 using CsvHelper.Configuration;
-using jwl.infra;
-using jwl.jira;
+
+using Jwl.Infra;
 
 public class WorklogCsvReader : IWorklogReader
 {
-    public bool ErrorOnEmptyRow { get; init; } = true;
-
     private readonly CsvReader _csvReader;
     private readonly WorklogReaderAggregatedConfig _readerConfig;
+    public bool ErrorOnEmptyRow { get; init; } = true;
 
     public WorklogCsvReader(TextReader inputFile, WorklogReaderAggregatedConfig readerConfig)
     {
         _readerConfig = readerConfig;
-        CsvConfiguration config = new (CultureInfo.InvariantCulture)
+        CsvConfiguration config = new(CultureInfo.InvariantCulture)
         {
             Delimiter = readerConfig.CsvFormatConfig?.FieldDelimiter ?? ","
         };
@@ -23,7 +24,7 @@ public class WorklogCsvReader : IWorklogReader
         _csvReader = new CsvReader(inputFile, config);
     }
 
-    public IEnumerable<InputWorkLog> Read(Action<InputWorkLog>? postProcessResult = null)
+    public IEnumerable<InputWorkLog> Read(Action<InputWorkLog>? validateResult = null)
     {
         string[] dateFormats =
         {
@@ -49,9 +50,11 @@ public class WorklogCsvReader : IWorklogReader
             if (row == null)
             {
                 if (ErrorOnEmptyRow)
+                {
                     throw new InvalidDataException("Empty row on input");
-                else
-                    continue;
+                }
+
+                continue;
             }
 
             InputWorkLog result;
@@ -61,7 +64,9 @@ public class WorklogCsvReader : IWorklogReader
                 JiraIssueKey worklogIssueKey = new JiraIssueKey(row.IssueKey);
 
                 if (!DateTime.TryParseExact(row.Date, dateFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime worklogDate))
+                {
                     throw new FormatException($"Invalid date/datetime value \"{row.Date}\"");
+                }
 
                 TimeSpan worklogTimeSpent = HumanReadableTimeSpan.Parse(row.TimeSpent, timespanTimeFormats);
 
@@ -74,7 +79,7 @@ public class WorklogCsvReader : IWorklogReader
                     WorkLogComment = row.WorkLogComment
                 };
 
-                postProcessResult?.Invoke(result);
+                validateResult?.Invoke(result);
             }
             catch (Exception e)
             {

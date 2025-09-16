@@ -1,4 +1,4 @@
-namespace jwl.jira.Flavours;
+namespace Jwl.Jira.Flavours;
 
 using System;
 using System.Collections.Generic;
@@ -6,17 +6,18 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
-using jwl.infra;
-using jwl.jira.api.rest.common;
-using jwl.jira.api.rest.response;
-using jwl.jira.Exceptions;
+
+using Jwl.Infra;
+using Jwl.Jira.api.rest.common;
+using Jwl.Jira.api.rest.response;
+using Jwl.Jira.Exceptions;
 
 public class VanillaCloudV2JiraClient
     : IJiraClient
 {
     private readonly HttpClient _httpClient;
     private readonly FlavourCloudV2Options? _flavourOptions;
-    private Lazy<JiraUserInfo> _lazyUserInfo;
+    private readonly Lazy<JiraUserInfo> _lazyUserInfo;
 
     public JiraUserInfo UserInfo => _lazyUserInfo.Value;
     public string UserName { get; }

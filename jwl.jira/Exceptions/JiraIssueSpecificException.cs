@@ -1,4 +1,4 @@
-﻿namespace jwl.jira.Exceptions;
+namespace Jwl.Jira.Exceptions;
 
 public class JiraIssueSpecificException
     : JiraClientException

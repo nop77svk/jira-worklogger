@@ -1,14 +1,14 @@
-namespace jwl.core;
+namespace Jwl.Core;
 
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 
-using jwl.infra;
-using jwl.inputs;
-using jwl.jira;
-using jwl.jira.Exceptions;
-using jwl.jira.Flavours;
+using Jwl.Infra;
+using Jwl.Inputs;
+using Jwl.Jira;
+using Jwl.Jira.Exceptions;
+using Jwl.Jira.Flavours;
 
 public class JwlCoreProcess : IDisposable
 {
@@ -60,7 +60,7 @@ public class JwlCoreProcess : IDisposable
 
         if (string.IsNullOrEmpty(jiraUserName) || string.IsNullOrEmpty(jiraUserPassword))
         {
-            throw new Exception($"Jira credentials not supplied");
+            throw new ArgumentException($"Jira credentials not supplied");
         }
 
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(@"Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes(jiraUserName + ":" + jiraUserPassword)));
@@ -139,7 +139,7 @@ public class JwlCoreProcess : IDisposable
             .ToArray();
 
         MultiTaskStats progress = new MultiTaskStats(fillJiraWithWorklogsTasks.Length);
-        List<Exception> taskExceptions = new ();
+        List<Exception> taskExceptions = new();
 
         await foreach (var t in Task.WhenEach(fillJiraWithWorklogsTasks))
         {
@@ -166,7 +166,7 @@ public class JwlCoreProcess : IDisposable
         Feedback?.ReadCsvInputSetTarget(readerTasks.Length);
 
         MultiTaskStats progressStats = new MultiTaskStats(readerTasks.Length);
-        List<Exception> taskExceptions = new ();
+        List<Exception> taskExceptions = new();
 
         await foreach (var t in Task.WhenEach(readerTasks))
         {

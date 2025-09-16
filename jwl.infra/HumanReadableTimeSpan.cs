@@ -1,4 +1,5 @@
-namespace jwl.infra;
+namespace Jwl.Infra;
+
 using System.Globalization;
 
 public static class HumanReadableTimeSpan

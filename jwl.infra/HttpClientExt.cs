@@ -1,4 +1,4 @@
-namespace jwl.infra;
+namespace Jwl.Infra;
 
 using System.Text.Json;
 using System.Xml.Serialization;
@@ -28,8 +28,10 @@ public static class HttpClientExt
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             IncludeFields = true
         };
+
         TResponse result = await JsonSerializer.DeserializeAsync<TResponse>(stream, jsonSerializerOptions)
             ?? throw new NullReferenceException("JSON deserialization NULL result");
+
         return result;
     }
 

@@ -1,4 +1,4 @@
-﻿namespace jwl.jira.Exceptions;
+namespace Jwl.Jira.Exceptions;
 
 internal class AddWorkLogException
     : JiraIssueSpecificException

@@ -1,6 +1,5 @@
-﻿namespace jwl.wadl
+namespace Jwl.Wadl
 {
-    using System.Threading;
     using System.Xml.Serialization;
 
     [XmlRoot("representation")]
@@ -12,24 +11,28 @@
         public const string MediaTypeJson = @"application/json";
         public const string MediaTypeFormUrlEncoded = @"application/x-www-form-urlencoded";
 
-        public enum MediaTypes
-        {
-            [XmlEnum(MediaTypePlainText)]
-            PlainText,
-            [XmlEnum(MediaTypeXml)]
-            Xml,
-            [XmlEnum(MediaTypeJson)]
-            Json,
-            [XmlEnum(MediaTypeAtomXml)]
-            AtomXml,
-            [XmlEnum(MediaTypeFormUrlEncoded)]
-            WwwFormUrlEncoded
-        }
-
         [XmlAttribute("mediaType")]
         public MediaTypes MediaType { get; set; }
 
         [XmlElement("param")]
         public WadlParameter[]? Parameters { get; set; }
+
+        public enum MediaTypes
+        {
+            [XmlEnum(MediaTypePlainText)]
+            PlainText,
+
+            [XmlEnum(MediaTypeXml)]
+            Xml,
+
+            [XmlEnum(MediaTypeJson)]
+            Json,
+
+            [XmlEnum(MediaTypeAtomXml)]
+            AtomXml,
+
+            [XmlEnum(MediaTypeFormUrlEncoded)]
+            WwwFormUrlEncoded
+        }
     }
 }

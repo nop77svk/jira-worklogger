@@ -19,8 +19,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\jwl.wadl\jwl.wadl.csproj" />
-        <ProjectReference Include="..\jwl.jira\jwl.jira.csproj" />
+        <ProjectReference Include="..\jwl.wadl\jwl.Wadl.csproj" />
+        <ProjectReference Include="..\jwl.jira\jwl.Jira.csproj" />
     </ItemGroup>
 
     <ItemGroup>

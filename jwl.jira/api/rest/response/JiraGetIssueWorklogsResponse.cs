@@ -1,4 +1,4 @@
-namespace jwl.jira.api.rest.response;
+namespace Jwl.Jira.api.rest.response;
 
 public class JiraGetIssueWorklogsResponse
 {

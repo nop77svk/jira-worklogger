@@ -1,7 +1,15 @@
-namespace jwl.infra.Deprecated;
+namespace Jwl.Infra.Deprecated;
 
 internal class MultiTask
 {
+    public ProgressState State { get; private set; } = ProgressState.Unknown;
+    public Action<MultiTask>? OnStateChange { get; init; }
+    public Action<Task>? OnTaskAwaited { get; init; }
+
+    public MultiTask()
+    {
+    }
+
     public enum ProgressState
     {
         Unknown,
@@ -11,15 +19,6 @@ internal class MultiTask
         Finished,
         Error,
         Cancelled
-    }
-
-    public ProgressState State { get; private set; } = ProgressState.Unknown;
-
-    public Action<MultiTask>? OnStateChange { get; init; }
-    public Action<Task>? OnTaskAwaited { get; init; }
-
-    public MultiTask()
-    {
     }
 
     public async Task WhenAll(IEnumerable<Task> tasks, CancellationToken? cancellationToken = null)
@@ -53,7 +52,9 @@ internal class MultiTask
                 else if (finishedTask.Status == TaskStatus.RanToCompletion)
                 {
                     if (!tasksToExecute.Remove(finishedTask))
+                    {
                         throw new InvalidOperationException("Task reported as finished... again!");
+                    }
                 }
             }
             catch (AggregateException ex)

@@ -9,9 +9,9 @@
         <Company>Open source community</Company>
         <Copyright>Practically copyleft</Copyright>
         <NoWarn>1701;1702;AD0001;NETSDK1182</NoWarn>
-        <RootNamespace>jwl.jira</RootNamespace>
-        <AssemblyName>jwl.jira</AssemblyName>
-        <PackageId>NoP77svk.jwl.jira</PackageId>
+        <RootNamespace>Jwl.Jira</RootNamespace>
+        <AssemblyName>Jwl.Jira</AssemblyName>
+        <PackageId>NoP77svk.Jwl.Jira</PackageId>
         <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     </PropertyGroup>
 
@@ -21,8 +21,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\jwl.infra\jwl.infra.csproj" />
-        <ProjectReference Include="..\jwl.wadl\jwl.wadl.csproj" />
+        <ProjectReference Include="..\jwl.infra\jwl.Infra.csproj" />
+        <ProjectReference Include="..\jwl.wadl\jwl.Wadl.csproj" />
     </ItemGroup>
 
     <ItemGroup Label="records backwards compatibility">

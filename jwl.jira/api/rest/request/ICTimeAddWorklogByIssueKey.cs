@@ -1,4 +1,4 @@
-namespace jwl.jira.api.rest.request;
+namespace Jwl.Jira.api.rest.request;
 
 public class ICTimeAddWorklogByIssueKey
 {

@@ -1,8 +1,8 @@
-namespace jwl.jira.test;
+namespace Jwl.Test;
 
 using System.Xml.Serialization;
-using NUnit.Framework;
-using jwl.wadl;
+
+using Jwl.Wadl;
 
 public class WadlTests
     : IDisposable

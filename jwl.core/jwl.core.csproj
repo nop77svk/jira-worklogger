@@ -9,8 +9,8 @@
         <Company>Open source community</Company>
         <Copyright>Practically copyleft</Copyright>
         <NoWarn>1701;1702;AD0001;NETSDK1182</NoWarn>
-        <RootNamespace>jwl.core</RootNamespace>
-        <AssemblyName>jwl.core</AssemblyName>
+        <RootNamespace>Jwl.Core</RootNamespace>
+        <AssemblyName>Jwl.Core</AssemblyName>
         <PackageId>NoP77svk.jwl.core</PackageId>
         <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
         <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -32,8 +32,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\jwl.jira\jwl.jira.csproj" />
-        <ProjectReference Include="..\jwl.inputs\jwl.inputs.csproj" />
+        <ProjectReference Include="..\jwl.jira\jwl.Jira.csproj" />
+        <ProjectReference Include="..\jwl.inputs\jwl.Inputs.csproj" />
     </ItemGroup>
 
     <ItemGroup>
