@@ -17,7 +17,7 @@
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <RepositoryUrl>https://github.com/nop77svk/jira-worklogger.git</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
-        <AssemblyVersion>2024.2.1</AssemblyVersion>
+        <AssemblyVersion>2025.9.1</AssemblyVersion>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
     </PropertyGroup>
 
