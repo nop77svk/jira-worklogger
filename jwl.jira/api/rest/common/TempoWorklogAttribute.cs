@@ -1,4 +1,4 @@
-namespace jwl.jira.api.rest.common;
+namespace Jwl.Jira.api.rest.common;
 
 public class TempoWorklogAttribute
 {

@@ -1,10 +1,4 @@
-﻿namespace jwl.infra;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+namespace Jwl.Infra;
 
 public static class StringExt
 {

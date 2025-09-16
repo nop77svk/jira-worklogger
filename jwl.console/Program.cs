@@ -1,6 +1,8 @@
-namespace jwl.console;
+namespace Jwl.Console;
+
 using CommandLine;
-using jwl.core;
+
+using Jwl.Core;
 
 internal static class Program
 {

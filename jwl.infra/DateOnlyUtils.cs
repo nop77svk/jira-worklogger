@@ -1,11 +1,13 @@
-﻿namespace jwl.infra;
+namespace Jwl.Infra;
 
 public static class DateOnlyUtils
 {
     public static (DateTime, DateTime) DateOnlyRangeToDateTimeRange(DateOnly from, DateOnly to)
     {
         if (from > to)
-            throw new ArgumentException($"{nameof(to)} cannot be less than {nameof(from)}", $"{nameof(from)}, {nameof(to)}");
+        {
+            throw new ArgumentOutOfRangeException(nameof(to), to, $"{nameof(to)} cannot be less than {nameof(from)}");
+        }
 
         DateTime minDt = from.ToDateTime(TimeOnly.MinValue);
         DateTime supDt = to.ToDateTime(TimeOnly.MinValue).AddDays(1);
@@ -19,7 +21,7 @@ public static class DateOnlyUtils
         return (int)(supDt - minDt).TotalDays;
     }
 
-    public static int NumberOfDaysTo(this DateOnly from,  DateOnly to)
+    public static int NumberOfDaysTo(this DateOnly from, DateOnly to)
     {
         return NumberOfDaysInRange(from, to) - 1;
     }

@@ -1,4 +1,5 @@
-namespace jwl.infra;
+namespace Jwl.Infra;
+
 using System.Web;
 
 public class UriQueryBuilder
@@ -31,6 +32,8 @@ public class UriQueryBuilder
     {
     }
 
+    public static implicit operator string(UriQueryBuilder self) => self.ToString();
+
     public UriQueryBuilder Add(string? key, string? value)
     {
         Add(new KeyValuePair<string?, string?>(key, value));
@@ -52,6 +55,4 @@ public class UriQueryBuilder
             .Select(x => Uri.EscapeDataString(x.Key ?? string.Empty) + "=" + Uri.EscapeDataString(x.Value ?? string.Empty))
         )
         : string.Empty;
-
-    public static implicit operator string(UriQueryBuilder self) => self.ToString();
 }

@@ -1,6 +1,8 @@
-namespace jwl.jira;
+namespace Jwl.Jira;
+
 using System.Text.Json.Serialization;
-using jwl.jira.Flavours;
+
+using Jwl.Jira.Flavours;
 
 public class ServerConfig
 {
@@ -10,8 +12,10 @@ public class ServerConfig
 
     [JsonIgnore]
     public FlavourVanillaJiraOptions? VanillaJiraFlavourOptions { get; set; }
+
     [JsonIgnore]
     public IFlavourOptions? FlavourOptions { get; set; }
+
     public bool? UseProxy { get; init; }
     public int? MaxConnectionsPerServer { get; init; }
     public bool? SkipSslCertificateCheck { get; init; }

@@ -1,8 +1,9 @@
-namespace jwl.core;
-using jwl.infra;
+namespace Jwl.Core;
 
 public class MultiTaskStats
 {
+    private readonly Lock _locker = new ();
+
     public int Total { get; private set; }
     public int Succeeded { get; private set; }
     public float SucceededPct => Total > 0 ? (float)Succeeded / Total : float.NaN;
@@ -27,8 +28,6 @@ public class MultiTaskStats
         Unknown = 0;
     }
 
-    private readonly Lock _locker = new ();
-
     public MultiTaskStats ApplyTaskStatus(TaskStatus? taskStatus)
     {
         if (taskStatus == null)
@@ -43,17 +42,21 @@ public class MultiTaskStats
                 case TaskStatus.RanToCompletion:
                     Succeeded++;
                     break;
+
                 case TaskStatus.Canceled:
                     Cancelled++;
                     break;
+
                 case TaskStatus.Faulted:
                     Faulted++;
                     break;
+
                 case TaskStatus.Created:
                 case TaskStatus.WaitingForActivation:
                 case TaskStatus.WaitingToRun:
                 case TaskStatus.WaitingForChildrenToComplete:
                     break;
+
                 default:
                     Unknown++;
                     break;

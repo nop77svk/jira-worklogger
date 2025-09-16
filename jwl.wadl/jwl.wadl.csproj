@@ -3,6 +3,17 @@
         <TargetFramework>netstandard2.1</TargetFramework>
         <Nullable>enable</Nullable>
         <OutputType>Library</OutputType>
+        <ImplicitUsings>disable</ImplicitUsings>
+
+        <Product>Jira Worklogger</Product>
+        <Authors>Peter Hraško</Authors>
+        <Company>Open source community</Company>
+        <Copyright>Practically copyleft</Copyright>
+        <NoWarn>1701;1702;AD0001;NETSDK1182</NoWarn>
+        <RootNamespace>Jwl.Wadl</RootNamespace>
+        <AssemblyName>Jwl.Wadl</AssemblyName>
+        <PackageId>NoP77svk.Jwl.Wadl</PackageId>
+        <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     </PropertyGroup>
 
     <ItemGroup Label="records backwards compatibility">

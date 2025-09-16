@@ -1,22 +1,29 @@
-namespace jwl.jira;
+namespace Jwl.Jira;
 
 using System.Globalization;
 using System.Net.Http.Headers;
 using System.Xml.Serialization;
-using jwl.infra;
-using jwl.jira.api.rest.request;
-using jwl.jira.Exceptions;
-using jwl.jira.Flavours;
-using jwl.wadl;
+
+using Jwl.Infra;
+using Jwl.Jira.api.rest.request;
+using Jwl.Jira.Exceptions;
+using Jwl.Jira.Flavours;
+using Jwl.Wadl;
 
 // https://interconcept.atlassian.net/wiki/spaces/ICTIME/pages/31686672/API
 public class JiraWithICTimePluginApi
     : IJiraClient
 {
+    public const string CreateWorkLogMethodName = "createWorklog";
+    public const string GetActivityTypesForProjectMethodName = "getActivityTypesForProject";
+    private readonly HttpClient _httpClient;
+    private readonly FlavourICTimeOptions _flavourOptions;
+    private readonly FlavourICTimeOptions _defaultFlavourOptions = new FlavourICTimeOptions();
+    private readonly VanillaJiraClient _vanillaJiraApi;
     public string UserName { get; }
     public api.rest.common.JiraUserInfo UserInfo => _vanillaJiraApi.UserInfo;
 
-    public Lazy<Dictionary<string, wadl.ComposedWadlMethodDefinition>> Endpoints =>
+    public Lazy<Dictionary<string, Wadl.ComposedWadlMethodDefinition>> Endpoints =>
         new Lazy<Dictionary<string, ComposedWadlMethodDefinition>>(() => this.GetWADL().Result
             .AsComposedWadlMethodDefinitionEnumerable()
             .Where(res => !string.IsNullOrEmpty(res.Id))
@@ -25,16 +32,8 @@ public class JiraWithICTimePluginApi
             .ToDictionary(res => res.Id ?? string.Empty)
         );
 
-    public const string CreateWorkLogMethodName = "createWorklog";
-    public wadl.ComposedWadlMethodDefinition CreateWorkLogMethodDefinition => Endpoints.Value[CreateWorkLogMethodName];
-
-    public const string GetActivityTypesForProjectMethodName = "getActivityTypesForProject";
-    public wadl.ComposedWadlMethodDefinition GetActivityTypesForProjectMethodDefinition => Endpoints.Value[GetActivityTypesForProjectMethodName];
-
-    private readonly HttpClient _httpClient;
-    private readonly FlavourICTimeOptions _flavourOptions;
-    private readonly FlavourICTimeOptions _defaultFlavourOptions = new FlavourICTimeOptions();
-    private readonly VanillaJiraClient _vanillaJiraApi;
+    public Wadl.ComposedWadlMethodDefinition CreateWorkLogMethodDefinition => Endpoints.Value[CreateWorkLogMethodName];
+    public Wadl.ComposedWadlMethodDefinition GetActivityTypesForProjectMethodDefinition => Endpoints.Value[GetActivityTypesForProjectMethodName];
 
     public JiraWithICTimePluginApi(HttpClient httpClient, string userName, VanillaJiraClient vanillaJiraClient, FlavourICTimeOptions? flavourOptions)
     {
@@ -143,7 +142,7 @@ public class JiraWithICTimePluginApi
         ComposedWadlMethodDefinition endPoint = CreateWorkLogMethodDefinition;
 
         HashSet<string> missingParameters = endPoint.Parameters
-            .Concat(endPoint.Request?.Representations?.First().Parameters ?? Array.Empty<WadlParameter>()) // 2do! not just the first representation, but the correct representation
+            .Concat(endPoint.Request?.Representations?[0]?.Parameters ?? Enumerable.Empty<WadlParameter>()) // 2do! not just the first representation, but the correct representation
             .Where(par => !string.IsNullOrEmpty(par.Name))
             .Select(par => par.Name ?? string.Empty)
             .ToHashSet();
@@ -178,7 +177,7 @@ public class JiraWithICTimePluginApi
         string chargedArg = true
             .ToString()
             .ToLowerInvariant();
-        Dictionary<string, string> args = new ()
+        Dictionary<string, string> args = new()
         {
             ["date"] = dateArg,
             ["logWorkOption"] = logWorkOptionArg,
@@ -207,32 +206,33 @@ public class JiraWithICTimePluginApi
             throw new InvalidOperationException($"Method {endPoint.Id} at resource path {endPoint.ResourcePath} executes via ${endPoint.HttpMethod} method (${expectedMethod.ToString().ToUpperInvariant()} expected)");
 
         if (missingParameters.Any())
+        {
             throw new ArgumentException($"Missing assignment of {string.Join(',', missingParameters)} in the call of {endPoint.Id} at resource path {endPoint.ResourcePath}");
-
-        bool providesJsonResponses = endPoint.Response?.Representations?
-            .Any(repr => repr.MediaType == WadlRepresentation.MediaTypes.Json) ?? false;
+        }
 
         // execute
         using HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, uriPathBuilder.ToString())
         {
             Content = new FormUrlEncodedContent(args),
         };
+
         httpRequest.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(WadlRepresentation.MediaTypeJson));
 
-        HttpResponseMessage response;
         try
         {
-            response = await _httpClient.SendAsync(httpRequest);
+            HttpResponseMessage response = await _httpClient.SendAsync(httpRequest);
+
+            if (response.Content.Headers.ContentType?.MediaType != WadlRepresentation.MediaTypeJson)
+            {
+                throw new InvalidDataException($"Invalid media type returned ({response.Content.Headers.ContentType?.MediaType ?? string.Empty})");
+            }
+
+            await VanillaJiraClient.CheckHttpResponseForErrorMessages(response);
         }
         catch (Exception ex)
         {
             throw new AddWorkLogException(issueKey, day.ToDateTime(TimeOnly.MinValue), timeSpentSeconds, ex);
         }
-
-        if (response.Content.Headers.ContentType?.MediaType != WadlRepresentation.MediaTypeJson)
-            throw new InvalidDataException($"Invalid media type returned ({response.Content.Headers.ContentType?.MediaType ?? string.Empty})");
-
-        await VanillaJiraClient.CheckHttpResponseForErrorMessages(response);
     }
 
     public async Task AddWorkLogPeriod(string issueKey, DateOnly dayFrom, DateOnly dayTo, int timeSpentSeconds, string? activity, string? comment, bool includeNonWorkingDays = false)
@@ -243,7 +243,9 @@ public class JiraWithICTimePluginApi
             .ToArray();
 
         if (!daysInPeriod.Any())
+        {
             return;
+        }
 
         int timeSpentSecondsPerSingleDay = timeSpentSeconds / daysInPeriod.Length;
 
@@ -267,15 +269,13 @@ public class JiraWithICTimePluginApi
     private async Task<WadlApplication> GetWADL()
     {
         Uri uri = new Uri($"{_flavourOptions.PluginBaseUri}/application.wadl", UriKind.Relative);
-        using Stream response = await _httpClient.GetStreamAsync(uri);
-
-        if (response == null)
-            throw new HttpRequestException($"Empty content received from ${uri}");
+        using Stream response = await _httpClient.GetStreamAsync(uri)
+            ?? throw new HttpRequestException($"Empty content received from ${uri}");
 
         XmlSerializer serializer = new XmlSerializer(typeof(WadlApplication));
         object resultObj = serializer.Deserialize(response) ?? throw new InvalidDataException($"Empty/null content deserialization result");
 
-        WadlApplication result = (WadlApplication)resultObj;
+        var result = (WadlApplication)resultObj;
         return result;
     }
 }

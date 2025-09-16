@@ -1,4 +1,4 @@
-﻿namespace jwl.jira;
+namespace Jwl.Jira;
 
 public enum JiraServerFlavour
 {

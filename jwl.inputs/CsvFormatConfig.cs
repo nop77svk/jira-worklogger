@@ -1,5 +1,4 @@
-namespace jwl.inputs;
-using System.ComponentModel;
+namespace Jwl.Inputs;
 
 public class CsvFormatConfig
 {

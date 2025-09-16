@@ -1,4 +1,4 @@
-﻿namespace jwl.wadl
+namespace Jwl.Wadl
 {
     using System.Collections.Generic;
     using System.Net.Http;

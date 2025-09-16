@@ -1,10 +1,11 @@
-namespace jwl.jira;
+namespace Jwl.Jira;
+
 using System.Net.Http.Json;
-using jwl.infra;
-using jwl.jira.api.rest.common;
-using jwl.jira.Exceptions;
-using jwl.jira.Flavours;
-using NoP77svk.Linq;
+
+using Jwl.Infra;
+using Jwl.Jira.api.rest.common;
+using Jwl.Jira.Exceptions;
+using Jwl.Jira.Flavours;
 
 // https://www.tempo.io/server-api-documentation/timesheets
 public class JiraWithTempoPluginApi
@@ -107,7 +108,7 @@ public class JiraWithTempoPluginApi
         await AddWorkLogPeriod(issueKey, day, day, timeSpentSeconds, activity, comment);
     }
 
-    public async Task AddWorkLogPeriod(string issueKey, DateOnly dayFrom, DateOnly dayTo, int timeSpentSeconds, string? tempoWorklogType, string? comment, bool includeNonWorkingDays = false)
+    public async Task AddWorkLogPeriod(string issueKey, DateOnly dayFrom, DateOnly dayTo, int timeSpentSeconds, string? activity, string? comment, bool includeNonWorkingDays = false)
     {
         string userKey = UserInfo.Key
             ?? throw new JiraClientException($"NULL {nameof(UserInfo)}.{nameof(UserInfo.Key)}");
@@ -125,13 +126,13 @@ public class JiraWithTempoPluginApi
             Attributes = new Dictionary<string, api.rest.common.TempoWorklogAttribute>()
             {
                 [WorklogTypeAttributeKey] = new api.rest.common.TempoWorklogAttribute()
-                    {
-                        WorkAttributeId = 1,
-                        Key = WorklogTypeAttributeKey,
-                        Name = @"Worklog Type",
-                        Type = api.rest.common.TempoWorklogAttributeTypeIdentifier.StaticList,
-                        Value = tempoWorklogType
-                    }
+                {
+                    WorkAttributeId = 1,
+                    Key = WorklogTypeAttributeKey,
+                    Name = @"Worklog Type",
+                    Type = api.rest.common.TempoWorklogAttributeTypeIdentifier.StaticList,
+                    Value = activity
+                }
             }
         };
 
