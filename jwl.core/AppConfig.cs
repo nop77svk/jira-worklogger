@@ -1,37 +1,64 @@
 namespace Jwl.Core;
 
-using AutoMapper;
+using Jwl.Inputs;
+using Jwl.Jira;
 
 public class AppConfig
 {
-    private static Lazy<MapperConfiguration> overridingMapperConfiguration = new (() => new MapperConfiguration(cfg =>
-    {
-        cfg.CreateMap<AppConfig, AppConfig>()
-            .ForAllMembers(m => m.Condition((src, dest, member) => member != null));
-        cfg.CreateMap<Jira.ServerConfig, Jira.ServerConfig>()
-            .ForAllMembers(m => m.Condition((src, dest, member) => member != null));
-        cfg.CreateMap<Inputs.CsvFormatConfig, Inputs.CsvFormatConfig>()
-            .ForAllMembers(m => m.Condition((src, dest, member) => member != null));
-        cfg.CreateMap<Core.UserConfig, Core.UserConfig>()
-            .ForAllMembers(m => m.Condition((src, dest, member) => member != null));
-
-        cfg.AddGlobalIgnore(nameof(AppConfig.JiraServer.FlavourOptions));
-        cfg.AddGlobalIgnore(nameof(AppConfig.JiraServer.VanillaJiraFlavourOptions));
-    }));
-
-    private static Lazy<IMapper> overridingMapper = new (overridingMapperConfiguration.Value.CreateMapper);
-
     public bool? UseVerboseFeedback { get; init; }
-    public Jwl.Jira.ServerConfig? JiraServer { get; init; }
-    public Jwl.Core.UserConfig? User { get; init; }
-    public Jwl.Inputs.CsvFormatConfig? CsvOptions { get; init; }
+    public ServerConfig? JiraServer { get; init; }
+    public UserConfig? User { get; init; }
+    public CsvFormatConfig? CsvOptions { get; init; }
 
     public AppConfig OverrideWith(AppConfig? other)
     {
         if (other == null)
+        {
             return this;
+        }
 
-        AppConfig result = overridingMapper.Value.Map<AppConfig, AppConfig>(other, this);
+        AppConfig result = new AppConfig()
+        {
+            UseVerboseFeedback = other.UseVerboseFeedback ?? UseVerboseFeedback,
+            JiraServer = JiraServer?.OverrideWith(other.JiraServer),
+            User = User?.OverrideWith(other.User),
+            CsvOptions = CsvOptions?.OverrideWith(other.CsvOptions)
+        };
+
         return result;
     }
+}
+
+public static class AppConfigConversionExtensions
+{
+    public static ServerConfig OverrideWith(this ServerConfig self, ServerConfig? other)
+        => other is null
+        ? self
+        : new ServerConfig()
+        {
+            BaseUrl = other.BaseUrl ?? self.BaseUrl,
+            Flavour = other.Flavour ?? self.Flavour,
+            FlavourOptions = self.FlavourOptions,
+            MaxConnectionsPerServer = other.MaxConnectionsPerServer ?? self.MaxConnectionsPerServer,
+            SkipSslCertificateCheck = other.SkipSslCertificateCheck ?? self.SkipSslCertificateCheck,
+            UseProxy = other.UseProxy ?? self.UseProxy,
+            VanillaJiraFlavourOptions = self.VanillaJiraFlavourOptions
+        };
+
+    public static UserConfig OverrideWith(this UserConfig self, UserConfig? other)
+        => other is null
+        ? self
+        : new UserConfig()
+        {
+            Name = other.Name ?? self.Name,
+            Password = other.Password ?? self.Password
+        };
+
+    public static CsvFormatConfig OverrideWith(this CsvFormatConfig self, CsvFormatConfig? other)
+        => other is null
+        ? self
+        : new CsvFormatConfig()
+        {
+            FieldDelimiter = other.FieldDelimiter ?? self.FieldDelimiter,
+        };
 }
