@@ -37,6 +37,15 @@ public class UriQueryBuilder
         return this;
     }
 
+    public UriQueryBuilder Add(string? key, int? value)
+        => Add(key, value?.ToString());
+
+    public UriQueryBuilder Add(string? key, long? value)
+        => Add(key, value?.ToString());
+
+    public UriQueryBuilder Add(string? key, decimal? value)
+        => Add(key, value?.ToString());
+
     public override string ToString() => this.Any()
         ? '?' + string.Join('&', this
             .Where(x => !string.IsNullOrEmpty(x.Key) || !string.IsNullOrEmpty(x.Value))

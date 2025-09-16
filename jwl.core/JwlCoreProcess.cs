@@ -121,9 +121,6 @@ public class JwlCoreProcess : IDisposable
     {
         Feedback?.FillJiraWithWorklogsSetTarget(inputWorklogs.Length, worklogsForDeletion.Length);
 
-        if (_jiraClient.UserInfo?.Key is null)
-            throw new ArgumentNullException(@"Unresolved Jira key for the logged-on user");
-
         Task[] fillJiraWithWorklogsTasks = worklogsForDeletion
             .Select(worklog => _jiraClient.DeleteWorkLog(worklog.IssueId, worklog.Id))
             .Concat(inputWorklogs
@@ -184,9 +181,6 @@ public class JwlCoreProcess : IDisposable
     private async Task<WorkLog[]> RetrieveWorklogsForDeletion(InputWorkLog[] inputWorklogs)
     {
         WorkLog[] result;
-
-        if (string.IsNullOrEmpty(_jiraClient.UserInfo?.Key))
-            throw new ArgumentNullException(@"Empty user key preloaded from Jira server");
 
         DateTime[] inputWorklogDays = inputWorklogs
             .Select(worklog => worklog.Date)

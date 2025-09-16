@@ -14,12 +14,12 @@ using jwl.jira.Flavours;
 public class VanillaJiraClient
     : IJiraClient
 {
-    public string UserName { get; }
-    public api.rest.common.JiraUserInfo UserInfo => _lazyUserInfo.Value;
-
     private readonly HttpClient _httpClient;
     private readonly Lazy<jwl.jira.api.rest.common.JiraUserInfo> _lazyUserInfo;
     private readonly FlavourVanillaJiraOptions _flavourOptions;
+
+    public string UserName { get; }
+    public api.rest.common.JiraUserInfo UserInfo => _lazyUserInfo.Value;
 
     public VanillaJiraClient(HttpClient httpClient, string userName, FlavourVanillaJiraOptions? flavourOptions)
     {
@@ -60,110 +60,47 @@ public class VanillaJiraClient
         }
     }
 
-    #pragma warning disable CS1998
-    public async Task<WorkLogType[]> GetAvailableActivities(string issueKey)
-    {
-        return Array.Empty<WorkLogType>();
-    }
-    #pragma warning restore
-
-    public async Task<Dictionary<string, WorkLogType[]>> GetAvailableActivities(IEnumerable<string> issueKeys)
-    {
-        WorkLogType[] activities = await GetAvailableActivities(string.Empty);
-
-        Dictionary<string, WorkLogType[]> result = issueKeys
-            .Select(issueKey => new ValueTuple<string, WorkLogType[]>(issueKey, activities))
-            .ToDictionary(
-                keySelector: x => x.Item1,
-                elementSelector: x => x.Item2
-            );
-
-        return result;
-    }
-
-    public async Task<WorkLog[]> GetIssueWorkLogs(DateOnly from, DateOnly to, string issueKey)
-    {
-        UriBuilder uriBuilder = new UriBuilder()
-        {
-            Path = new UriPathBuilder($"{_flavourOptions.PluginBaseUri}/issue")
-                .Add(issueKey)
-                .Add(@"worklog")
-        };
-
-        string uri = uriBuilder.Uri.PathAndQuery.TrimStart('/');
-
-        JiraIssueWorklogs? response;
-        try
-        {
-            response = await _httpClient.GetAsJsonAsync<JiraIssueWorklogs>(uri);
-        }
-        catch (Exception ex)
-        {
-            throw new GetIssueWorkLogsException(issueKey, from.ToDateTime(TimeOnly.MinValue), to.ToDateTime(TimeOnly.MinValue).AddDays(1), ex);
-        }
-
-        (DateTime minDt, DateTime supDt) = DateOnlyUtils.DateOnlyRangeToDateTimeRange(from, to);
-
-        var result = response.Worklogs
-            .Where(worklog => worklog.Author.Name == UserName)
-            .Where(worklog => worklog.Started.Value >= minDt && worklog.Started.Value < supDt)
-            .Select(wl => new WorkLog(
-                Id: wl.Id.Value,
-                IssueId: wl.IssueId.Value,
-                AuthorName: wl.Author.Name,
-                AuthorKey: wl.Author.Key,
-                Created: wl.Created.Value,
-                Started: wl.Started.Value,
-                TimeSpentSeconds: wl.TimeSpentSeconds,
-                Activity: null,
-                Comment: wl.Comment
-            ))
-            .ToArray();
-
-        return result;
-    }
-
-    public async Task<WorkLog[]> GetIssueWorkLogs(DateOnly from, DateOnly to, IEnumerable<string>? issueKeys)
-    {
-        if (issueKeys is null)
-            return Array.Empty<WorkLog>();
-
-        Task<WorkLog[]>[] responseTasks = issueKeys
-            .Distinct()
-            .Select(issueKey => GetIssueWorkLogs(from, to, issueKey))
-            .ToArray();
-
-        await Task.WhenAll(responseTasks);
-
-        var result = responseTasks
-            .SelectMany(task => task.Result)
-            .ToArray();
-
-        return result;
-    }
-
     public async Task AddWorkLog(string issueKey, DateOnly day, int timeSpentSeconds, string? activity, string? comment)
     {
+        string pluginBaseUri = _flavourOptions?.PluginBaseUri
+            ?? throw new ArgumentNullException(nameof(IFlavourOptions.PluginBaseUri));
+
+        DateTime dayDt = day.ToDateTime(TimeOnly.MinValue);
+
         UriBuilder uriBuilder = new UriBuilder()
         {
-            Path = new UriPathBuilder($"{_flavourOptions.PluginBaseUri}/issue")
+            Path = new UriPathBuilder($"{pluginBaseUri}/issue")
                 .Add(issueKey)
-                .Add(@"worklog")
+                .Add(@"worklog"),
+            Query = new UriQueryBuilder()
+                .Add(@"notifyUsers", "false")
+                .Add(@"adjustEstimate", "auto")
         };
 
         StringBuilder commentBuilder = new StringBuilder();
 
-        if (activity != null)
-            commentBuilder.Append($"({activity}){Environment.NewLine}");
+        if (!string.IsNullOrEmpty(activity))
+        {
+            commentBuilder.Append($"({activity})");
+        }
 
-        commentBuilder.Append(comment);
+        if (!string.IsNullOrEmpty(comment) && commentBuilder.Length > 0)
+        {
+            commentBuilder.Append(Environment.NewLine);
+        }
+
+        if (!string.IsNullOrEmpty(comment))
+        {
+            commentBuilder.Append(comment);
+        }
+
+        string dayFormatted = dayDt
+            .ToString(@"yyyy-MM-dd""T""hh"";""mm"";""ss.fffzzzz")
+            .Replace(":", string.Empty)
+            .Replace(';', ':');
 
         var request = new api.rest.request.JiraAddWorklogByIssueKey(
-            Started: day
-                .ToDateTime(TimeOnly.MinValue)
-                .ToString(@"yyyy-MM-dd""T""hh"";""mm"";""ss.fffzzzz")
-                .Replace(":", string.Empty)
-                .Replace(';', ':'),
+            Started: dayFormatted,
             TimeSpentSeconds: timeSpentSeconds,
             Comment: commentBuilder.ToString()
         );
@@ -175,7 +112,7 @@ public class VanillaJiraClient
         }
         catch (Exception ex)
         {
-            throw new AddWorkLogException(issueKey, day.ToDateTime(TimeOnly.MinValue), timeSpentSeconds, ex)
+            throw new AddWorkLogException(issueKey, dayDt, timeSpentSeconds, ex)
             {
                 Activity = activity,
                 Comment = comment
@@ -206,14 +143,18 @@ public class VanillaJiraClient
 
     public async Task DeleteWorkLog(long issueId, long worklogId, bool notifyUsers = false)
     {
+        string pluginBaseUri = _flavourOptions?.PluginBaseUri
+            ?? throw new ArgumentNullException(nameof(IFlavourOptions.PluginBaseUri));
+
         UriBuilder uriBuilder = new UriBuilder()
         {
-            Path = new UriPathBuilder($"{_flavourOptions.PluginBaseUri}/issue")
+            Path = new UriPathBuilder($"{pluginBaseUri}/issue")
                 .Add(issueId.ToString())
                 .Add(@"worklog")
                 .Add(worklogId.ToString()),
             Query = new UriQueryBuilder()
                 .Add(@"notifyUsers", notifyUsers.ToString().ToLower())
+                .Add(@"adjustEstimate", "auto")
         };
 
         HttpResponseMessage response;
@@ -229,11 +170,100 @@ public class VanillaJiraClient
         await CheckHttpResponseForErrorMessages(response);
     }
 
-    public async Task UpdateWorkLog(string issueKey, long worklogId, DateOnly day, int timeSpentSeconds, string? activity, string? comment)
+    public async Task<WorkLogType[]> GetAvailableActivities(string issueKey)
     {
+        await Task.CompletedTask;
+        return Array.Empty<WorkLogType>();
+    }
+
+    public async Task<Dictionary<string, WorkLogType[]>> GetAvailableActivities(IEnumerable<string> issueKeys)
+    {
+        WorkLogType[] activities = await GetAvailableActivities(string.Empty);
+
+        Dictionary<string, WorkLogType[]> result = issueKeys
+            .Select(issueKey => new ValueTuple<string, WorkLogType[]>(issueKey, activities))
+            .ToDictionary(
+                keySelector: x => x.Item1,
+                elementSelector: x => x.Item2
+            );
+
+        return result;
+    }
+
+    public async Task<WorkLog[]> GetIssueWorkLogs(DateOnly from, DateOnly to, string issueKey)
+    {
+        string pluginBaseUri = _flavourOptions?.PluginBaseUri
+            ?? throw new ArgumentNullException(nameof(IFlavourOptions.PluginBaseUri));
+
+        (DateTime minDt, DateTime supDt) = DateOnlyUtils.DateOnlyRangeToDateTimeRange(from, to);
+
         UriBuilder uriBuilder = new UriBuilder()
         {
-            Path = new UriPathBuilder($"{_flavourOptions.PluginBaseUri}/issue")
+            Path = new UriPathBuilder($"{pluginBaseUri}/issue")
+                .Add(issueKey)
+                .Add(@"worklog")
+        };
+
+        string uri = uriBuilder.Uri.PathAndQuery.TrimStart('/');
+
+        JiraGetIssueWorklogsResponse? response;
+        try
+        {
+            response = await _httpClient.GetAsJsonAsync<JiraGetIssueWorklogsResponse>(uri);
+        }
+        catch (Exception ex)
+        {
+            throw new GetIssueWorkLogsException(issueKey, minDt, supDt, ex);
+        }
+
+        var result = response.Worklogs
+            .Where(worklog => worklog.Author.Name == UserName)
+            .Where(worklog => worklog.Started.Value >= minDt && worklog.Started.Value < supDt)
+            .Select(wl => new WorkLog(
+                Id: wl.Id.Value,
+                IssueId: wl.IssueId.Value,
+                AuthorName: wl.Author.Name,
+                AuthorKey: wl.Author.Key,
+                Created: wl.Created.Value,
+                Started: wl.Started.Value,
+                TimeSpentSeconds: wl.TimeSpentSeconds,
+                Activity: null,
+                Comment: wl.Comment
+            ))
+            .ToArray();
+
+        return result;
+    }
+
+    public async Task<WorkLog[]> GetIssueWorkLogs(DateOnly from, DateOnly to, IEnumerable<string>? issueKeys)
+    {
+        if (issueKeys is null)
+        {
+            return Array.Empty<WorkLog>();
+        }
+
+        Task<WorkLog[]>[] responseTasks = issueKeys
+            .Distinct()
+            .Select(issueKey => GetIssueWorkLogs(from, to, issueKey))
+            .ToArray();
+
+        await Task.WhenAll(responseTasks);
+
+        var result = responseTasks
+            .SelectMany(task => task.Result)
+            .ToArray();
+
+        return result;
+    }
+
+    public async Task UpdateWorkLog(string issueKey, long worklogId, DateOnly day, int timeSpentSeconds, string? activity, string? comment)
+    {
+        string pluginBaseUri = _flavourOptions?.PluginBaseUri
+            ?? throw new ArgumentNullException(nameof(IFlavourOptions.PluginBaseUri));
+
+        UriBuilder uriBuilder = new UriBuilder()
+        {
+            Path = new UriPathBuilder($"{pluginBaseUri}/issue")
                 .Add(issueKey)
                 .Add(@"worklog")
                 .Add(worklogId.ToString())
