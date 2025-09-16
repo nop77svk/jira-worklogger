@@ -9,8 +9,8 @@ public class WorklogCsvReader : IWorklogReader
 {
     public bool ErrorOnEmptyRow { get; init; } = true;
 
-    private CsvReader _csvReader;
-    private WorklogReaderAggregatedConfig _readerConfig;
+    private readonly CsvReader _csvReader;
+    private readonly WorklogReaderAggregatedConfig _readerConfig;
 
     public WorklogCsvReader(TextReader inputFile, WorklogReaderAggregatedConfig readerConfig)
     {

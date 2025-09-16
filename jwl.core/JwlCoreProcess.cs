@@ -3,12 +3,12 @@ namespace jwl.core;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+
 using jwl.infra;
 using jwl.inputs;
 using jwl.jira;
 using jwl.jira.Exceptions;
 using jwl.jira.Flavours;
-using NoP77svk.Linq;
 
 public class JwlCoreProcess : IDisposable
 {
@@ -53,16 +53,15 @@ public class JwlCoreProcess : IDisposable
         string? jiraUserName = _config.User?.Name;
         string? jiraUserPassword = _config.User?.Password;
 
-        if (string.IsNullOrEmpty(jiraUserName) || string.IsNullOrEmpty(jiraUserPassword))
+        if ((string.IsNullOrEmpty(jiraUserName) || string.IsNullOrEmpty(jiraUserPassword)) && Interaction != null)
         {
-            if (Interaction != null)
-            {
-                (jiraUserName, jiraUserPassword) = Interaction.AskForCredentials(jiraUserName);
-            }
+            (jiraUserName, jiraUserPassword) = Interaction.AskForCredentials(jiraUserName);
         }
 
         if (string.IsNullOrEmpty(jiraUserName) || string.IsNullOrEmpty(jiraUserPassword))
+        {
             throw new Exception($"Jira credentials not supplied");
+        }
 
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(@"Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes(jiraUserName + ":" + jiraUserPassword)));
     }
@@ -140,30 +139,49 @@ public class JwlCoreProcess : IDisposable
             .ToArray();
 
         MultiTaskStats progress = new MultiTaskStats(fillJiraWithWorklogsTasks.Length);
-        MultiTask multiTask = new MultiTask()
-        {
-            OnTaskAwaited = t => Feedback?.FillJiraWithWorklogsProcess(progress.ApplyTaskStatus(t.Status))
-        };
+        List<Exception> taskExceptions = new ();
 
-        await multiTask.WhenAll(fillJiraWithWorklogsTasks);
+        await foreach (var t in Task.WhenEach(fillJiraWithWorklogsTasks))
+        {
+            Feedback?.FillJiraWithWorklogsProcess(progress.ApplyTaskStatus(t.Status));
+
+            if (t.Exception != null)
+            {
+                taskExceptions.Add(t.Exception);
+            }
+        }
+
+        if (taskExceptions.Count > 0)
+        {
+            throw new AggregateException(taskExceptions);
+        }
     }
 
     private async Task<InputWorkLog[]> ReadInputFiles(IEnumerable<string> fileNames)
     {
         Task<InputWorkLog[]>[] readerTasks = fileNames
-            .Select(fileName => ReadInputFile(fileName))
+            .Select(ReadInputFile)
             .ToArray();
 
         Feedback?.ReadCsvInputSetTarget(readerTasks.Length);
 
         MultiTaskStats progressStats = new MultiTaskStats(readerTasks.Length);
-        MultiTask multiTask = new MultiTask()
-        {
-            OnTaskAwaited = t => Feedback?.ReadCsvInputProcess(progressStats.ApplyTaskStatus(t.Status))
-        };
+        List<Exception> taskExceptions = new ();
 
-        if (readerTasks.Any())
-            await multiTask.WhenAll(readerTasks);
+        await foreach (var t in Task.WhenEach(readerTasks))
+        {
+            Feedback?.ReadCsvInputProcess(progressStats.ApplyTaskStatus(t.Status));
+
+            if (t.Exception != null)
+            {
+                taskExceptions.Add(t.Exception);
+            }
+        }
+
+        if (taskExceptions.Count > 0)
+        {
+            throw new AggregateException(taskExceptions);
+        }
 
         InputWorkLog[] result = readerTasks
             .SelectMany(response => response.Result)

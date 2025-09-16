@@ -32,7 +32,9 @@ public class MultiTaskStats
     public MultiTaskStats ApplyTaskStatus(TaskStatus? taskStatus)
     {
         if (taskStatus == null)
+        {
             return this;
+        }
 
         lock (_locker)
         {
