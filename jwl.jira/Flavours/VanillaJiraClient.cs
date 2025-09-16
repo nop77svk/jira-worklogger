@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Xml;
 
 using Jwl.Infra;
+using Jwl.Jira.api.rest.common;
 using Jwl.Jira.api.rest.response;
 using Jwl.Jira.Exceptions;
 using Jwl.Jira.Flavours;
@@ -26,7 +27,7 @@ public class VanillaJiraClient
     {
         _httpClient = httpClient;
         UserName = userName;
-        _lazyUserInfo = new Lazy<api.rest.common.JiraUserInfo>(() => GetUserInfo().Result);
+        _lazyUserInfo = new Lazy<JiraUserInfo>(() => GetUserInfoFromWhateverApiAvailable().Result);
         _flavourOptions = flavourOptions ?? new FlavourVanillaJiraOptions();
     }
 
@@ -41,7 +42,9 @@ public class VanillaJiraClient
                 JiraRestResponse jsonResponseContent = await HttpClientExt.DeserializeJsonStreamAsync<JiraRestResponse>(responseContentStream);
 
                 if (jsonResponseContent.ErrorMessages?.Any() ?? false)
+                {
                     throw new InvalidOperationException(string.Join(Environment.NewLine, jsonResponseContent.ErrorMessages));
+                }
             }
             catch (JsonException jsonEx)
             {
@@ -202,7 +205,10 @@ public class VanillaJiraClient
         {
             Path = new UriPathBuilder($"{pluginBaseUri}/issue")
                 .Add(issueKey)
-                .Add(@"worklog")
+                .Add(@"worklog"),
+            Query = new UriQueryBuilder()
+                .Add(@"startedAfter", minDt.ToUnixTimeStamp())
+                .Add(@"startedBefore", supDt.ToUnixTimeStamp())
         };
 
         string uri = uriBuilder.Uri.PathAndQuery.TrimStart('/');
@@ -296,22 +302,96 @@ public class VanillaJiraClient
         await CheckHttpResponseForErrorMessages(response);
     }
 
-    private async Task<api.rest.common.JiraUserInfo> GetUserInfo()
+    private async Task<JiraUserInfo> GetUserByUserName(string userName)
     {
+        string pluginBaseUri = _flavourOptions?.PluginBaseUri
+            ?? throw new JiraClientException(nameof(IFlavourOptions.PluginBaseUri));
+
         UriBuilder uriBuilder = new UriBuilder()
         {
-            Path = $"{_flavourOptions.PluginBaseUri}/user",
+            Path = $"{pluginBaseUri}/user",
             Query = new UriQueryBuilder()
-                .Add(@"username", UserName)
+                .Add(@"username", userName)
         };
 
         try
         {
-            return await _httpClient.GetAsJsonAsync<api.rest.common.JiraUserInfo>(uriBuilder.Uri.PathAndQuery.TrimStart('/'));
+            return await _httpClient.GetAsJsonAsync<JiraUserInfo>(uriBuilder.Uri.PathAndQuery.TrimStart('/'));
         }
         catch (Exception ex)
         {
-            throw new JiraClientException($"Error retrieving user {UserName} info", ex);
+            throw new JiraClientException($"Error retrieving user {userName} info", ex);
+        }
+    }
+
+    private async Task<JiraUserInfo> GetUserByAccountId(string accountId)
+    {
+        string pluginBaseUri = _flavourOptions?.PluginBaseUri
+            ?? throw new JiraClientException(nameof(IFlavourOptions.PluginBaseUri));
+
+        UriBuilder uriBuilder = new UriBuilder()
+        {
+            Path = $"{pluginBaseUri}/user",
+            Query = new UriQueryBuilder()
+                .Add(@"accountId", accountId)
+        };
+
+        try
+        {
+            JiraUserInfo result = await _httpClient.GetAsJsonAsync<JiraUserInfo>(uriBuilder.Uri.PathAndQuery.TrimStart('/'));
+            return result;
+        }
+        catch (Exception ex)
+        {
+            throw new JiraClientException($"Error retrieving user account id {accountId} info", ex);
+        }
+    }
+
+    private async Task<CloudFindUsersResponseElement[]> FindUsersByUserName(string userName)
+    {
+        string pluginBaseUri = _flavourOptions?.PluginBaseUri
+            ?? throw new JiraClientException(nameof(IFlavourOptions.PluginBaseUri));
+
+        UriBuilder uriBuilder = new UriBuilder()
+        {
+            Path = $"{pluginBaseUri}/user/search",
+            Query = new UriQueryBuilder()
+                .Add(@"query", userName)
+        };
+
+        try
+        {
+            var result = await _httpClient.GetAsJsonAsync<CloudFindUsersResponseElement[]>(uriBuilder.Uri.PathAndQuery.TrimStart('/'));
+            return result;
+        }
+        catch (Exception ex)
+        {
+            throw new JiraClientException($"Error finding users matching user name {userName}", ex);
+        }
+    }
+
+    private async Task<JiraUserInfo> GetUserInfoFromWhateverApiAvailable()
+    {
+        try
+        {
+            return await GetUserByUserName(UserName);
+        }
+        catch (Exception)
+        {
+            CloudFindUsersResponseElement[] findUsersResult = await FindUsersByUserName(UserName);
+            if (findUsersResult.Length == 0)
+            {
+                throw new JiraClientException($"No users found matching the user name {UserName}");
+            }
+
+            CloudFindUsersResponseElement firstUserFound = findUsersResult.FirstOrDefault(user => !string.IsNullOrEmpty(user.AccountId))
+                ?? findUsersResult[0];
+
+            string userAccountId = firstUserFound.AccountId
+                ?? throw new JiraClientException($"Failed to retrieve accountId for the user {UserName}");
+
+            JiraUserInfo result = await GetUserByAccountId(userAccountId);
+            return result;
         }
     }
 }
