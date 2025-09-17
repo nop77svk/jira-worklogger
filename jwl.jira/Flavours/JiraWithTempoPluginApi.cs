@@ -81,7 +81,7 @@ public class JiraWithTempoPluginApi
         var request = new api.rest.request.TempoFindWorklogs(from, to)
         {
             IssueKey = issueKeys?.ToArray(),
-            UserKey = new string[] { userKey }
+            UserKey = [userKey]
         };
         var response = await _httpClient.PostAsJsonAsync($"{_flavourOptions.PluginBaseUri}/worklogs/search", request);
         var tempoWorkLogs = await HttpClientExt.DeserializeJsonStreamAsync<api.rest.response.TempoWorklog[]>(await response.Content.ReadAsStreamAsync());
@@ -90,8 +90,9 @@ public class JiraWithTempoPluginApi
             .Select(wl => new WorkLog(
                 Id: wl.Id ?? -1,
                 IssueId: wl.IssueId ?? -1,
-                AuthorName: wl.WorkerKey == userKey ? UserName : null,
+                AuthorAccountId: null,
                 AuthorKey: wl.WorkerKey,
+                AuthorName: wl.WorkerKey == userKey ? UserName : null,
                 Created: wl.Created?.Value ?? DateTime.MinValue,
                 Started: wl.Started?.Value ?? DateTime.MinValue,
                 TimeSpentSeconds: wl.TimeSpentSeconds ?? -1,

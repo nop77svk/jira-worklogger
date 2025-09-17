@@ -224,12 +224,13 @@ public class VanillaJiraClient
         }
 
         var result = response.Worklogs
-            .Where(worklog => worklog.Author.Name == UserName)
+            .Where(worklog => worklog.Author.IsTheSameUserAs(CurrentUser))
             .Where(worklog => worklog.Started.Value >= minDt && worklog.Started.Value < supDt)
             .Select(wl => new WorkLog(
                 Id: wl.Id.Value,
                 IssueId: wl.IssueId.Value,
                 AuthorName: wl.Author.Name,
+                AuthorAccountId: wl.Author.AccountId,
                 AuthorKey: wl.Author.Key,
                 Created: wl.Created.Value,
                 Started: wl.Started.Value,
