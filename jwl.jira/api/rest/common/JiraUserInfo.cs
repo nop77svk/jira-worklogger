@@ -18,4 +18,15 @@ public class JiraUserInfo
     public string? Locale { get; init; }
 
     public bool HasValidId => !string.IsNullOrEmpty(AccountId) || !string.IsNullOrEmpty(Key);
+
+    public static bool AreTheSameUsers(JiraUserInfo? one, JiraUserInfo? other)
+        => !string.IsNullOrEmpty(one?.AccountId) && !string.IsNullOrEmpty(other?.AccountId)
+            && string.Equals(one.AccountId, other.AccountId)
+        || !string.IsNullOrEmpty(one?.Key) && !string.IsNullOrEmpty(other?.Key)
+            && string.Equals(one.Key, other.Key)
+        || !string.IsNullOrEmpty(one?.Name) && !string.IsNullOrEmpty(other?.Name)
+            && string.Equals(one.Name, other.Name);
+
+    public bool IsTheSameUserAs(JiraUserInfo? other)
+        => AreTheSameUsers(this, other);
 }
