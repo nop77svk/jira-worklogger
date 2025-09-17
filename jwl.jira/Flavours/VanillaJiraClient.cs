@@ -21,7 +21,7 @@ public class VanillaJiraClient
     private readonly FlavourVanillaJiraOptions _flavourOptions;
 
     public string UserName { get; }
-    public api.rest.common.JiraUserInfo UserInfo => _lazyUserInfo.Value;
+    public api.rest.common.JiraUserInfo CurrentUser => _lazyUserInfo.Value;
 
     public VanillaJiraClient(HttpClient httpClient, string userName, FlavourVanillaJiraOptions? flavourOptions)
     {

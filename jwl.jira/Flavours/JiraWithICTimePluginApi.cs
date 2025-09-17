@@ -21,7 +21,7 @@ public class JiraWithICTimePluginApi
     private readonly FlavourICTimeOptions _defaultFlavourOptions = new FlavourICTimeOptions();
     private readonly VanillaJiraClient _vanillaJiraApi;
     public string UserName { get; }
-    public api.rest.common.JiraUserInfo UserInfo => _vanillaJiraApi.UserInfo;
+    public api.rest.common.JiraUserInfo CurrentUser => _vanillaJiraApi.CurrentUser;
 
     public Lazy<Dictionary<string, Wadl.ComposedWadlMethodDefinition>> Endpoints =>
         new Lazy<Dictionary<string, ComposedWadlMethodDefinition>>(() => this.GetWADL().Result

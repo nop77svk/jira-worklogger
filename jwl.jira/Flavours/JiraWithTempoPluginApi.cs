@@ -18,7 +18,7 @@ public class JiraWithTempoPluginApi
     private readonly VanillaJiraClient _vanillaJiraApi;
 
     public string UserName { get; }
-    public api.rest.common.JiraUserInfo UserInfo => _vanillaJiraApi.UserInfo;
+    public api.rest.common.JiraUserInfo CurrentUser => _vanillaJiraApi.CurrentUser;
 
     public JiraWithTempoPluginApi(HttpClient httpClient, string userName, VanillaJiraClient vanillaJiraClient, FlavourTempoTimesheetsOptions? flavourOptions)
     {
@@ -75,8 +75,8 @@ public class JiraWithTempoPluginApi
 
     public async Task<WorkLog[]> GetIssueWorkLogs(DateOnly from, DateOnly to, IEnumerable<string>? issueKeys)
     {
-        string userKey = UserInfo.Key
-            ?? throw new JiraClientException($"{nameof(UserInfo)}.{nameof(UserInfo.Key)} is NULL");
+        string userKey = CurrentUser.Key
+            ?? throw new JiraClientException($"{nameof(CurrentUser)}.{nameof(CurrentUser.Key)} is NULL");
 
         var request = new api.rest.request.TempoFindWorklogs(from, to)
         {
@@ -110,8 +110,8 @@ public class JiraWithTempoPluginApi
 
     public async Task AddWorkLogPeriod(string issueKey, DateOnly dayFrom, DateOnly dayTo, int timeSpentSeconds, string? activity, string? comment, bool includeNonWorkingDays = false)
     {
-        string userKey = UserInfo.Key
-            ?? throw new JiraClientException($"NULL {nameof(UserInfo)}.{nameof(UserInfo.Key)}");
+        string userKey = CurrentUser.Key
+            ?? throw new JiraClientException($"NULL {nameof(CurrentUser)}.{nameof(CurrentUser.Key)}");
 
         var request = new api.rest.request.TempoAddWorklogByIssueKey()
         {

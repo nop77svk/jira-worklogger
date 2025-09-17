@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 public interface IJiraClient
 {
-    api.rest.common.JiraUserInfo UserInfo { get; }
+    api.rest.common.JiraUserInfo CurrentUser { get; }
 
     Task<WorkLogType[]> GetAvailableActivities(string issueKey);
 
