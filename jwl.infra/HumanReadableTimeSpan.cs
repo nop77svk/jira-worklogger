@@ -4,32 +4,37 @@ using System.Globalization;
 
 public static class HumanReadableTimeSpan
 {
-    public static TimeSpan Parse(string timeSpanStr, string[] timespanTimeFormats)
-    {
-        TimeSpan result;
+    public static readonly string[] AvailableTimeSpanTimeFormats = [
+        @"hh\:mm\:ss",
+        @"hh\:mm",
+        @"mm",
+        @"hh'h'mm",
+        @"hh'h'mm'm'"
+    ];
 
-        if (!TimeSpan.TryParseExact(timeSpanStr.Replace(" ", null), timespanTimeFormats, CultureInfo.InvariantCulture, out result))
+    public static TimeSpan Parse(string timeSpanStr)
+        => Parse(timeSpanStr, AvailableTimeSpanTimeFormats);
+
+    public static TimeSpan Parse(string timeSpanStr, string[] timespanTimeFormats)
+        => TryParse(timeSpanStr, timespanTimeFormats, out TimeSpan parsedTimeSpan)
+        ? parsedTimeSpan
+        : throw new FormatException($"Invalid timespan string \"{timeSpanStr}\"");
+
+    public static bool TryParse(string timeSpanStr, out TimeSpan conversionResult)
+        => TryParse(timeSpanStr, AvailableTimeSpanTimeFormats, out conversionResult);
+
+    public static bool TryParse(string timeSpanStr, string[] timespanTimeFormats, out TimeSpan conversionResult)
+    {
+        if (!TimeSpan.TryParseExact(timeSpanStr.Replace(" ", string.Empty), timespanTimeFormats, CultureInfo.InvariantCulture, out conversionResult))
         {
             if (!InexactDecimal.TryParse(timeSpanStr, out double timeSpanInNumberOfHours))
-                throw new FormatException($"Invalid timespan string \"{timeSpanStr}\"");
+            {
+                return false;
+            }
 
-            result = TimeSpan.FromHours(timeSpanInNumberOfHours);
+            conversionResult = TimeSpan.FromHours(timeSpanInNumberOfHours);
         }
 
-        return result;
-    }
-
-    public static bool TryParse(string timeSpanStr, string[] timespanTimeFormats, out TimeSpan result)
-    {
-        try
-        {
-            result = Parse(timeSpanStr, timespanTimeFormats);
-            return true;
-        }
-        catch (FormatException)
-        {
-            result = TimeSpan.Zero;
-            return false;
-        }
+        return true;
     }
 }

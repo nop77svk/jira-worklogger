@@ -36,15 +36,6 @@ public class WorklogCsvReader : IWorklogReader
             @"dd.MM.YYYY hh:mm:ss"
         };
 
-        string[] timespanTimeFormats =
-        {
-            @"hh\:mm\:ss",
-            @"hh\:mm",
-            @"mm",
-            @"hh'h'mm",
-            @"hh'h'mm'm'"
-        };
-
         foreach (JiraWorklogRawCsv row in _csvReader.GetRecords<JiraWorklogRawCsv>())
         {
             if (row == null)
@@ -68,7 +59,7 @@ public class WorklogCsvReader : IWorklogReader
                     throw new FormatException($"Invalid date/datetime value \"{row.Date}\"");
                 }
 
-                TimeSpan worklogTimeSpent = HumanReadableTimeSpan.Parse(row.TimeSpent, timespanTimeFormats);
+                TimeSpan worklogTimeSpent = HumanReadableTimeSpan.Parse(row.TimeSpent, HumanReadableTimeSpan.AvailableTimeSpanTimeFormats);
 
                 result = new InputWorkLog()
                 {
