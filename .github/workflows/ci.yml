@@ -19,8 +19,8 @@ jobs:
         dotnet nuget add source --name NoP77svk --username anyone --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text "https://nuget.pkg.github.com/nop77svk/index.json" \
         || dotnet nuget update source NoP77svk --username anyone --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --source "https://nuget.pkg.github.com/nop77svk/index.json"
     - name: Restore
-      run: dotnet restore
+      run: dotnet restore jira-worklogger.slnx
     - name: Build
-      run: dotnet build -c Release
+      run: dotnet build -c Release jira-worklogger.slnx
     - name: Test
-      run: dotnet test -c Release --no-build
+      run: dotnet test -c Release --no-build jira-worklogger.slnx
