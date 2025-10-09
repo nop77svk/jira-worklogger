@@ -26,7 +26,9 @@ internal static class Program
         };
 
         if (inputFiles.Any())
+        {
             await engine.PreProcess();
+        }
 
         await engine.Process(inputFiles);
     }

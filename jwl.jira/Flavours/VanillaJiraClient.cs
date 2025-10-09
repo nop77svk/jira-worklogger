@@ -1,4 +1,4 @@
-namespace Jwl.Jira;
+namespace Jwl.Jira.Flavours;
 
 using System.Collections.Generic;
 using System.Net.Http;
@@ -11,7 +11,6 @@ using Jwl.Infra;
 using Jwl.Jira.api.rest.common;
 using Jwl.Jira.api.rest.response;
 using Jwl.Jira.Exceptions;
-using Jwl.Jira.Flavours;
 
 public class VanillaJiraClient
     : IJiraClient
@@ -41,7 +40,7 @@ public class VanillaJiraClient
             {
                 JiraRestResponse jsonResponseContent = await HttpClientExt.DeserializeJsonStreamAsync<JiraRestResponse>(responseContentStream);
 
-                if (jsonResponseContent.ErrorMessages?.Any() ?? false)
+                if (jsonResponseContent.ErrorMessages?.Length > 0)
                 {
                     throw new InvalidOperationException(string.Join(Environment.NewLine, jsonResponseContent.ErrorMessages));
                 }
@@ -54,7 +53,9 @@ public class VanillaJiraClient
                     ICTimeXmlResponse xmlResponseContent = await HttpClientExt.DeserializeXmlStreamAsync<ICTimeXmlResponse>(responseContentStream);
 
                     if (xmlResponseContent.Success == null)
+                    {
                         throw new InvalidOperationException(await responseMessage.Content.ReadAsStringAsync());
+                    }
                 }
                 catch (XmlException xmlEx)
                 {
@@ -133,8 +134,10 @@ public class VanillaJiraClient
             .Where(day => includeNonWorkingDays || day.DayOfWeek is not DayOfWeek.Saturday and not DayOfWeek.Sunday)
             .ToArray();
 
-        if (!daysInPeriod.Any())
+        if (daysInPeriod.Length <= 0)
+        {
             return;
+        }
 
         int timeSpentSecondsPerSingleDay = timeSpentSeconds / daysInPeriod.Length;
 

@@ -1,4 +1,4 @@
-namespace Jwl.Jira;
+namespace Jwl.Jira.Flavours;
 
 using System.Globalization;
 using System.Net.Http.Headers;
@@ -7,7 +7,6 @@ using System.Xml.Serialization;
 using Jwl.Infra;
 using Jwl.Jira.api.rest.request;
 using Jwl.Jira.Exceptions;
-using Jwl.Jira.Flavours;
 using Jwl.Wadl;
 
 // https://interconcept.atlassian.net/wiki/spaces/ICTIME/pages/31686672/API
@@ -84,16 +83,22 @@ public class JiraWithICTimePluginApi
         HttpMethod expectedMethod = HttpMethod.Get;
         bool isCorrectHttpMethod = endPoint.HttpMethod == expectedMethod;
         if (!isCorrectHttpMethod)
+        {
             throw new InvalidOperationException($"Method {endPoint.Id} at resource path {endPoint.ResourcePath} executes via ${endPoint.HttpMethod} method (${expectedMethod.ToString().ToUpperInvariant()} expected)");
+        }
 
-        if (missingParameters.Any())
+        if (missingParameters.Count != 0)
+        {
             throw new ArgumentException($"Missing assignment of {string.Join(',', missingParameters)} in the call of {endPoint.Id} at resource path {endPoint.ResourcePath}");
+        }
 
         bool providesJsonResponses = endPoint.Response?.Representations?
             .Any(repr => repr.MediaType == WadlRepresentation.MediaTypes.Json) ?? false;
 
         if (!providesJsonResponses)
+        {
             throw new InvalidOperationException($"Method {endPoint.Id} at resource path {endPoint.ResourcePath} does not respond in JSON");
+        }
 
         // execute
         KeyValuePair<JiraIssueKey, Task<api.rest.response.ICTimeActivityDefinition[]>>[] responseTaks = uris
@@ -157,7 +162,7 @@ public class JiraWithICTimePluginApi
         string activityArg;
         try
         {
-            activityArg = _flavourOptions.ActivityMap == null || !_flavourOptions.ActivityMap.Any() || string.IsNullOrEmpty(activity)
+            activityArg = _flavourOptions.ActivityMap == null || _flavourOptions.ActivityMap.Count <= 0 || string.IsNullOrEmpty(activity)
                 ? activity ?? string.Empty
                 : _flavourOptions.ActivityMap[activity];
         }
@@ -203,9 +208,11 @@ public class JiraWithICTimePluginApi
         HttpMethod expectedMethod = HttpMethod.Post;
         bool isCorrectHttpMethod = endPoint.HttpMethod == expectedMethod;
         if (!isCorrectHttpMethod)
+        {
             throw new InvalidOperationException($"Method {endPoint.Id} at resource path {endPoint.ResourcePath} executes via ${endPoint.HttpMethod} method (${expectedMethod.ToString().ToUpperInvariant()} expected)");
+        }
 
-        if (missingParameters.Any())
+        if (missingParameters.Count != 0)
         {
             throw new ArgumentException($"Missing assignment of {string.Join(',', missingParameters)} in the call of {endPoint.Id} at resource path {endPoint.ResourcePath}");
         }
@@ -242,7 +249,7 @@ public class JiraWithICTimePluginApi
             .Where(day => includeNonWorkingDays || day.DayOfWeek is not DayOfWeek.Saturday and not DayOfWeek.Sunday)
             .ToArray();
 
-        if (!daysInPeriod.Any())
+        if (daysInPeriod.Length == 0)
         {
             return;
         }

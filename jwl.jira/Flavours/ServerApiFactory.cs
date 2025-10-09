@@ -31,13 +31,21 @@ public static class ServerApiFactory
         JiraServerFlavour? result;
 
         if (string.IsNullOrEmpty(serverFlavour))
+        {
             result = null;
+        }
         else if (int.TryParse(serverFlavour, out int serverFlavourIntId))
+        {
             result = (JiraServerFlavour)serverFlavourIntId;
+        }
         else if (Enum.TryParse(serverFlavour, true, out JiraServerFlavour serverFlavourEnumId))
+        {
             result = serverFlavourEnumId;
+        }
         else
+        {
             throw new ArgumentOutOfRangeException(nameof(serverFlavour), serverFlavour, "Invalid server flavour configured");
+        }
 
         return result;
     }
