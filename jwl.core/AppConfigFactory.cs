@@ -21,7 +21,7 @@ public static class AppConfigFactory
             {
                 Flavour = nameof(JiraServerFlavour.Vanilla),
                 FlavourOptions = null,
-                BaseUrl = @"http://jira.my-domain.xyz",
+                BaseUrl = string.Empty,
                 MaxConnectionsPerServer = DefaultMaxConnectionsPerServer,
                 SkipSslCertificateCheck = false,
                 UseProxy = false
@@ -42,11 +42,11 @@ public static class AppConfigFactory
     {
         const int RootAppConfigId = -1;
 
-        Action<BinderOptions> binderOptions = opt =>
+        static void binderOptions(BinderOptions opt)
         {
             opt.BindNonPublicProperties = false;
             opt.ErrorOnUnknownConfiguration = true;
-        };
+        }
 
         var config = Enum.GetValues<JiraServerFlavour>()
             .Select(e => new KeyValuePair<int, string>(

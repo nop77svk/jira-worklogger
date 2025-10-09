@@ -1,4 +1,4 @@
-#pragma warning disable SA1313
+#pragma warning disable S1104
 namespace Jwl.Inputs;
 
 using Jwl.Infra;

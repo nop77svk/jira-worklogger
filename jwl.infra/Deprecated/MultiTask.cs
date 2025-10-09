@@ -1,3 +1,4 @@
+#pragma warning disable
 namespace Jwl.Infra.Deprecated;
 
 internal class MultiTask

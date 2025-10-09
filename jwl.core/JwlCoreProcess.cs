@@ -26,7 +26,7 @@ public class JwlCoreProcess : IDisposable
 
     private bool _isDisposed;
 
-    private HttpClient _httpClient => _httpClientFactory.HttpClient;
+    private HttpClient CurrentHttpClient => _httpClientFactory.HttpClient;
 
     public JwlCoreProcess(AppConfig config, ICoreProcessInteraction interaction)
     {
@@ -38,7 +38,7 @@ public class JwlCoreProcess : IDisposable
         string userName = _config.User?.Name
             ?? throw new JiraClientException($"NULL {nameof(_config)}.{nameof(_config.User)}.{nameof(_config.User.Name)})");
 
-        _jiraClient = ServerApiFactory.CreateApi(_httpClient, userName, _config.JiraServer);
+        _jiraClient = ServerApiFactory.CreateApi(CurrentHttpClient, userName, _config.JiraServer);
 
         // 2do! optional trace-logging the HTTP requests
         // 2do! optional trace-logging the HTTP responses
@@ -63,7 +63,7 @@ public class JwlCoreProcess : IDisposable
             throw new ArgumentException($"Jira credentials not supplied");
         }
 
-        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(@"Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes(jiraUserName + ":" + jiraUserPassword)));
+        CurrentHttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(@"Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes(jiraUserName + ":" + jiraUserPassword)));
     }
 
 #pragma warning restore
@@ -114,7 +114,7 @@ public class JwlCoreProcess : IDisposable
         {
             if (disposing)
             {
-                _httpClient?.Dispose();
+                CurrentHttpClient?.Dispose();
             }
 
             _isDisposed = true;
@@ -125,20 +125,21 @@ public class JwlCoreProcess : IDisposable
     {
         Feedback?.FillJiraWithWorklogsSetTarget(inputWorklogs.Length, worklogsForDeletion.Length);
 
-        Task[] fillJiraWithWorklogsTasks = worklogsForDeletion
-            .Select(worklog => _jiraClient.DeleteWorkLog(worklog.IssueId, worklog.Id))
-            .Concat(inputWorklogs
-                .Select(x => _jiraClient.AddWorkLog(
-                    issueKey: x.IssueKey.ToString(),
-                    day: DateOnly.FromDateTime(x.Date),
-                    timeSpentSeconds: (int)x.TimeSpent.TotalSeconds,
-                    activity: x.WorkLogActivity,
-                    comment: x.WorkLogComment
-                ))
-            )
-            .ToArray();
+        IEnumerable<Task> worklogDeletionTasks = worklogsForDeletion
+            .Select(worklog => _jiraClient.DeleteWorkLog(worklog.IssueId, worklog.Id));
 
-        MultiTaskStats progress = new MultiTaskStats(fillJiraWithWorklogsTasks.Length);
+        IEnumerable<Task> worklogInsertionTasks = inputWorklogs
+            .Select(x => _jiraClient.AddWorkLog(
+                issueKey: x.IssueKey.ToString(),
+                day: DateOnly.FromDateTime(x.Date),
+                timeSpentSeconds: (int)x.TimeSpent.TotalSeconds,
+                activity: x.WorkLogActivity,
+                comment: x.WorkLogComment
+            ));
+
+        Task[] fillJiraWithWorklogsTasks = [..worklogDeletionTasks, ..worklogInsertionTasks];
+
+        var progress = new MultiTaskStats(fillJiraWithWorklogsTasks.Length);
         List<Exception> taskExceptions = new();
 
         await foreach (var t in Task.WhenEach(fillJiraWithWorklogsTasks))
@@ -165,7 +166,7 @@ public class JwlCoreProcess : IDisposable
 
         Feedback?.ReadCsvInputSetTarget(readerTasks.Length);
 
-        MultiTaskStats progressStats = new MultiTaskStats(readerTasks.Length);
+        var progressStats = new MultiTaskStats(readerTasks.Length);
         List<Exception> taskExceptions = new();
 
         await foreach (var t in Task.WhenEach(readerTasks))
@@ -192,7 +193,7 @@ public class JwlCoreProcess : IDisposable
 
     private async Task<InputWorkLog[]> ReadInputFile(string fileName)
     {
-        WorklogReaderAggregatedConfig readerConfig = new WorklogReaderAggregatedConfig()
+        var readerConfig = new WorklogReaderAggregatedConfig()
         {
             CsvFormatConfig = _config.CsvOptions
         };
@@ -207,10 +208,11 @@ public class JwlCoreProcess : IDisposable
 
         DateTime[] inputWorklogDays = inputWorklogs
             .Select(worklog => worklog.Date)
+            .Distinct()
             .OrderBy(worklogDate => worklogDate)
             .ToArray();
 
-        if (!inputWorklogDays.Any())
+        if (inputWorklogDays.Length <= 0)
         {
             result = Array.Empty<WorkLog>();
         }

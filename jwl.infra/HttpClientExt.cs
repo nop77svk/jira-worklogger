@@ -7,6 +7,12 @@ public static class HttpClientExt
 {
     private static readonly XmlSerializerFactory _serializerFactory = new XmlSerializerFactory();
 
+    private static readonly JsonSerializerOptions _jsonDeserializeOptions = new JsonSerializerOptions()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        IncludeFields = true
+    };
+
     public static async Task<TResponse> GetAsJsonAsync<TResponse>(this HttpClient self, string uri)
     {
         using Stream response = await self.GetStreamAsync(uri);
@@ -23,14 +29,8 @@ public static class HttpClientExt
 
     public static async Task<TResponse> DeserializeJsonStreamAsync<TResponse>(Stream stream)
     {
-        JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions()
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            IncludeFields = true
-        };
-
-        TResponse result = await JsonSerializer.DeserializeAsync<TResponse>(stream, jsonSerializerOptions)
-            ?? throw new NullReferenceException("JSON deserialization NULL result");
+        TResponse result = await JsonSerializer.DeserializeAsync<TResponse>(stream, _jsonDeserializeOptions)
+            ?? throw new InvalidOperationException("JSON deserialization NULL result");
 
         return result;
     }
@@ -41,7 +41,7 @@ public static class HttpClientExt
         Task<object> deserializerTask = Task.Factory.StartNew(() =>
         {
             object result = xmlSerializer.Deserialize(responseContentStream)
-                ?? throw new NullReferenceException("XML deserialization NULL result");
+                ?? throw new PayloadDeserialisationException("XML deserialization NULL result");
             return result;
         });
 

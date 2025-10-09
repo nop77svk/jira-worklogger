@@ -1,3 +1,4 @@
+#pragma warning disable S101
 namespace Jwl.Console;
 
 using CommandLine;
@@ -6,7 +7,7 @@ using CommandLine;
 public class FillCLI
 {
     [Option('i', "input", HelpText = "\nInput CSVs with the worklogs", Separator = ',', Required = true)]
-    public IEnumerable<string> InputFiles { get; set; } = new string[0];
+    public IEnumerable<string> InputFiles { get; set; } = Array.Empty<string>();
 
     [Option("ifs", HelpText = "Input CSV fields delimiter"
         + $"\nJSON config: $.{nameof(Core.AppConfig.CsvOptions)}.{nameof(Inputs.CsvFormatConfig.FieldDelimiter)}")]
@@ -41,11 +42,13 @@ public class FillCLI
 
         string? jiraServerSpecification = connectionSpecifierSplit.Length > 1 ? connectionSpecifierSplit[1] : null;
         if (!jiraServerSpecification?.Contains(@"://") ?? false)
+        {
             jiraServerSpecification = @"https://" + jiraServerSpecification;
+        }
 
-        string? jiraUserCredentials = connectionSpecifierSplit.Any() ? connectionSpecifierSplit[0] : null;
+        string? jiraUserCredentials = connectionSpecifierSplit.Length > 0 ? connectionSpecifierSplit[0] : null;
         string[] jiraUserCredentialsSplit = jiraUserCredentials?.Split('/', 2, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
-        string? jiraUserName = jiraUserCredentialsSplit.Any() ? jiraUserCredentialsSplit[0] : null;
+        string? jiraUserName = jiraUserCredentialsSplit.Length > 0 ? jiraUserCredentialsSplit[0] : null;
         string? jiraUserPassword = jiraUserCredentialsSplit.Length > 1 ? jiraUserCredentialsSplit[1] : null;
 
         return new Core.AppConfig()

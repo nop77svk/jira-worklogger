@@ -41,11 +41,9 @@ public class ConsoleProcessInteraction
         {
             if (disposing)
             {
-                // TODO: dispose managed state (managed objects)
+                // note: no disposal as of now
             }
 
-            // TODO: free unmanaged resources (unmanaged objects) and override finalizer
-            // TODO: set large fields to null
             _isDisposed = true;
         }
     }

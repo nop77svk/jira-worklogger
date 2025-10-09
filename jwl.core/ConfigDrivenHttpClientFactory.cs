@@ -56,7 +56,11 @@ internal class ConfigDrivenHttpClientFactory
         };
 
         if (config.JiraServer?.SkipSslCertificateCheck ?? false)
-            HttpClientHandler.ServerCertificateCustomValidationCallback = (_, _, _, _) => true;
+        {
+            #pragma warning disable S4830
+            HttpClientHandler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+            #pragma warning restore S4830
+        }
 
         return result;
     }

@@ -1,28 +1,24 @@
 namespace Jwl.Wadl
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Net.Http;
 
     public static class WadlApplicationExt
     {
+        private const char UriPathFolderDelimiter = '/';
+
         public static IEnumerable<ComposedWadlMethodDefinition> AsComposedWadlMethodDefinitionEnumerable(this WadlApplication self)
-        {
-            if (self.Resources == null)
-            {
-                return Enumerable.Empty<ComposedWadlMethodDefinition>();
-            }
-            else
-            {
-                return FlattenWadlResources("/", Enumerable.Empty<WadlParameter>(), self.Resources);
-            }
-        }
+            => self.Resources == null
+            ? Enumerable.Empty<ComposedWadlMethodDefinition>()
+            : FlattenWadlResources("/", Enumerable.Empty<WadlParameter>(), self.Resources);
 
         private static IEnumerable<ComposedWadlMethodDefinition> FlattenWadlResources(string parentPath, IEnumerable<WadlParameter> parentParameters, IEnumerable<WadlResource> resources)
         {
             foreach (WadlResource res in resources)
             {
-                string resourcePath = parentPath.TrimEnd('/') + '/' + (res.Path?.Trim('/') ?? string.Empty);
+                string resourcePath = parentPath.TrimEnd(UriPathFolderDelimiter) + UriPathFolderDelimiter + (res.Path?.Trim(UriPathFolderDelimiter) ?? string.Empty);
 
                 IEnumerable<WadlParameter> resourceParameters = parentParameters
                     .Concat(res.Parameters ?? Enumerable.Empty<WadlParameter>());

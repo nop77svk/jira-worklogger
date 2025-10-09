@@ -10,12 +10,12 @@ using Jwl.Infra;
 public class WorklogCsvReader : IWorklogReader
 {
     private readonly CsvReader _csvReader;
-    private readonly WorklogReaderAggregatedConfig _readerConfig;
+    private bool _disposedValue;
+
     public bool ErrorOnEmptyRow { get; init; } = true;
 
     public WorklogCsvReader(TextReader inputFile, WorklogReaderAggregatedConfig readerConfig)
     {
-        _readerConfig = readerConfig;
         CsvConfiguration config = new(CultureInfo.InvariantCulture)
         {
             Delimiter = readerConfig.CsvFormatConfig?.FieldDelimiter ?? ","
@@ -27,14 +27,14 @@ public class WorklogCsvReader : IWorklogReader
     public IEnumerable<InputWorkLog> Read(Action<InputWorkLog>? validateResult = null)
     {
         string[] dateFormats =
-        {
+        [
             @"yyyy-MM-dd",
             @"yyyy-MM-dd hh:mm:ss",
             @"yyyy/MM/dd",
             @"yyyy/MM/dd hh:mm:ss",
             @"dd.MM.YYYY",
             @"dd.MM.YYYY hh:mm:ss"
-        };
+        ];
 
         foreach (JiraWorklogRawCsv row in _csvReader.GetRecords<JiraWorklogRawCsv>())
         {
@@ -83,6 +83,21 @@ public class WorklogCsvReader : IWorklogReader
 
     public void Dispose()
     {
-        _csvReader.Dispose();
+        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposedValue)
+        {
+            if (disposing)
+            {
+                _csvReader.Dispose();
+            }
+
+            _disposedValue = true;
+        }
     }
 }
