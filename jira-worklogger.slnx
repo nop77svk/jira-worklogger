@@ -4,11 +4,11 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
-  <Project Path="jwl.console/jwl.Console.csproj" />
-  <Project Path="jwl.core/jwl.Core.csproj" />
-  <Project Path="jwl.infra/jwl.Infra.csproj" />
-  <Project Path="jwl.inputs/jwl.Inputs.csproj" />
-  <Project Path="jwl.jira/jwl.Jira.csproj" />
-  <Project Path="jwl.test/jwl.Test.csproj" />
-  <Project Path="jwl.wadl/jwl.Wadl.csproj" />
+  <Project Path="jwl.Console/jwl.Console.csproj" />
+  <Project Path="jwl.Core/jwl.Core.csproj" />
+  <Project Path="jwl.Infra/jwl.Infra.csproj" />
+  <Project Path="jwl.Inputs/jwl.Inputs.csproj" />
+  <Project Path="jwl.Jira/jwl.Jira.csproj" />
+  <Project Path="jwl.Test/jwl.Test.csproj" />
+  <Project Path="jwl.Wadl/jwl.Wadl.csproj" />
 </Solution>
