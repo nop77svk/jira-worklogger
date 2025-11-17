@@ -74,8 +74,6 @@ jobs:
         cd ..
     - name: Release All Builds
       uses: softprops/action-gh-release@v1
-      permissions:
-        contents: write
       if: github.ref_type == 'tag'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -86,3 +84,5 @@ jobs:
         prerelease: false
         files: |
           ./_publish.all/*.zip
+      - permissions:
+        contents: write
