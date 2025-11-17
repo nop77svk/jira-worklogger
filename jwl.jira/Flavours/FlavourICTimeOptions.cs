@@ -1,4 +1,4 @@
-﻿namespace jwl.jira.Flavours;
+﻿namespace jwl.Jira.Flavours;
 
 public class FlavourICTimeOptions : IFlavourOptions
 {

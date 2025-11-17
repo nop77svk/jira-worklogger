@@ -1,5 +1,5 @@
-namespace jwl.core;
-using jwl.infra;
+﻿namespace jwl.core;
+using jwl.Infra;
 
 public interface ICoreProcessFeedback
     : IDisposable

@@ -1,4 +1,4 @@
-namespace jwl.jira.api.rest.common;
+﻿namespace jwl.Jira.Contract.Rest.Common;
 using System.Text.Json.Serialization;
 
 public class JiraUserInfo

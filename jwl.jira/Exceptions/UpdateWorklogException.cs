@@ -1,4 +1,4 @@
-﻿namespace jwl.jira.Exceptions;
+﻿namespace jwl.Jira.Exceptions;
 
 public class UpdateWorklogException
     : JiraIssueSpecificException

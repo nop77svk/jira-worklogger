@@ -1,4 +1,4 @@
-namespace jwl.jira.api.rest.response;
+﻿namespace jwl.Jira.Contract.Rest.Response;
 
 public class JiraIssueWorklogs
 {

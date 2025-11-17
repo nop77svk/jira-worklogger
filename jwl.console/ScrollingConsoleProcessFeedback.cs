@@ -1,6 +1,6 @@
-namespace jwl.console;
+﻿namespace jwl.console;
 using jwl.core;
-using jwl.infra;
+using jwl.Infra;
 using System.Reflection;
 
 public class ScrollingConsoleProcessFeedback

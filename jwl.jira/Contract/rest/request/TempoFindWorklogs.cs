@@ -1,10 +1,10 @@
-namespace jwl.jira.api.rest.request;
+﻿namespace jwl.Jira.Contract.Rest.Request;
 using System.Text.Json.Serialization;
 
 public class TempoFindWorklogs
 {
-    public common.TempoDate From { get; }
-    public common.TempoDate To { get; }
+    public Common.TempoDate From { get; }
+    public Common.TempoDate To { get; }
 
     [JsonPropertyName("taskKey")]
     public string[]? IssueKey { get; init; }
@@ -13,7 +13,7 @@ public class TempoFindWorklogs
 
     public TempoFindWorklogs(DateOnly from, DateOnly to)
     {
-        From = new common.TempoDate(from);
-        To = new common.TempoDate(to);
+        From = new Common.TempoDate(from);
+        To = new Common.TempoDate(to);
     }
 }

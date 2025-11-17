@@ -1,5 +1,5 @@
-namespace jwl.inputs;
-using jwl.jira;
+﻿namespace jwl.inputs;
+using jwl.Jira;
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 

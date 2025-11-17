@@ -1,5 +1,5 @@
-namespace jwl.jira.api.rest.response;
-using jwl.jira.api.rest.common;
+﻿namespace jwl.Jira.Contract.Rest.Response;
+using jwl.Jira.Contract.Rest.Common;
 
 public class JiraIssueWorklogsWorklog
 {
@@ -17,14 +17,14 @@ public class JiraIssueWorklogsWorklog
         TimeSpentSeconds = timeSpentSeconds;
     }
 
-    public common.JiraStringedInteger Id { get; }
-    public common.JiraStringedInteger IssueId { get; }
-    public common.JiraUserInfo Author { get; }
-    public common.JiraUserInfo UpdateAuthor { get; }
+    public Common.JiraStringedInteger Id { get; }
+    public Common.JiraStringedInteger IssueId { get; }
+    public Common.JiraUserInfo Author { get; }
+    public Common.JiraUserInfo UpdateAuthor { get; }
     public string Comment { get; }
-    public common.JiraTimeStamp Created { get; }
-    public common.JiraTimeStamp Updated { get; }
-    public common.JiraTimeStamp Started { get; }
+    public Common.JiraTimeStamp Created { get; }
+    public Common.JiraTimeStamp Updated { get; }
+    public Common.JiraTimeStamp Started { get; }
     public string TimeSpent { get; }
     public int TimeSpentSeconds { get; }
 }

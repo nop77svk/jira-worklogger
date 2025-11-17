@@ -1,4 +1,4 @@
-namespace jwl.jira.test;
+﻿namespace jwl.Jira.test;
 
 using System.Xml.Serialization;
 using jwl.wadl;

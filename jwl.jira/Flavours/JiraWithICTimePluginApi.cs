@@ -1,12 +1,12 @@
-﻿namespace jwl.jira;
+﻿namespace jwl.Jira;
 
 using System.Globalization;
 using System.Net.Http.Headers;
 using System.Xml.Serialization;
-using jwl.infra;
-using jwl.jira.api.rest.request;
-using jwl.jira.Exceptions;
-using jwl.jira.Flavours;
+using jwl.Infra;
+using jwl.Jira.Contract.Rest.Request;
+using jwl.Jira.Exceptions;
+using jwl.Jira.Flavours;
 using jwl.wadl;
 
 // https://interconcept.atlassian.net/wiki/spaces/ICTIME/pages/31686672/API
@@ -14,7 +14,7 @@ public class JiraWithICTimePluginApi
     : IJiraClient
 {
     public string UserName { get; }
-    public api.rest.common.JiraUserInfo UserInfo => _vanillaJiraApi.UserInfo;
+    public Contract.Rest.Common.JiraUserInfo UserInfo => _vanillaJiraApi.UserInfo;
 
     public Lazy<Dictionary<string, wadl.ComposedWadlMethodDefinition>> Endpoints =>
         new Lazy<Dictionary<string, ComposedWadlMethodDefinition>>(() => this.GetWADL().Result
@@ -97,8 +97,8 @@ public class JiraWithICTimePluginApi
             throw new InvalidOperationException($"Method {endPoint.Id} at resource path {endPoint.ResourcePath} does not respond in JSON");
 
         // execute
-        KeyValuePair<JiraIssueKey, Task<api.rest.response.ICTimeActivityDefinition[]>>[] responseTaks = uris
-            .Select(uri => new KeyValuePair<JiraIssueKey, Task<api.rest.response.ICTimeActivityDefinition[]>>(uri.Key, _httpClient.GetAsJsonAsync<api.rest.response.ICTimeActivityDefinition[]>(uri.Value)))
+        KeyValuePair<JiraIssueKey, Task<Contract.Rest.Response.ICTimeActivityDefinition[]>>[] responseTaks = uris
+            .Select(uri => new KeyValuePair<JiraIssueKey, Task<Contract.Rest.Response.ICTimeActivityDefinition[]>>(uri.Key, _httpClient.GetAsJsonAsync<Contract.Rest.Response.ICTimeActivityDefinition[]>(uri.Value)))
             .ToArray();
 
         await Task.WhenAll(responseTaks.Select(x => x.Value));

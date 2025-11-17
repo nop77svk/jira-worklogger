@@ -1,8 +1,8 @@
-namespace jwl.jira;
+﻿namespace jwl.Jira;
 using System.Net.Http.Json;
-using jwl.infra;
-using jwl.jira.api.rest.common;
-using jwl.jira.Flavours;
+using jwl.Infra;
+using jwl.Jira.Contract.Rest.Common;
+using jwl.Jira.Flavours;
 using NoP77svk.Linq;
 
 // https://www.tempo.io/server-api-documentation/timesheets
@@ -16,7 +16,7 @@ public class JiraWithTempoPluginApi
     private readonly VanillaJiraClient _vanillaJiraApi;
 
     public string UserName { get; }
-    public api.rest.common.JiraUserInfo UserInfo => _vanillaJiraApi.UserInfo;
+    public Contract.Rest.Common.JiraUserInfo UserInfo => _vanillaJiraApi.UserInfo;
 
     public JiraWithTempoPluginApi(HttpClient httpClient, string userName, VanillaJiraClient vanillaJiraClient, FlavourTempoTimesheetsOptions? flavourOptions)
     {
@@ -26,14 +26,14 @@ public class JiraWithTempoPluginApi
         _vanillaJiraApi = vanillaJiraClient;
     }
 
-    public async Task<api.rest.response.TempoWorklogAttributeDefinition[]> GetWorklogAttributeDefinitions()
+    public async Task<Contract.Rest.Response.TempoWorklogAttributeDefinition[]> GetWorklogAttributeDefinitions()
     {
-        return await _httpClient.GetAsJsonAsync<api.rest.response.TempoWorklogAttributeDefinition[]>($"{_flavourOptions.PluginCoreUri}/work-attribute");
+        return await _httpClient.GetAsJsonAsync<Contract.Rest.Response.TempoWorklogAttributeDefinition[]>($"{_flavourOptions.PluginCoreUri}/work-attribute");
     }
 
     public async Task<WorkLogType[]> GetAvailableActivities(string issueKey)
     {
-        api.rest.response.TempoWorklogAttributeDefinition[] attrEnumDefs = await GetWorklogAttributeDefinitions();
+        Contract.Rest.Response.TempoWorklogAttributeDefinition[] attrEnumDefs = await GetWorklogAttributeDefinitions();
 
         WorkLogType[] result = attrEnumDefs
             .Where(attrDef => attrDef.Key?.Equals(WorklogTypeAttributeKey) ?? false)
@@ -75,13 +75,13 @@ public class JiraWithTempoPluginApi
     {
         string userKey = UserInfo.Key ?? throw new ArgumentNullException($"{nameof(UserInfo)}.{nameof(UserInfo.Key)}");
 
-        var request = new api.rest.request.TempoFindWorklogs(from, to)
+        var request = new Contract.Rest.Request.TempoFindWorklogs(from, to)
         {
             IssueKey = issueKeys?.ToArray(),
             UserKey = new string[] { userKey }
         };
         var response = await _httpClient.PostAsJsonAsync($"{_flavourOptions.PluginBaseUri}/worklogs/search", request);
-        var tempoWorkLogs = await HttpClientExt.DeserializeJsonStreamAsync<api.rest.response.TempoWorklog[]>(await response.Content.ReadAsStreamAsync());
+        var tempoWorkLogs = await HttpClientExt.DeserializeJsonStreamAsync<Contract.Rest.Response.TempoWorklog[]>(await response.Content.ReadAsStreamAsync());
 
         var result = tempoWorkLogs
             .Select(wl => new WorkLog(
@@ -109,24 +109,24 @@ public class JiraWithTempoPluginApi
     {
         string userKey = UserInfo.Key ?? throw new ArgumentNullException($"{nameof(UserInfo)}.{nameof(UserInfo.Key)}");
 
-        var request = new api.rest.request.TempoAddWorklogByIssueKey()
+        var request = new Contract.Rest.Request.TempoAddWorklogByIssueKey()
         {
             IssueKey = issueKey,
             Worker = userKey,
-            Started = new api.rest.common.TempoDate(dayFrom),
-            EndDate = new api.rest.common.TempoDate(dayTo),
+            Started = new Contract.Rest.Common.TempoDate(dayFrom),
+            EndDate = new Contract.Rest.Common.TempoDate(dayTo),
             TimeSpentSeconds = timeSpentSeconds,
             BillableSeconds = timeSpentSeconds,
             IncludeNonWorkingDays = includeNonWorkingDays,
             Comment = comment,
-            Attributes = new Dictionary<string, api.rest.common.TempoWorklogAttribute>()
+            Attributes = new Dictionary<string, Contract.Rest.Common.TempoWorklogAttribute>()
             {
-                [WorklogTypeAttributeKey] = new api.rest.common.TempoWorklogAttribute()
+                [WorklogTypeAttributeKey] = new Contract.Rest.Common.TempoWorklogAttribute()
                     {
                         WorkAttributeId = 1,
                         Key = WorklogTypeAttributeKey,
                         Name = @"Worklog Type",
-                        Type = api.rest.common.TempoWorklogAttributeTypeIdentifier.StaticList,
+                        Type = Contract.Rest.Common.TempoWorklogAttributeTypeIdentifier.StaticList,
                         Value = tempoWorklogType
                     }
             }
@@ -160,22 +160,22 @@ public class JiraWithTempoPluginApi
             Path = new UriPathBuilder($"{_flavourOptions.PluginBaseUri}/worklogs")
                 .Add(worklogId.ToString())
         };
-        var request = new api.rest.request.TempoUpdateWorklog()
+        var request = new Contract.Rest.Request.TempoUpdateWorklog()
         {
-            Started = new api.rest.common.TempoDate(dayFrom),
-            EndDate = new api.rest.common.TempoDate(dayTo),
+            Started = new Contract.Rest.Common.TempoDate(dayFrom),
+            EndDate = new Contract.Rest.Common.TempoDate(dayTo),
             TimeSpentSeconds = timeSpentSeconds,
             BillableSeconds = timeSpentSeconds,
             IncludeNonWorkingDays = includeNonWorkingDays,
             Comment = comment,
-            Attributes = new Dictionary<string, api.rest.common.TempoWorklogAttribute>()
+            Attributes = new Dictionary<string, Contract.Rest.Common.TempoWorklogAttribute>()
             {
-                [WorklogTypeAttributeKey] = new api.rest.common.TempoWorklogAttribute()
+                [WorklogTypeAttributeKey] = new Contract.Rest.Common.TempoWorklogAttribute()
                 {
                     WorkAttributeId = 1,
                     Key = WorklogTypeAttributeKey,
                     Name = @"Worklog Type",
-                    Type = api.rest.common.TempoWorklogAttributeTypeIdentifier.StaticList,
+                    Type = Contract.Rest.Common.TempoWorklogAttributeTypeIdentifier.StaticList,
                     Value = activity
                 }
             }

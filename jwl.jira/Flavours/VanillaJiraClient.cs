@@ -1,4 +1,4 @@
-namespace jwl.jira;
+﻿namespace jwl.Jira;
 
 using System.Collections.Generic;
 using System.Net.Http;
@@ -6,26 +6,26 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Xml;
-using jwl.infra;
-using jwl.jira.api.rest.response;
-using jwl.jira.Exceptions;
-using jwl.jira.Flavours;
+using jwl.Infra;
+using jwl.Jira.Contract.Rest.Response;
+using jwl.Jira.Exceptions;
+using jwl.Jira.Flavours;
 
 public class VanillaJiraClient
     : IJiraClient
 {
     public string UserName { get; }
-    public api.rest.common.JiraUserInfo UserInfo => _lazyUserInfo.Value;
+    public Contract.Rest.Common.JiraUserInfo UserInfo => _lazyUserInfo.Value;
 
     private readonly HttpClient _httpClient;
-    private readonly Lazy<jwl.jira.api.rest.common.JiraUserInfo> _lazyUserInfo;
+    private readonly Lazy<jwl.Jira.Contract.Rest.Common.JiraUserInfo> _lazyUserInfo;
     private readonly FlavourVanillaJiraOptions _flavourOptions;
 
     public VanillaJiraClient(HttpClient httpClient, string userName, FlavourVanillaJiraOptions? flavourOptions)
     {
         _httpClient = httpClient;
         UserName = userName;
-        _lazyUserInfo = new Lazy<api.rest.common.JiraUserInfo>(() => GetUserInfo().Result);
+        _lazyUserInfo = new Lazy<Contract.Rest.Common.JiraUserInfo>(() => GetUserInfo().Result);
         _flavourOptions = flavourOptions ?? new FlavourVanillaJiraOptions();
     }
 
@@ -158,7 +158,7 @@ public class VanillaJiraClient
 
         commentBuilder.Append(comment);
 
-        var request = new api.rest.request.JiraAddWorklogByIssueKey(
+        var request = new Contract.Rest.Request.JiraAddWorklogByIssueKey(
             Started: day
                 .ToDateTime(TimeOnly.MinValue)
                 .ToString(@"yyyy-MM-dd""T""hh"";""mm"";""ss.fffzzzz")
@@ -238,7 +238,7 @@ public class VanillaJiraClient
                 .Add(@"worklog")
                 .Add(worklogId.ToString())
         };
-        var request = new api.rest.request.JiraAddWorklogByIssueKey(
+        var request = new Contract.Rest.Request.JiraAddWorklogByIssueKey(
             Started: day
                 .ToDateTime(TimeOnly.MinValue)
                 .ToString(@"yyyy-MM-dd""T""hh"";""mm"";""ss.fffzzzz")
@@ -265,7 +265,7 @@ public class VanillaJiraClient
         await CheckHttpResponseForErrorMessages(response);
     }
 
-    private async Task<api.rest.common.JiraUserInfo> GetUserInfo()
+    private async Task<Contract.Rest.Common.JiraUserInfo> GetUserInfo()
     {
         UriBuilder uriBuilder = new UriBuilder()
         {
@@ -276,7 +276,7 @@ public class VanillaJiraClient
 
         try
         {
-            return await _httpClient.GetAsJsonAsync<api.rest.common.JiraUserInfo>(uriBuilder.Uri.PathAndQuery.TrimStart('/'));
+            return await _httpClient.GetAsJsonAsync<Contract.Rest.Common.JiraUserInfo>(uriBuilder.Uri.PathAndQuery.TrimStart('/'));
         }
         catch (Exception ex)
         {
