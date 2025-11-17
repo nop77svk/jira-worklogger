@@ -25,11 +25,9 @@ jobs:
       run: echo "# Good things have arrived" > ${{ github.workspace }}-CHANGELOG.txt
     - name: Extract tag
       id: tag
-      run: echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-    - name: Set VERSION variable from tag
-      run: VERSION=$( git tag | /bin/sort -Vr | head -n 1 )
-    - name: Print tag
-      run: echo "Triggered by tag ${{ steps.tag.outputs.tag }}"
+      run: echo "tag=${GITHUB_REF#refs/tags/}" >> $VERSION
+    - name: Print VERSION
+      run: echo "Triggered by tag ${{ steps.tag.outputs.tag }}, version ${VERSION}"
     - name: Update private NuGet source
       run: |
         dotnet nuget add source \
