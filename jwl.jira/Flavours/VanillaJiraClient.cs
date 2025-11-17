@@ -7,7 +7,6 @@ using System.Text;
 using System.Text.Json;
 using System.Xml;
 using jwl.Infra;
-using jwl.Jira.Contract.Rest.Response;
 using jwl.Jira.Exceptions;
 using jwl.Jira.Flavours;
 
@@ -18,7 +17,7 @@ public class VanillaJiraClient
     public Contract.Rest.Common.JiraUserInfo UserInfo => _lazyUserInfo.Value;
 
     private readonly HttpClient _httpClient;
-    private readonly Lazy<jwl.Jira.Contract.Rest.Common.JiraUserInfo> _lazyUserInfo;
+    private readonly Lazy<Contract.Rest.Common.JiraUserInfo> _lazyUserInfo;
     private readonly FlavourVanillaJiraOptions _flavourOptions;
 
     public VanillaJiraClient(HttpClient httpClient, string userName, FlavourVanillaJiraOptions? flavourOptions)
@@ -37,7 +36,7 @@ public class VanillaJiraClient
         {
             try
             {
-                JiraRestResponse jsonResponseContent = await HttpClientExt.DeserializeJsonStreamAsync<JiraRestResponse>(responseContentStream);
+                Contract.Rest.Response.JiraRestResponse jsonResponseContent = await HttpClientExt.DeserializeJsonStreamAsync<Contract.Rest.Response.JiraRestResponse>(responseContentStream);
 
                 if (jsonResponseContent.ErrorMessages?.Any() ?? false)
                     throw new InvalidOperationException(string.Join(Environment.NewLine, jsonResponseContent.ErrorMessages));
@@ -47,7 +46,7 @@ public class VanillaJiraClient
                 try
                 {
                     responseContentStream.Seek(0, SeekOrigin.Begin);
-                    ICTimeXmlResponse xmlResponseContent = await HttpClientExt.DeserializeXmlStreamAsync<ICTimeXmlResponse>(responseContentStream);
+                    Contract.Rest.Response.ICTimeXmlResponse xmlResponseContent = await HttpClientExt.DeserializeXmlStreamAsync<Contract.Rest.Response.ICTimeXmlResponse>(responseContentStream);
 
                     if (xmlResponseContent.Success == null)
                         throw new InvalidOperationException(await responseMessage.Content.ReadAsStringAsync());
@@ -92,10 +91,10 @@ public class VanillaJiraClient
 
         string uri = uriBuilder.Uri.PathAndQuery.TrimStart('/');
 
-        JiraIssueWorklogs? response;
+        Contract.Rest.Response.JiraIssueWorklogs? response;
         try
         {
-            response = await _httpClient.GetAsJsonAsync<JiraIssueWorklogs>(uri);
+            response = await _httpClient.GetAsJsonAsync<Contract.Rest.Response.JiraIssueWorklogs>(uri);
         }
         catch (Exception ex)
         {
