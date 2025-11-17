@@ -88,5 +88,3 @@ jobs:
         prerelease: false
         files: |
           ./_publish.all/*.zip
-      - permissions:
-        contents: write
