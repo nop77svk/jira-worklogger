@@ -1,7 +1,7 @@
 ﻿namespace jwl.Jira.test;
 
 using System.Xml.Serialization;
-using jwl.wadl;
+using jwl.Wadl;
 
 public class WadlTests
     : IDisposable
