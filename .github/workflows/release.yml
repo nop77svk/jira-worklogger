@@ -15,6 +15,8 @@ jobs:
         dotnet-version: 8.0.x
     - name: Checkout
       uses: actions/checkout@v3
+    - name: Generate Changelog
+      run: echo "# Good things have arrived" > ${{ github.workspace }}-CHANGELOG.txt
     - name: Set VERSION variable from tag
       run: |
         VERSION=$( git tag | /bin/sort -Vr | head -n 1 )
@@ -72,11 +74,13 @@ jobs:
         cd ..
     - name: Release All Builds
       uses: softprops/action-gh-release@v1
+      if: github.ref_type == 'tag'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         token: "${{ secrets.GITHUB_TOKEN }}"
-        body: "<changelog should come here>"
+        body_path: ${{ github.workspace }}-CHANGELOG.txt
+        repository: nop77svk/jira-worklogger
         prerelease: false
         files: |
-          ./_publish.all/jira-worklogger.*
+          ./_publish.all/*.zip
