@@ -1,3 +1,5 @@
+name: on-commit/push check (outside of release)
+
 on:
   push:
     branches:
