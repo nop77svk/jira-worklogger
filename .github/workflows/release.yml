@@ -72,6 +72,8 @@ jobs:
         cd ..
     - name: Release All Builds
       uses: softprops/action-gh-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         token: "${{ secrets.GITHUB_TOKEN }}"
         body: "<changelog should come here>"
