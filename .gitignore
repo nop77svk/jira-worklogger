@@ -349,4 +349,7 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+
+# others
 /jwl.console/Properties/launchSettings.json
+/_publish.*
