@@ -69,7 +69,7 @@ jobs:
         cd ..
     - name: Linux x64 Build
       run: |
-        dotnet publish -c Release -o ./_publish.linux-x64 -r linux-x64 --self-contained
+        dotnet publish ./jwl.console -c Release -o ./_publish.linux-x64 -r linux-x64 --self-contained
         cd ./_publish.linux-x64
         cp ../LICENSE .
         tar cv . | gzip -9c > ../_publish.all/jira-worklogger.${VERSION}.linux.x64.tgz
