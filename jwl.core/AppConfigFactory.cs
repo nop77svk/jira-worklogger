@@ -1,7 +1,7 @@
-namespace jwl.core;
+﻿namespace jwl.core;
 using jwl.inputs;
-using jwl.jira;
-using jwl.jira.Flavours;
+using jwl.Jira;
+using jwl.Jira.Flavours;
 using Microsoft.Extensions.Configuration;
 using System.Xml.XPath;
 

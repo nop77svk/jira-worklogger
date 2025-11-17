@@ -1,4 +1,4 @@
-namespace jwl.infra;
+﻿namespace jwl.Infra;
 using System.Globalization;
 
 public static class InexactDecimal

@@ -1,4 +1,4 @@
-namespace jwl.jira;
+﻿namespace jwl.Jira;
 
 using System.Collections.Generic;
 using System.Net.Http;
@@ -6,26 +6,27 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Xml;
-using jwl.infra;
-using jwl.jira.api.rest.response;
+
+using jwl.Infra;
 using jwl.jira.Exceptions;
-using jwl.jira.Flavours;
+using jwl.Jira.Exceptions;
+using jwl.Jira.Flavours;
 
 public class VanillaJiraClient
     : IJiraClient
 {
     public string UserName { get; }
-    public api.rest.common.JiraUserInfo UserInfo => _lazyUserInfo.Value;
+    public Contract.Rest.Common.JiraUserInfo UserInfo => _lazyUserInfo.Value;
 
     private readonly HttpClient _httpClient;
-    private readonly Lazy<jwl.jira.api.rest.common.JiraUserInfo> _lazyUserInfo;
+    private readonly Lazy<Contract.Rest.Common.JiraUserInfo> _lazyUserInfo;
     private readonly FlavourVanillaJiraOptions _flavourOptions;
 
     public VanillaJiraClient(HttpClient httpClient, string userName, FlavourVanillaJiraOptions? flavourOptions)
     {
         _httpClient = httpClient;
         UserName = userName;
-        _lazyUserInfo = new Lazy<api.rest.common.JiraUserInfo>(() => GetUserInfo().Result);
+        _lazyUserInfo = new Lazy<Contract.Rest.Common.JiraUserInfo>(() => GetUserInfo().Result);
         _flavourOptions = flavourOptions ?? new FlavourVanillaJiraOptions();
     }
 
@@ -37,20 +38,24 @@ public class VanillaJiraClient
         {
             try
             {
-                JiraRestResponse jsonResponseContent = await HttpClientExt.DeserializeJsonStreamAsync<JiraRestResponse>(responseContentStream);
+                Contract.Rest.Response.JiraRestResponse jsonResponseContent = await HttpClientExt.DeserializeJsonStreamAsync<Contract.Rest.Response.JiraRestResponse>(responseContentStream);
 
                 if (jsonResponseContent.ErrorMessages?.Any() ?? false)
+                {
                     throw new InvalidOperationException(string.Join(Environment.NewLine, jsonResponseContent.ErrorMessages));
+                }
             }
             catch (JsonException jsonEx)
             {
                 try
                 {
                     responseContentStream.Seek(0, SeekOrigin.Begin);
-                    ICTimeXmlResponse xmlResponseContent = await HttpClientExt.DeserializeXmlStreamAsync<ICTimeXmlResponse>(responseContentStream);
+                    Contract.Rest.Response.ICTimeXmlResponse xmlResponseContent = await HttpClientExt.DeserializeXmlStreamAsync<Contract.Rest.Response.ICTimeXmlResponse>(responseContentStream);
 
                     if (xmlResponseContent.Success == null)
+                    {
                         throw new InvalidOperationException(await responseMessage.Content.ReadAsStringAsync());
+                    }
                 }
                 catch (XmlException xmlEx)
                 {
@@ -92,14 +97,14 @@ public class VanillaJiraClient
 
         string uri = uriBuilder.Uri.PathAndQuery.TrimStart('/');
 
-        JiraIssueWorklogs? response;
+        Contract.Rest.Response.JiraIssueWorklogs? response;
         try
         {
-            response = await _httpClient.GetAsJsonAsync<JiraIssueWorklogs>(uri);
+            response = await _httpClient.GetAsJsonAsync<Contract.Rest.Response.JiraIssueWorklogs>(uri);
         }
         catch (Exception ex)
         {
-            throw new GetIssueWorkLogsException(issueKey, from.ToDateTime(TimeOnly.MinValue), to.ToDateTime(TimeOnly.MinValue).AddDays(1), ex);
+            throw new JiraGetIssueWorkLogsException(issueKey, from.ToDateTime(TimeOnly.MinValue), to.ToDateTime(TimeOnly.MinValue).AddDays(1), ex);
         }
 
         (DateTime minDt, DateTime supDt) = DateOnlyUtils.DateOnlyRangeToDateTimeRange(from, to);
@@ -158,7 +163,7 @@ public class VanillaJiraClient
 
         commentBuilder.Append(comment);
 
-        var request = new api.rest.request.JiraAddWorklogByIssueKey(
+        var request = new Contract.Rest.Request.JiraAddWorklogByIssueKey(
             Started: day
                 .ToDateTime(TimeOnly.MinValue)
                 .ToString(@"yyyy-MM-dd""T""hh"";""mm"";""ss.fffzzzz")
@@ -168,21 +173,19 @@ public class VanillaJiraClient
             Comment: commentBuilder.ToString()
         );
 
-        HttpResponseMessage response;
         try
         {
-            response = await _httpClient.PostAsJsonAsync(uriBuilder.Uri.PathAndQuery.TrimStart('/'), request);
+            using HttpResponseMessage response = await _httpClient.PostAsJsonAsync(uriBuilder.Uri.PathAndQuery.TrimStart('/'), request);
+            await CheckHttpResponseForErrorMessages(response);
         }
         catch (Exception ex)
         {
-            throw new AddWorkLogException(issueKey, day.ToDateTime(TimeOnly.MinValue), timeSpentSeconds, ex)
+            throw new JiraAddWorkLogException(issueKey, day.ToDateTime(TimeOnly.MinValue), timeSpentSeconds, ex)
             {
                 Activity = activity,
                 Comment = comment
             };
         }
-
-        await CheckHttpResponseForErrorMessages(response);
     }
 
     public async Task AddWorkLogPeriod(string issueKey, DateOnly dayFrom, DateOnly dayTo, int timeSpentSeconds, string? activity, string? comment, bool includeNonWorkingDays = false)
@@ -216,17 +219,15 @@ public class VanillaJiraClient
                 .Add(@"notifyUsers", notifyUsers.ToString().ToLower())
         };
 
-        HttpResponseMessage response;
         try
         {
-            response = await _httpClient.DeleteAsync(uriBuilder.Uri.PathAndQuery.TrimStart('/'));
+            using HttpResponseMessage response = await _httpClient.DeleteAsync(uriBuilder.Uri.PathAndQuery.TrimStart('/'));
+            await CheckHttpResponseForErrorMessages(response);
         }
         catch (Exception ex)
         {
-            throw new DeleteWorklogException(issueId, worklogId, ex);
+            throw new JiraDeleteWorklogByIssueIdException(issueId, worklogId, ex);
         }
-
-        await CheckHttpResponseForErrorMessages(response);
     }
 
     public async Task UpdateWorkLog(string issueKey, long worklogId, DateOnly day, int timeSpentSeconds, string? activity, string? comment)
@@ -238,7 +239,7 @@ public class VanillaJiraClient
                 .Add(@"worklog")
                 .Add(worklogId.ToString())
         };
-        var request = new api.rest.request.JiraAddWorklogByIssueKey(
+        var request = new Contract.Rest.Request.JiraAddWorklogByIssueKey(
             Started: day
                 .ToDateTime(TimeOnly.MinValue)
                 .ToString(@"yyyy-MM-dd""T""hh"";""mm"";""ss.fffzzzz")
@@ -248,24 +249,22 @@ public class VanillaJiraClient
             Comment: comment
         );
 
-        HttpResponseMessage response;
         try
         {
-            response = await _httpClient.PutAsJsonAsync(uriBuilder.Uri.PathAndQuery.TrimStart('/'), request);
+            using HttpResponseMessage response = await _httpClient.PutAsJsonAsync(uriBuilder.Uri.PathAndQuery.TrimStart('/'), request);
+            await CheckHttpResponseForErrorMessages(response);
         }
         catch (Exception ex)
         {
-            throw new UpdateWorklogException(issueKey, worklogId, day.ToDateTime(TimeOnly.MinValue), timeSpentSeconds, ex)
+            throw new JiraUpdateWorklogException(issueKey, worklogId, day.ToDateTime(TimeOnly.MinValue), timeSpentSeconds, ex)
             {
                 Activity = activity,
                 Comment = comment
             };
         }
-
-        await CheckHttpResponseForErrorMessages(response);
     }
 
-    private async Task<api.rest.common.JiraUserInfo> GetUserInfo()
+    private async Task<Contract.Rest.Common.JiraUserInfo> GetUserInfo()
     {
         UriBuilder uriBuilder = new UriBuilder()
         {
@@ -276,11 +275,11 @@ public class VanillaJiraClient
 
         try
         {
-            return await _httpClient.GetAsJsonAsync<api.rest.common.JiraUserInfo>(uriBuilder.Uri.PathAndQuery.TrimStart('/'));
+            return await _httpClient.GetAsJsonAsync<Contract.Rest.Common.JiraUserInfo>(uriBuilder.Uri.PathAndQuery.TrimStart('/'));
         }
         catch (Exception ex)
         {
-            throw new JiraClientException($"Error retrieving user {UserName} info", ex);
+            throw new JiraGetUserInfoException(UserName, ex);
         }
     }
 }

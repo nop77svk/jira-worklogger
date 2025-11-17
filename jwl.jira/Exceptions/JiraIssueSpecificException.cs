@@ -1,31 +1,34 @@
-﻿namespace jwl.jira.Exceptions;
+﻿namespace jwl.Jira.Exceptions;
 
-public class JiraIssueSpecificException
+public abstract class JiraIssueSpecificException
     : JiraClientException
 {
-    public string? IssueKey { get; }
+    public string IssueKey { get; }
 
     public JiraIssueSpecificException(string issueKey)
-        : base($"Error on Jira issue {issueKey}")
+        : base(FormatMessage(issueKey, null))
     {
         IssueKey = issueKey;
     }
 
     public JiraIssueSpecificException(string issueKey, string message)
-        : base(message)
+        : base(FormatMessage(issueKey, message))
     {
         IssueKey = issueKey;
     }
 
     public JiraIssueSpecificException(string issueKey, Exception innerException)
-        : base($"Error on Jira issue {issueKey}", innerException)
+        : base(FormatMessage(issueKey, null), innerException)
     {
         IssueKey = issueKey;
     }
 
     public JiraIssueSpecificException(string issueKey, string message, Exception innerException)
-        : base(message, innerException)
+        : base(FormatMessage(issueKey, message), innerException)
     {
         IssueKey = issueKey;
     }
+
+    private static string FormatMessage(string issueKey, string? optionalMessage)
+        => DefaultMessageFormatter($"Error on Jira issue {issueKey}", optionalMessage);
 }

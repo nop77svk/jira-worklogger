@@ -2,6 +2,12 @@ on:
   push:
     tags:
     - "[0-9]+.[0-9]+.[0-9]+"
+
+permissions:
+  contents: write
+  id-token: write
+  packages: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -10,19 +16,35 @@ jobs:
     - name: Setup .NET
       uses: xt0rted/setup-dotnet@v1
       with:
-        dotnet-version: 6.0.x
+        dotnet-version: 8.0.x
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
+    - name: Generate Changelog
+      run: echo "# Good things have arrived" > ${{ github.workspace }}-CHANGELOG.txt
     - name: Set VERSION variable from tag
-      run: echo "VERSION=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
+      run: |
+        VERSION=$( git tag | /bin/sort -Vr | head -n 1 )
+        echo Current version = ${VERSION}
     - name: Update private NuGet source
       run: |
-        dotnet nuget add source --name NoP77svk --username anyone --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text "https://nuget.pkg.github.com/nop77svk/index.json" \
-        || dotnet nuget update source NoP77svk --username anyone --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --source "https://nuget.pkg.github.com/nop77svk/index.json"
+        dotnet nuget add source \
+          --name NoP77svk \
+          --username anyone \
+          --password ${{ secrets.GITHUB_TOKEN }} \
+          --store-password-in-clear-text 'https://nuget.pkg.github.com/nop77svk/index.json' \
+        || dotnet nuget update source NoP77svk \
+          --username anyone \
+          --password ${{ secrets.GITHUB_TOKEN }} \
+          --store-password-in-clear-text \
+          --source 'https://nuget.pkg.github.com/nop77svk/index.json'
+    - name: Pre-Build Phase
+      run: |
+        dotnet clean -c Release
+        dotnet restore
     - name: Build
-      run: dotnet build -c Release /p:Version=${VERSION}
+      run: dotnet build -c Release --no-restore
     - name: Test
-      run: dotnet test -c Release /p:Version=${VERSION} --no-build
+      run: dotnet test -c Release --no-build
 #    - name: Pack
 #      run: |
 #        dotnet pack -c Release /p:Version=${VERSION} --no-build --output .
@@ -35,7 +57,7 @@ jobs:
         mkdir _publish.all
     - name: Windows x64 Build
       run: |
-        dotnet publish ./jwl.console -c Release -o ./_publish.win-x64 -r win-x64 --self-contained
+        dotnet publish ./jwl.console -c Release -o ./_publish.win-x64 -r win-x64 --self-contained --no-restore
         cd ./_publish.win-x64
         cp ../LICENSE .
         zip -r9v ../_publish.all/jira-worklogger.${VERSION}.win.x64.zip .
@@ -49,16 +71,20 @@ jobs:
 #        cd ..
     - name: Portable Build
       run: |
-        dotnet publish ./jwl.console -c Release -o ./_publish.portable --no-self-contained -p:PublishTrimmed=false
+        dotnet publish ./jwl.console -c Release -o ./_publish.portable --no-self-contained -p:PublishTrimmed=false --no-restore
         cd ./_publish.portable
         cp ../LICENSE .
         zip -r9v ../_publish.all/jira-worklogger.${VERSION}.portable.zip .
         cd ..
     - name: Release All Builds
       uses: softprops/action-gh-release@v1
+      if: github.ref_type == 'tag'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         token: "${{ secrets.GITHUB_TOKEN }}"
-        body: "<changelog should come here>"
+        body_path: ${{ github.workspace }}-CHANGELOG.txt
+        repository: nop77svk/jira-worklogger
         prerelease: false
         files: |
-          ./_publish.all/jira-worklogger.*
+          ./_publish.all/*.zip

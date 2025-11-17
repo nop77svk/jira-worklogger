@@ -1,4 +1,4 @@
-﻿namespace jwl.jira.Exceptions;
+﻿namespace jwl.Jira.Exceptions;
 
 using System;
 
@@ -18,4 +18,8 @@ public class JiraClientException
         : base(message, innerException)
     {
     }
+
+    protected static string DefaultMessageFormatter(string mandatoryMessage, string? optionalMessage)
+        => mandatoryMessage
+        + (!string.IsNullOrEmpty(optionalMessage) ? $"\n{optionalMessage}" : string.Empty);
 }

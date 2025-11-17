@@ -1,4 +1,4 @@
-﻿namespace jwl.wadl
+﻿namespace jwl.Wadl
 {
     using System.Threading;
     using System.Xml.Serialization;

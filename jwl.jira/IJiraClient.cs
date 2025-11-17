@@ -1,4 +1,4 @@
-﻿namespace jwl.jira;
+﻿namespace jwl.Jira;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 public interface IJiraClient
 {
-    api.rest.common.JiraUserInfo UserInfo { get; }
+    Contract.Rest.Common.JiraUserInfo UserInfo { get; }
 
     Task<WorkLogType[]> GetAvailableActivities(string issueKey);
 

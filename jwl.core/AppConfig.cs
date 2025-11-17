@@ -1,10 +1,10 @@
-namespace jwl.core;
+﻿namespace jwl.core;
 using AutoMapper;
 
 public class AppConfig
 {
     public bool? UseVerboseFeedback { get; init; }
-    public jwl.jira.ServerConfig? JiraServer { get; init; }
+    public jwl.Jira.ServerConfig? JiraServer { get; init; }
     public jwl.core.UserConfig? User { get; init; }
     public jwl.inputs.CsvFormatConfig? CsvOptions { get; init; }
 
@@ -12,7 +12,7 @@ public class AppConfig
     {
         cfg.CreateMap<AppConfig, AppConfig>()
             .ForAllMembers(m => m.Condition((src, dest, member) => member != null));
-        cfg.CreateMap<jira.ServerConfig, jira.ServerConfig>()
+        cfg.CreateMap<Jira.ServerConfig, Jira.ServerConfig>()
             .ForAllMembers(m => m.Condition((src, dest, member) => member != null));
         cfg.CreateMap<inputs.CsvFormatConfig, inputs.CsvFormatConfig>()
             .ForAllMembers(m => m.Condition((src, dest, member) => member != null));

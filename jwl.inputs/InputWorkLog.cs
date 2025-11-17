@@ -1,6 +1,6 @@
-#pragma warning disable SA1313
+﻿#pragma warning disable SA1313
 namespace jwl.inputs;
-using jwl.infra;
+using jwl.Infra;
 
 public struct InputWorkLog
 {

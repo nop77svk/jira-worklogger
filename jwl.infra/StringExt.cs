@@ -1,4 +1,4 @@
-﻿namespace jwl.infra;
+﻿namespace jwl.Infra;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
