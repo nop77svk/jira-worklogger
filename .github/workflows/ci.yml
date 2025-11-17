@@ -1,8 +1,17 @@
+name: on-commit/push check (outside of release)
+
 on:
   push:
+    branches:
+    - '**'
+    tags-ignore:
+    - '**'
   pull_request:
     branches:
     - main
+    tags-ignore:
+    - '**'
+
 jobs:
   build:
     runs-on: ubuntu-latest
