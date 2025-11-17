@@ -228,7 +228,6 @@ public class JiraWithICTimePluginApi
 
         httpRequest.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(Wadl.WadlRepresentation.MediaTypeJson));
 
-        ;
         try
         {
             HttpResponseMessage response = await _httpClient.SendAsync(httpRequest);

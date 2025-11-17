@@ -67,6 +67,7 @@ public class JiraWithTempoPluginApi
         return result;
     }
 
+#pragma warning disable SA1010
     public async Task<WorkLog[]> GetIssueWorkLogs(DateOnly from, DateOnly to, string issueKey)
     {
         return await GetIssueWorkLogs(from, to, [issueKey]);
@@ -108,6 +109,7 @@ public class JiraWithTempoPluginApi
             throw new JiraGetIssueWorkLogsException("[multiple]", from.ToDateTime(TimeOnly.MinValue), to.ToDateTime(TimeOnly.MinValue), ex);
         }
     }
+#pragma warning restore SA1010
 
     public async Task AddWorkLog(string issueKey, DateOnly day, int timeSpentSeconds, string? activity, string? comment)
     {
