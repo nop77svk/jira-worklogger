@@ -49,7 +49,7 @@ jobs:
         mkdir _publish.all
     - name: Windows x64 Build
       run: |
-        dotnet publish ./jwl.console -c Release -o ./_publish.win-x64 -r win-x64 --self-contained --no-restore --no-build
+        dotnet publish ./jwl.console -c Release -o ./_publish.win-x64 -r win-x64 --self-contained --no-restore
         cd ./_publish.win-x64
         cp ../LICENSE .
         zip -r9v ../_publish.all/jira-worklogger.${VERSION}.win.x64.zip .
@@ -63,7 +63,7 @@ jobs:
 #        cd ..
     - name: Portable Build
       run: |
-        dotnet publish ./jwl.console -c Release -o ./_publish.portable --no-self-contained -p:PublishTrimmed=false --no-build --no-restore
+        dotnet publish ./jwl.console -c Release -o ./_publish.portable --no-self-contained -p:PublishTrimmed=false --no-restore
         cd ./_publish.portable
         cp ../LICENSE .
         zip -r9v ../_publish.all/jira-worklogger.${VERSION}.portable.zip .
