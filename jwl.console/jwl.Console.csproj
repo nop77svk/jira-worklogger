@@ -2,10 +2,11 @@
     <PropertyGroup>
         <Product>Jira Worklogger</Product>
         <ProductVersion>2025.11.2</ProductVersion>
+        <InformationalVersion>2025.11.2</InformationalVersion>
         <Authors>Peter Hraško</Authors>
         <Company>Open source community</Company>
         <Copyright>Practically copyleft</Copyright>
-
+        
         <OutputType>Exe</OutputType>
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
