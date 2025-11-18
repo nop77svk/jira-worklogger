@@ -1,4 +1,4 @@
-﻿namespace jwl.Jira;
+namespace jwl.Jira;
 
 using System.Collections.Generic;
 using System.Net.Http;
@@ -8,13 +8,6 @@ using System.Text.Json;
 using System.Xml;
 
 using jwl.Infra;
-using jwl.jira.Exceptions;
-using jwl.Jira.Exceptions;
-using jwl.Jira.Flavours;
-
-using jwl.Infra;
-using jwl.Jira.Contract.Rest.Common;
-using jwl.Jira.Contract.Rest.Response;
 using jwl.Jira.Exceptions;
 using jwl.Jira.Flavours;
 
@@ -141,7 +134,9 @@ public class VanillaJiraClient
             .ToArray();
 
         if (!daysInPeriod.Any())
+        {
             return;
+        }
 
         int timeSpentSecondsPerSingleDay = timeSpentSeconds / daysInPeriod.Length;
 
@@ -220,7 +215,7 @@ public class VanillaJiraClient
 
         string uri = uriBuilder.Uri.PathAndQuery.TrimStart('/');
 
-        Contract.Rest.Response.JiraIssueWorklogs? response;
+        Contract.Rest.Response.JiraGetIssueWorklogsResponse? response;
         try
         {
             response = await _httpClient.GetAsJsonAsync<Contract.Rest.Response.JiraGetIssueWorklogsResponse>(uri);
@@ -308,7 +303,7 @@ public class VanillaJiraClient
         }
     }
 
-    private async Task<JiraUserInfo> GetUserByUserName(string userName)
+    private async Task<Contract.Rest.Common.JiraUserInfo> GetUserByUserName(string userName)
     {
         string pluginBaseUri = _flavourOptions?.PluginBaseUri
             ?? throw new JiraClientException(nameof(IFlavourOptions.PluginBaseUri));
@@ -322,7 +317,7 @@ public class VanillaJiraClient
 
         try
         {
-            return await _httpClient.GetAsJsonAsync<JiraUserInfo>(uriBuilder.Uri.PathAndQuery.TrimStart('/'));
+            return await _httpClient.GetAsJsonAsync<Contract.Rest.Common.JiraUserInfo>(uriBuilder.Uri.PathAndQuery.TrimStart('/'));
         }
         catch (Exception ex)
         {
@@ -330,7 +325,7 @@ public class VanillaJiraClient
         }
     }
 
-    private async Task<JiraUserInfo> GetUserByAccountId(string accountId)
+    private async Task<Contract.Rest.Common.JiraUserInfo> GetUserByAccountId(string accountId)
     {
         string pluginBaseUri = _flavourOptions?.PluginBaseUri
             ?? throw new JiraClientException(nameof(IFlavourOptions.PluginBaseUri));
@@ -344,7 +339,7 @@ public class VanillaJiraClient
 
         try
         {
-            JiraUserInfo result = await _httpClient.GetAsJsonAsync<JiraUserInfo>(uriBuilder.Uri.PathAndQuery.TrimStart('/'));
+            Contract.Rest.Common.JiraUserInfo result = await _httpClient.GetAsJsonAsync<Contract.Rest.Common.JiraUserInfo>(uriBuilder.Uri.PathAndQuery.TrimStart('/'));
             return result;
         }
         catch (Exception ex)
@@ -353,7 +348,7 @@ public class VanillaJiraClient
         }
     }
 
-    private async Task<CloudFindUsersResponseElement[]> FindUsersByUserName(string userName)
+    private async Task<Contract.Rest.Response.CloudFindUsersResponseElement[]> FindUsersByUserName(string userName)
     {
         string pluginBaseUri = _flavourOptions?.PluginBaseUri
             ?? throw new JiraClientException(nameof(IFlavourOptions.PluginBaseUri));
@@ -367,7 +362,7 @@ public class VanillaJiraClient
 
         try
         {
-            var result = await _httpClient.GetAsJsonAsync<CloudFindUsersResponseElement[]>(uriBuilder.Uri.PathAndQuery.TrimStart('/'));
+            var result = await _httpClient.GetAsJsonAsync<Contract.Rest.Response.CloudFindUsersResponseElement[]>(uriBuilder.Uri.PathAndQuery.TrimStart('/'));
             return result;
         }
         catch (Exception ex)
@@ -376,7 +371,7 @@ public class VanillaJiraClient
         }
     }
 
-    private async Task<JiraUserInfo> GetUserInfoFromWhateverApiAvailable()
+    private async Task<Contract.Rest.Common.JiraUserInfo> GetUserInfoFromWhateverApiAvailable()
     {
         try
         {
@@ -384,19 +379,19 @@ public class VanillaJiraClient
         }
         catch (Exception)
         {
-            CloudFindUsersResponseElement[] findUsersResult = await FindUsersByUserName(UserName);
+            Contract.Rest.Response.CloudFindUsersResponseElement[] findUsersResult = await FindUsersByUserName(UserName);
             if (findUsersResult.Length == 0)
             {
                 throw new JiraClientException($"No users found matching the user name {UserName}");
             }
 
-            CloudFindUsersResponseElement firstUserFound = findUsersResult.FirstOrDefault(user => !string.IsNullOrEmpty(user.AccountId))
+            Contract.Rest.Response.CloudFindUsersResponseElement firstUserFound = findUsersResult.FirstOrDefault(user => !string.IsNullOrEmpty(user.AccountId))
                 ?? findUsersResult[0];
 
             string userAccountId = firstUserFound.AccountId
                 ?? throw new JiraClientException($"Failed to retrieve accountId for the user {UserName}");
 
-            JiraUserInfo result = await GetUserByAccountId(userAccountId);
+            Contract.Rest.Common.JiraUserInfo result = await GetUserByAccountId(userAccountId);
             return result;
         }
     }

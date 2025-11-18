@@ -1,9 +1,8 @@
-﻿namespace jwl.Jira;
+namespace jwl.Jira;
 
 using System.Net.Http.Json;
 
 using jwl.Infra;
-using jwl.Jira.Contract.Rest.Common;
 using jwl.Jira.Exceptions;
 using jwl.Jira.Flavours;
 
@@ -95,6 +94,7 @@ public class JiraWithTempoPluginApi
                 .Select(wl => new WorkLog(
                     Id: wl.Id ?? -1,
                     IssueId: wl.IssueId ?? -1,
+                    AuthorAccountId: null,
                     AuthorName: wl.WorkerKey == userKey ? UserName : null,
                     AuthorKey: wl.WorkerKey,
                     Created: wl.Created?.Value ?? DateTime.MinValue,
@@ -218,7 +218,7 @@ public class JiraWithTempoPluginApi
         }
         catch (Exception ex)
         {
-            throw new JiraUpdateWorklogsPeriodException(issueKey, worklogId, dayFrom.ToDateTime(TimeOnly.MinValue), dayTo.ToDateTime(TimeOnly.MaxValue), timeSpentSeconds, ex);
+            throw new JiraUpdateWorklogsPeriodException("[undefined]", worklogId, dayFrom.ToDateTime(TimeOnly.MinValue), dayTo.ToDateTime(TimeOnly.MaxValue), timeSpentSeconds, ex);
         }
     }
 }

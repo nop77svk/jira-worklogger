@@ -1,4 +1,4 @@
-﻿namespace jwl.Core;
+namespace jwl.Core;
 
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -14,10 +14,6 @@ public class JwlCoreProcess : IDisposable
 {
     public const int TotalProcessSteps = 7;
 
-    private readonly AppConfig _config;
-    private readonly IJiraClient _jiraClient;
-    private readonly ConfigDrivenHttpClientFactory _httpClientFactory;
-
     public static Version? ExeVersion => AssemblyVersioning.GetExeVersion();
     public static Version? CoreVersion => AssemblyVersioning.GetCoreVersion(typeof(JwlCoreProcess));
 
@@ -27,6 +23,8 @@ public class JwlCoreProcess : IDisposable
     private readonly AppConfig _config;
     private readonly IJiraClient _jiraClient;
     private readonly ConfigDrivenHttpClientFactory _httpClientFactory;
+
+    private bool _isDisposed = false;
 
     private HttpClient _httpClient => _httpClientFactory.HttpClient;
 
@@ -185,7 +183,6 @@ public class JwlCoreProcess : IDisposable
         {
             throw new AggregateException(taskExceptions);
         }
-        }
 
         InputWorkLog[] result = readerTasks
             .SelectMany(response => response.Result)
@@ -200,6 +197,7 @@ public class JwlCoreProcess : IDisposable
         {
             CsvFormatConfig = _config.CsvOptions
         };
+
         using IWorklogReader worklogReader = WorklogReaderFactory.GetReaderFromFilePath(fileName, readerConfig);
 
         return await Task.Factory.StartNew(() => worklogReader.Read().ToArray());

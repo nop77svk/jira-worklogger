@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:jwl.jira/Contract/rest/response/JiraGetIssueWorklogsResponse.cs
 namespace jwl.Jira.Contract.Rest.Response;
-========
-﻿namespace jwl.Jira.Contract.Rest.Response;
->>>>>>>> origin/main:jwl.jira/Contract/rest/response/JiraIssueWorklogs.cs
 
 public class JiraGetIssueWorklogsResponse
 {

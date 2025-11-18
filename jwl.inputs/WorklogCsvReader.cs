@@ -10,7 +10,8 @@ using jwl.Infra;
 public class WorklogCsvReader : IWorklogReader
 {
     private readonly CsvReader _csvReader;
-    private readonly WorklogReaderAggregatedConfig _readerConfig;
+    private bool _disposedValue = false;
+
     public bool ErrorOnEmptyRow { get; init; } = true;
 
     public WorklogCsvReader(TextReader inputFile, WorklogReaderAggregatedConfig readerConfig)

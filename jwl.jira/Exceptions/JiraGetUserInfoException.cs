@@ -1,6 +1,4 @@
-﻿namespace jwl.jira.Exceptions;
-
-using jwl.Jira.Exceptions;
+namespace jwl.Jira.Exceptions;
 
 public class JiraGetUserInfoException : JiraClientException
 {
