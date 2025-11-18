@@ -5,7 +5,9 @@ public static class DateOnlyUtils
     public static (DateTime, DateTime) DateOnlyRangeToDateTimeRange(DateOnly from, DateOnly to)
     {
         if (from > to)
-            throw new ArgumentException($"{nameof(to)} cannot be less than {nameof(from)}", $"{nameof(from)}, {nameof(to)}");
+        {
+            throw new ArgumentOutOfRangeException(nameof(to), to, $"{nameof(to)} ({to}) cannot be less than {nameof(from)} ({from})");
+        }
 
         DateTime minDt = from.ToDateTime(TimeOnly.MinValue);
         DateTime supDt = to.ToDateTime(TimeOnly.MinValue).AddDays(1);

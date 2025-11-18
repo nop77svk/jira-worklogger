@@ -1,15 +1,15 @@
-﻿namespace jwl.Wadl
+namespace jwl.Wadl
 {
     using System.Collections.Generic;
     using System.Net.Http;
 
     public struct ComposedWadlMethodDefinition
     {
-        public string ResourcePath;
-        public HttpMethod HttpMethod;
-        public IEnumerable<WadlParameter> Parameters;
-        public string? Id;
-        public WadlResourceRequest? Request;
-        public WadlResourceResponse? Response;
+        public string ResourcePath { get; set; }
+        public HttpMethod HttpMethod { get; set; }
+        public IEnumerable<WadlParameter> Parameters { get; set; }
+        public string? Id { get; set; }
+        public WadlResourceRequest? Request { get; set; }
+        public WadlResourceResponse? Response { get; set; }
     }
 }

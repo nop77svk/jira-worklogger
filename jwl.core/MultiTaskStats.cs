@@ -1,4 +1,4 @@
-﻿namespace jwl.Core;
+namespace jwl.Core;
 
 public class MultiTaskStats
 {
@@ -26,12 +26,14 @@ public class MultiTaskStats
         Unknown = 0;
     }
 
-    private object _locker = new object();
+    private readonly object _locker = new object();
 
     public MultiTaskStats ApplyTaskStatus(TaskStatus? taskStatus)
     {
         if (taskStatus == null)
+        {
             return this;
+        }
 
         lock (_locker)
         {

@@ -5,7 +5,7 @@ using System.Reflection;
 using jwl.Core;
 
 public class ScrollingConsoleProcessFeedback
-    : ICoreProcessFeedback, IDisposable
+    : ICoreProcessFeedback
 {
     public Action? FeedbackDelay { get; init; } = null;
 
@@ -69,21 +69,21 @@ public class ScrollingConsoleProcessFeedback
         Assembly exe = Assembly.GetExecutingAssembly();
         object productName = exe.CustomAttributes
             .First(x => x.AttributeType == typeof(AssemblyTitleAttribute))
-            .ConstructorArguments.First().Value
+            .ConstructorArguments[0].Value
             ?? "<unknown product>";
         object cliVersion = exe.CustomAttributes
             .First(x => x.AttributeType == typeof(AssemblyFileVersionAttribute))
-            .ConstructorArguments.First().Value
+            .ConstructorArguments[0].Value
             ?? "?.?.?";
 
         Assembly? core = Assembly.GetAssembly(typeof(JwlCoreProcess));
         object coreVersion = core?.CustomAttributes
             .First(x => x.AttributeType == typeof(AssemblyFileVersionAttribute))
-            .ConstructorArguments.First().Value
+            .ConstructorArguments[0].Value
             ?? "?.?.?";
         object coreCopyright = core?.CustomAttributes
             .First(x => x.AttributeType == typeof(AssemblyCopyrightAttribute))
-            .ConstructorArguments.First().Value
+            .ConstructorArguments[0].Value
             ?? "copy rights undetermined";
 
         System.Console.Error.WriteLine($"{productName} {cliVersion} (core {coreVersion})");
@@ -183,10 +183,9 @@ public class ScrollingConsoleProcessFeedback
         {
             if (disposing)
             {
+                // nothing as of yet
             }
 
-            // TODO: free unmanaged resources (unmanaged objects) and override finalizer
-            // TODO: set large fields to null
             _isDisposed = true;
         }
     }

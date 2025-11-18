@@ -1,4 +1,4 @@
-﻿namespace jwl.Core;
+namespace jwl.Core;
 
 using AutoMapper;
 
@@ -29,7 +29,9 @@ public class AppConfig
     public AppConfig OverrideWith(AppConfig? other)
     {
         if (other == null)
+        {
             return this;
+        }
 
         AppConfig result = overridingMapper.Value.Map<AppConfig, AppConfig>(other, this);
         return result;

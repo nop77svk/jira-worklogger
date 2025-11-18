@@ -1,4 +1,5 @@
-﻿namespace jwl.Jira;
+﻿#pragma warning disable S1075
+namespace jwl.Jira;
 
 using System.Globalization;
 using System.Net.Http.Headers;
@@ -85,16 +86,22 @@ public class JiraWithICTimePluginApi
         HttpMethod expectedMethod = HttpMethod.Get;
         bool isCorrectHttpMethod = endPoint.HttpMethod == expectedMethod;
         if (!isCorrectHttpMethod)
+        {
             throw new InvalidOperationException($"Method {endPoint.Id} at resource path {endPoint.ResourcePath} executes via ${endPoint.HttpMethod} method (${expectedMethod.ToString().ToUpperInvariant()} expected)");
+        }
 
         if (missingParameters.Any())
+        {
             throw new ArgumentException($"Missing assignment of {string.Join(',', missingParameters)} in the call of {endPoint.Id} at resource path {endPoint.ResourcePath}");
+        }
 
         bool providesJsonResponses = endPoint.Response?.Representations?
             .Any(repr => repr.MediaType == Wadl.WadlRepresentation.MediaTypes.Json) ?? false;
 
         if (!providesJsonResponses)
+        {
             throw new InvalidOperationException($"Method {endPoint.Id} at resource path {endPoint.ResourcePath} does not respond in JSON");
+        }
 
         // execute
         KeyValuePair<JiraIssueKey, Task<Contract.Rest.Response.ICTimeActivityDefinition[]>>[] responseTaks = uris
@@ -143,7 +150,7 @@ public class JiraWithICTimePluginApi
         Wadl.ComposedWadlMethodDefinition endPoint = CreateWorkLogMethodDefinition;
 
         HashSet<string> missingParameters = endPoint.Parameters
-            .Concat(endPoint.Request?.Representations?.First().Parameters ?? Array.Empty<WadlParameter>()) // 2do! not just the first representation, but the correct representation
+            .Concat(endPoint.Request?.Representations?[0].Parameters ?? Array.Empty<WadlParameter>()) // 2do! not just the first representation, but the correct representation
             .Where(par => !string.IsNullOrEmpty(par.Name))
             .Select(par => par.Name ?? string.Empty)
             .ToHashSet();
@@ -218,11 +225,8 @@ public class JiraWithICTimePluginApi
             throw new ArgumentException($"Missing assignment of {string.Join(',', missingParameters)} in the call of {endPoint.Id} at resource path {endPoint.ResourcePath}");
         }
 
-        bool providesJsonResponses = endPoint.Response?.Representations?
-            .Any(repr => repr.MediaType == Wadl.WadlRepresentation.MediaTypes.Json) ?? false;
-
         // execute
-        HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, uri)
+        using HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, uri)
         {
             Content = new FormUrlEncodedContent(args),
         };
@@ -231,7 +235,7 @@ public class JiraWithICTimePluginApi
 
         try
         {
-            HttpResponseMessage response = await _httpClient.SendAsync(httpRequest);
+            using HttpResponseMessage response = await _httpClient.SendAsync(httpRequest);
 
             if (response.Content.Headers.ContentType?.MediaType != Wadl.WadlRepresentation.MediaTypeJson)
             {
@@ -254,7 +258,9 @@ public class JiraWithICTimePluginApi
             .ToArray();
 
         if (!daysInPeriod.Any())
+        {
             return;
+        }
 
         int timeSpentSecondsPerSingleDay = timeSpentSeconds / daysInPeriod.Length;
 
@@ -278,10 +284,8 @@ public class JiraWithICTimePluginApi
     private async Task<Wadl.WadlApplication> GetWADL()
     {
         Uri uri = new Uri($"{_flavourOptions.PluginBaseUri}/application.wadl", UriKind.Relative);
-        using Stream response = await _httpClient.GetStreamAsync(uri);
-
-        if (response == null)
-            throw new HttpRequestException($"Empty content received from ${uri}");
+        using Stream response = await _httpClient.GetStreamAsync(uri)
+            ?? throw new HttpRequestException($"Empty content received from ${uri}");
 
         XmlSerializer serializer = new XmlSerializer(typeof(Wadl.WadlApplication));
         object resultObj = serializer.Deserialize(response) ?? throw new InvalidDataException($"Empty/null content deserialization result");

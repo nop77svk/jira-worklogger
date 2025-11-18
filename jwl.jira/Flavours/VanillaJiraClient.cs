@@ -133,7 +133,9 @@ public class VanillaJiraClient
     public async Task<WorkLog[]> GetIssueWorkLogs(DateOnly from, DateOnly to, IEnumerable<string>? issueKeys)
     {
         if (issueKeys is null)
+        {
             return Array.Empty<WorkLog>();
+        }
 
         Task<WorkLog[]>[] responseTasks = issueKeys
             .Distinct()
@@ -161,7 +163,9 @@ public class VanillaJiraClient
         StringBuilder commentBuilder = new StringBuilder();
 
         if (activity != null)
+        {
             commentBuilder.Append($"({activity}){Environment.NewLine}");
+        }
 
         commentBuilder.Append(comment);
 
@@ -198,7 +202,9 @@ public class VanillaJiraClient
             .ToArray();
 
         if (!daysInPeriod.Any())
+        {
             return;
+        }
 
         int timeSpentSecondsPerSingleDay = timeSpentSeconds / daysInPeriod.Length;
 

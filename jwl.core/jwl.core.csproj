@@ -33,6 +33,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\jwl.infra\jwl.infra.csproj" />
         <ProjectReference Include="..\jwl.jira\jwl.jira.csproj" />
         <ProjectReference Include="..\jwl.inputs\jwl.inputs.csproj" />
     </ItemGroup>

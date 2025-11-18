@@ -5,25 +5,25 @@ public abstract class JiraIssueSpecificException
 {
     public string IssueKey { get; }
 
-    public JiraIssueSpecificException(string issueKey)
+    protected JiraIssueSpecificException(string issueKey)
         : base(FormatMessage(issueKey, null))
     {
         IssueKey = issueKey;
     }
 
-    public JiraIssueSpecificException(string issueKey, string message)
+    protected JiraIssueSpecificException(string issueKey, string message)
         : base(FormatMessage(issueKey, message))
     {
         IssueKey = issueKey;
     }
 
-    public JiraIssueSpecificException(string issueKey, Exception innerException)
+    protected JiraIssueSpecificException(string issueKey, Exception innerException)
         : base(FormatMessage(issueKey, null), innerException)
     {
         IssueKey = issueKey;
     }
 
-    public JiraIssueSpecificException(string issueKey, string message, Exception innerException)
+    protected JiraIssueSpecificException(string issueKey, string message, Exception innerException)
         : base(FormatMessage(issueKey, message), innerException)
     {
         IssueKey = issueKey;

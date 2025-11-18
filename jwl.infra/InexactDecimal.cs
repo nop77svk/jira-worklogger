@@ -9,15 +9,11 @@ public static class InexactDecimal
         double result;
 
         NumberStyles numberStyles = NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite;
-        if (!double.TryParse(numberStr, numberStyles, CultureInfo.InvariantCulture, out result))
+        if (!double.TryParse(numberStr, numberStyles, CultureInfo.InvariantCulture, out result)
+            && !double.TryParse(numberStr.Replace('.', ','), numberStyles, CultureInfo.InvariantCulture, out result)
+            && !double.TryParse(numberStr.Replace(',', '.'), numberStyles, CultureInfo.InvariantCulture, out result))
         {
-            if (!double.TryParse(numberStr.Replace('.', ','), numberStyles, CultureInfo.InvariantCulture, out result))
-            {
-                if (!double.TryParse(numberStr.Replace(',', '.'), numberStyles, CultureInfo.InvariantCulture, out result))
-                {
-                    throw new FormatException($"Cannot parse a decimal from string \"{numberStr}\"");
-                }
-            }
+            throw new FormatException($"Cannot parse a decimal from string \"{numberStr}\"");
         }
 
         return result;

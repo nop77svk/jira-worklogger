@@ -11,7 +11,9 @@ public static class HumanReadableTimeSpan
         if (!TimeSpan.TryParseExact(timeSpanStr.Replace(" ", null), timespanTimeFormats, CultureInfo.InvariantCulture, out result))
         {
             if (!InexactDecimal.TryParse(timeSpanStr, out double timeSpanInNumberOfHours))
+            {
                 throw new FormatException($"Invalid timespan string \"{timeSpanStr}\"");
+            }
 
             result = TimeSpan.FromHours(timeSpanInNumberOfHours);
         }

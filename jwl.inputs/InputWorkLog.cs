@@ -6,9 +6,9 @@ using jwl.Infra;
 
 public struct InputWorkLog
 {
-    public JiraIssueKey IssueKey;
-    public DateTime Date;
-    public TimeSpan TimeSpent;
-    public string WorkLogActivity;
-    public string WorkLogComment;
+    public JiraIssueKey IssueKey { get; set; }
+    public DateTime Date { get; set; }
+    public TimeSpan TimeSpent { get; set; }
+    public string WorkLogActivity { get; set; }
+    public string WorkLogComment { get; set; }
 }

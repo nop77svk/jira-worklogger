@@ -1,4 +1,5 @@
-﻿namespace jwl.Core;
+#pragma warning disable S4830
+namespace jwl.Core;
 
 using System;
 
@@ -18,12 +19,6 @@ internal class ConfigDrivenHttpClientFactory
         _lazyHttpClient = new Lazy<HttpClient>(() => InstantiateHttpClient(config));
     }
 
-    // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
-    // ~ConfigDrivenHttpClientFactory()
-    // {
-    //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-    //     Dispose(disposing: false);
-    // }
     public void Dispose()
     {
         // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
@@ -37,17 +32,17 @@ internal class ConfigDrivenHttpClientFactory
         {
             if (disposing)
             {
-                // TODO: dispose managed state (managed objects)
+                if (_lazyHttpClient.IsValueCreated)
+                {
+                    _lazyHttpClient.Value.Dispose();
+                }
+
+                if (_lazyHttpClientHandler.IsValueCreated)
+                {
+                    _lazyHttpClientHandler.Value.Dispose();
+                }
             }
 
-            if (_lazyHttpClient.IsValueCreated)
-                _lazyHttpClient.Value.Dispose();
-
-            if (_lazyHttpClientHandler.IsValueCreated)
-                _lazyHttpClientHandler.Value.Dispose();
-
-            // TODO: free unmanaged resources (unmanaged objects) and override finalizer
-            // TODO: set large fields to null
             _isDisposed = true;
         }
     }
@@ -62,7 +57,9 @@ internal class ConfigDrivenHttpClientFactory
         };
 
         if (config.JiraServer?.SkipSslCertificateCheck ?? false)
-            HttpClientHandler.ServerCertificateCustomValidationCallback = (_, _, _, _) => true;
+        {
+            HttpClientHandler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+        }
 
         return result;
     }

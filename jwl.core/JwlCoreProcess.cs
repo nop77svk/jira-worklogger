@@ -1,4 +1,4 @@
-﻿namespace jwl.Core;
+namespace jwl.Core;
 
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -7,6 +7,7 @@ using System.Text;
 using jwl.Infra;
 using jwl.Inputs;
 using jwl.Jira;
+using jwl.Jira.Exceptions;
 using jwl.Jira.Flavours;
 
 public class JwlCoreProcess : IDisposable
@@ -19,12 +20,12 @@ public class JwlCoreProcess : IDisposable
     public ICoreProcessFeedback? Feedback { get; init; }
     public ICoreProcessInteraction Interaction { get; }
 
-    private bool _isDisposed;
-
-    private AppConfig _config;
-    private IJiraClient _jiraClient;
-    private HttpClient _httpClient => _httpClientFactory.HttpClient;
+    private readonly AppConfig _config;
+    private readonly IJiraClient _jiraClient;
     private readonly ConfigDrivenHttpClientFactory _httpClientFactory;
+
+    private bool _isDisposed;
+    private HttpClient _httpClient => _httpClientFactory.HttpClient;
 
     public JwlCoreProcess(AppConfig config, ICoreProcessInteraction interaction)
     {
@@ -34,7 +35,8 @@ public class JwlCoreProcess : IDisposable
         _httpClientFactory = new ConfigDrivenHttpClientFactory(config);
 
         string userName = _config.User?.Name
-            ?? throw new ArgumentNullException($"{nameof(_config)}.{nameof(_config.User)}.{nameof(_config.User.Name)})");
+            ?? throw new JwlConfigurationException($"Undefined {nameof(_config)}.{nameof(_config.User)}.{nameof(_config.User.Name)})");
+
         _jiraClient = ServerApiFactory.CreateApi(_httpClient, userName, _config.JiraServer);
 
         // 2do! optional trace-logging the HTTP requests
@@ -50,14 +52,16 @@ public class JwlCoreProcess : IDisposable
         string? jiraUserName = _config.User?.Name;
         string? jiraUserPassword = _config.User?.Password;
 
-        if (string.IsNullOrEmpty(jiraUserName) || string.IsNullOrEmpty(jiraUserPassword))
+        if ((string.IsNullOrEmpty(jiraUserName) || string.IsNullOrEmpty(jiraUserPassword))
+            && Interaction != null)
         {
-            if (Interaction != null)
-                (jiraUserName, jiraUserPassword) = Interaction.AskForCredentials(jiraUserName);
+            (jiraUserName, jiraUserPassword) = Interaction.AskForCredentials(jiraUserName);
         }
 
         if (string.IsNullOrEmpty(jiraUserName) || string.IsNullOrEmpty(jiraUserPassword))
-            throw new ArgumentNullException($"Jira credentials not supplied");
+        {
+            throw new JwlCoreException($"Jira credentials not supplied");
+        }
 
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(@"Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes(jiraUserName + ":" + jiraUserPassword)));
     }
@@ -110,11 +114,8 @@ public class JwlCoreProcess : IDisposable
         {
             if (disposing)
             {
+                _httpClient?.Dispose();
             }
-
-            // note: free unmanaged resources (unmanaged objects) and override finalizer
-            // note: set large fields to null
-            _httpClient?.Dispose();
 
             _isDisposed = true;
         }
@@ -125,7 +126,9 @@ public class JwlCoreProcess : IDisposable
         Feedback?.FillJiraWithWorklogsSetTarget(inputWorklogs.Length, worklogsForDeletion.Length);
 
         if (_jiraClient.UserInfo?.Key is null)
-            throw new ArgumentNullException(@"Unresolved Jira key for the logged-on user");
+        {
+            throw new JwlCoreException(@"Unresolved Jira key for the logged-on user");
+        }
 
         Task[] fillJiraWithWorklogsTasks = worklogsForDeletion
             .Select(worklog => _jiraClient.DeleteWorkLog(worklog.IssueId, worklog.Id))
@@ -164,7 +167,9 @@ public class JwlCoreProcess : IDisposable
         };
 
         if (readerTasks.Any())
+        {
             await multiTask.WhenAll(readerTasks);
+        }
 
         InputWorkLog[] result = readerTasks
             .SelectMany(response => response.Result)
@@ -189,7 +194,9 @@ public class JwlCoreProcess : IDisposable
         WorkLog[] result;
 
         if (string.IsNullOrEmpty(_jiraClient.UserInfo?.Key))
-            throw new ArgumentNullException(@"Empty user key preloaded from Jira server");
+        {
+            throw new JiraClientException(@"Empty user key preloaded from Jira server");
+        }
 
         DateTime[] inputWorklogDays = inputWorklogs
             .Select(worklog => worklog.Date)
@@ -202,8 +209,8 @@ public class JwlCoreProcess : IDisposable
         }
         else
         {
-            DateOnly minInputWorklogDay = DateOnly.FromDateTime(inputWorklogDays.First().Date);
-            DateOnly maxInputWorklogDay = DateOnly.FromDateTime(inputWorklogDays.Last().Date);
+            DateOnly minInputWorklogDay = DateOnly.FromDateTime(inputWorklogDays[0].Date);
+            DateOnly maxInputWorklogDay = DateOnly.FromDateTime(inputWorklogDays[^1].Date);
 
             string[] inputIssueKeys = inputWorklogs
                 .Select(worklog => worklog.IssueKey.ToString())
