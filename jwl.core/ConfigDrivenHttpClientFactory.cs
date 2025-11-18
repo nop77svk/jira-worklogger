@@ -1,4 +1,4 @@
-#pragma warning disable S4830
+﻿#pragma warning disable S4830
 namespace jwl.Core;
 
 using System;
@@ -6,12 +6,12 @@ using System;
 internal class ConfigDrivenHttpClientFactory
     : IDisposable
 {
-    public HttpClientHandler HttpClientHandler => _lazyHttpClientHandler.Value;
-    public HttpClient HttpClient => _lazyHttpClient.Value;
-
     private readonly Lazy<HttpClientHandler> _lazyHttpClientHandler;
     private readonly Lazy<HttpClient> _lazyHttpClient;
     private bool _isDisposed;
+
+    public HttpClientHandler HttpClientHandler => _lazyHttpClientHandler.Value;
+    public HttpClient HttpClient => _lazyHttpClient.Value;
 
     public ConfigDrivenHttpClientFactory(AppConfig config)
     {

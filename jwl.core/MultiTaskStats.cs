@@ -1,7 +1,9 @@
-namespace jwl.Core;
+﻿namespace jwl.Core;
 
 public class MultiTaskStats
 {
+    private readonly Lock _locker = new();
+
     public int Total { get; private set; }
     public int Succeeded { get; private set; }
     public float SucceededPct => Total > 0 ? (float)Succeeded / Total : float.NaN;
@@ -25,8 +27,6 @@ public class MultiTaskStats
         Cancelled = 0;
         Unknown = 0;
     }
-
-    private readonly object _locker = new object();
 
     public MultiTaskStats ApplyTaskStatus(TaskStatus? taskStatus)
     {

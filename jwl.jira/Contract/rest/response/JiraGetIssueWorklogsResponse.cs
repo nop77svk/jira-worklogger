@@ -1,8 +1,8 @@
-﻿namespace jwl.Jira.Contract.Rest.Response;
+namespace jwl.Jira.Contract.Rest.Response;
 
-public class JiraIssueWorklogs
+public class JiraGetIssueWorklogsResponse
 {
-    public JiraIssueWorklogs(int startAt, int maxResults, int total, JiraIssueWorklogsWorklog[] worklogs)
+    public JiraGetIssueWorklogsResponse(int startAt, int maxResults, int total, JiraIssueWorklogsWorklog[] worklogs)
     {
         StartAt = startAt;
         MaxResults = maxResults;

@@ -9,10 +9,10 @@ using jwl.Infra;
 
 public class WorklogCsvReader : IWorklogReader
 {
-    public bool ErrorOnEmptyRow { get; init; } = true;
-
     private readonly CsvReader _csvReader;
-    private bool _disposedValue;
+    private bool _disposedValue = false;
+
+    public bool ErrorOnEmptyRow { get; init; } = true;
 
     public WorklogCsvReader(TextReader inputFile, WorklogReaderAggregatedConfig readerConfig)
     {
@@ -53,10 +53,8 @@ public class WorklogCsvReader : IWorklogReader
                 {
                     throw new InvalidDataException("Empty row on input");
                 }
-                else
-                {
-                    continue;
-                }
+
+                continue;
             }
 
             InputWorkLog result;

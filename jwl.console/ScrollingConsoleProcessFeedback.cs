@@ -7,11 +7,11 @@ using jwl.Core;
 public class ScrollingConsoleProcessFeedback
     : ICoreProcessFeedback
 {
-    public Action? FeedbackDelay { get; init; } = null;
-
     private bool _isDisposed;
     private int _numberOfWorklogsToInsert = 0;
     private int _numberOfWorklogsToDelete = 0;
+
+    public Action? FeedbackDelay { get; init; } = null;
 
     public ScrollingConsoleProcessFeedback(int totalSteps)
     {
@@ -183,7 +183,7 @@ public class ScrollingConsoleProcessFeedback
         {
             if (disposing)
             {
-                // nothing as of yet
+                // nothing as of now
             }
 
             _isDisposed = true;

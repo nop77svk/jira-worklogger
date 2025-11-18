@@ -32,11 +32,22 @@ public class UriQueryBuilder
     {
     }
 
+    public static implicit operator string(UriQueryBuilder self) => self.ToString();
+
     public UriQueryBuilder Add(string? key, string? value)
     {
         Add(new KeyValuePair<string?, string?>(key, value));
         return this;
     }
+
+    public UriQueryBuilder Add(string? key, int? value)
+        => Add(key, value?.ToString());
+
+    public UriQueryBuilder Add(string? key, long? value)
+        => Add(key, value?.ToString());
+
+    public UriQueryBuilder Add(string? key, decimal? value)
+        => Add(key, value?.ToString());
 
     public override string ToString() => this.Any()
         ? '?' + string.Join('&', this
@@ -44,6 +55,4 @@ public class UriQueryBuilder
             .Select(x => Uri.EscapeDataString(x.Key ?? string.Empty) + "=" + Uri.EscapeDataString(x.Value ?? string.Empty))
         )
         : string.Empty;
-
-    public static implicit operator string(UriQueryBuilder self) => self.ToString();
 }

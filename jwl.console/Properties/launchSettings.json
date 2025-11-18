@@ -1,0 +1,15 @@
+﻿{
+    "profiles": {
+        "WSL": {
+            "commandName": "WSL2",
+            "distributionName": ""
+        },
+        "jwlc :: timerec.e2.csv @ downloads": {
+            "commandName": "Project",
+            "commandLineArgs": "fill -i C:\\Users\\phr\\Downloads\\timerec.e2.csv"
+        },
+        "jwlc :: help": {
+            "commandName": "Project"
+        }
+    }
+}

@@ -24,7 +24,8 @@ public class JwlCoreProcess : IDisposable
     private readonly IJiraClient _jiraClient;
     private readonly ConfigDrivenHttpClientFactory _httpClientFactory;
 
-    private bool _isDisposed;
+    private bool _isDisposed = false;
+
     private HttpClient _httpClient => _httpClientFactory.HttpClient;
 
     public JwlCoreProcess(AppConfig config, ICoreProcessInteraction interaction)
@@ -125,11 +126,6 @@ public class JwlCoreProcess : IDisposable
     {
         Feedback?.FillJiraWithWorklogsSetTarget(inputWorklogs.Length, worklogsForDeletion.Length);
 
-        if (_jiraClient.UserInfo?.Key is null)
-        {
-            throw new JwlCoreException(@"Unresolved Jira key for the logged-on user");
-        }
-
         Task[] fillJiraWithWorklogsTasks = worklogsForDeletion
             .Select(worklog => _jiraClient.DeleteWorkLog(worklog.IssueId, worklog.Id))
             .Concat(inputWorklogs
@@ -144,31 +140,48 @@ public class JwlCoreProcess : IDisposable
             .ToArray();
 
         MultiTaskStats progress = new MultiTaskStats(fillJiraWithWorklogsTasks.Length);
-        MultiTask multiTask = new MultiTask()
-        {
-            OnTaskAwaited = t => Feedback?.FillJiraWithWorklogsProcess(progress.ApplyTaskStatus(t.Status))
-        };
+        List<Exception> taskExceptions = new();
 
-        await multiTask.WhenAll(fillJiraWithWorklogsTasks);
+        await foreach (var t in Task.WhenEach(fillJiraWithWorklogsTasks))
+        {
+            Feedback?.FillJiraWithWorklogsProcess(progress.ApplyTaskStatus(t.Status));
+
+            if (t.Exception != null)
+            {
+                taskExceptions.Add(t.Exception);
+            }
+        }
+
+        if (taskExceptions.Count > 0)
+        {
+            throw new AggregateException(taskExceptions);
+        }
     }
 
     private async Task<InputWorkLog[]> ReadInputFiles(IEnumerable<string> fileNames)
     {
         Task<InputWorkLog[]>[] readerTasks = fileNames
-            .Select(fileName => ReadInputFile(fileName))
+            .Select(ReadInputFile)
             .ToArray();
 
         Feedback?.ReadCsvInputSetTarget(readerTasks.Length);
 
         MultiTaskStats progressStats = new MultiTaskStats(readerTasks.Length);
-        MultiTask multiTask = new MultiTask()
-        {
-            OnTaskAwaited = t => Feedback?.ReadCsvInputProcess(progressStats.ApplyTaskStatus(t.Status))
-        };
+        List<Exception> taskExceptions = new();
 
-        if (readerTasks.Any())
+        await foreach (var t in Task.WhenEach(readerTasks))
         {
-            await multiTask.WhenAll(readerTasks);
+            Feedback?.ReadCsvInputProcess(progressStats.ApplyTaskStatus(t.Status));
+
+            if (t.Exception != null)
+            {
+                taskExceptions.Add(t.Exception);
+            }
+        }
+
+        if (taskExceptions.Count > 0)
+        {
+            throw new AggregateException(taskExceptions);
         }
 
         InputWorkLog[] result = readerTasks
@@ -184,6 +197,7 @@ public class JwlCoreProcess : IDisposable
         {
             CsvFormatConfig = _config.CsvOptions
         };
+
         using IWorklogReader worklogReader = WorklogReaderFactory.GetReaderFromFilePath(fileName, readerConfig);
 
         return await Task.Factory.StartNew(() => worklogReader.Read().ToArray());
@@ -192,11 +206,6 @@ public class JwlCoreProcess : IDisposable
     private async Task<WorkLog[]> RetrieveWorklogsForDeletion(InputWorkLog[] inputWorklogs)
     {
         WorkLog[] result;
-
-        if (string.IsNullOrEmpty(_jiraClient.UserInfo?.Key))
-        {
-            throw new JiraClientException(@"Empty user key preloaded from Jira server");
-        }
 
         DateTime[] inputWorklogDays = inputWorklogs
             .Select(worklog => worklog.Date)

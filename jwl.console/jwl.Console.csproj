@@ -6,28 +6,36 @@
         <Authors>Peter Hraško</Authors>
         <Company>Open source community</Company>
         <Copyright>Practically copyleft</Copyright>
-
-        <OutputType>Library</OutputType>
+        
+        <OutputType>Exe</OutputType>
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <RootNamespace>jwl.Jira</RootNamespace>
+        <RootNamespace>jwl.Console</RootNamespace>
 
-        <AssemblyName>jwl.jira</AssemblyName>
+        <AssemblyTitle>Jira Worklogger CLI</AssemblyTitle>
+        <AssemblyVersion>2003.8.1</AssemblyVersion>
+        <AssemblyName>jwlc</AssemblyName>
 
-        <PackageId>NoP77svk.Jwl.Jira</PackageId>
+        <PackageId>NoP77svk.Jwl.Console</PackageId>
         <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
         <NoWarn>1701;1702;AD0001;NETSDK1182</NoWarn>
+        <RuntimeIdentifiers>win-x86;win-x64;linux-x64;linux-arm</RuntimeIdentifiers>
+
+        <BeautyLibsDir>./bin</BeautyLibsDir>
+        <BeautyHiddens>hostfxr;hostpolicy;*.deps.json;*.runtimeconfig*.json;clrjit;coreclr;System.*.dll</BeautyHiddens>
+        <BeautyOnPublishOnly>True</BeautyOnPublishOnly>
+        <BeautyEnableDebugging>False</BeautyEnableDebugging>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Macross.Json.Extensions" Version="3.0.0" />
-        <PackageReference Include="NoP77svk.Linq" Version="2024.1.1" />
+        <ProjectReference Include="..\jwl.core\jwl.core.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\jwl.infra\jwl.infra.csproj" />
-        <ProjectReference Include="..\jwl.wadl\jwl.wadl.csproj" />
+        <PackageReference Include="CommandLineParser" Version="2.9.1" />
+        <PackageReference Include="NoP77svk.Console" Version="2024.1.1" />
+        <!--    <PackageReference Include="nulastudio.NetBeauty" Version="2.1.2.1" />	-->
     </ItemGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -51,5 +59,18 @@
         <!-- obj -->
         <RemoveDir Directories="$(BaseOutputPath)" />
         <!-- bin -->
+    </Target>
+
+    <ItemGroup Label="assets">
+        <CommonAssetFiles Include="../_assets/**/*" CopyToOutputDirectory="PreserveNewest" />
+        <CommonAssetFiles Include="../*.md" CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
+
+    <Target Name="CopyCustomContent" AfterTargets="AfterBuild">
+        <Copy SourceFiles="@(CommonAssetFiles)" DestinationFolder="$(OutDir)/%(RecursiveDir)" SkipUnchangedFiles="true" />
+    </Target>
+
+    <Target Name="CopyCustomContentOnPublish" AfterTargets="Publish">
+        <Copy SourceFiles="@(CommonAssetFiles)" DestinationFolder="$(PublishDir)/%(RecursiveDir)" SkipUnchangedFiles="true" />
     </Target>
 </Project>

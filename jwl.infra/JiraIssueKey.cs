@@ -7,23 +7,6 @@ public struct JiraIssueKey
     public string ProjectKey { get; private set; }
     public int IssueNumber { get; private set; }
 
-    public class ProjectOnlyEqualityComparer : IEqualityComparer<JiraIssueKey>
-    {
-        public ProjectOnlyEqualityComparer()
-        {
-        }
-
-        public bool Equals(JiraIssueKey x, JiraIssueKey y)
-        {
-            return x.ProjectKey.Equals(y.ProjectKey);
-        }
-
-        public int GetHashCode([DisallowNull] JiraIssueKey obj)
-        {
-            return obj.ProjectKey.GetHashCode();
-        }
-    }
-
     public JiraIssueKey(string project, int issueNumber)
     {
         ProjectKey = project;
@@ -63,5 +46,22 @@ public struct JiraIssueKey
         }
 
         return result;
+    }
+
+    public class ProjectOnlyEqualityComparer : IEqualityComparer<JiraIssueKey>
+    {
+        public ProjectOnlyEqualityComparer()
+        {
+        }
+
+        public bool Equals(JiraIssueKey x, JiraIssueKey y)
+        {
+            return x.ProjectKey.Equals(y.ProjectKey);
+        }
+
+        public int GetHashCode([DisallowNull] JiraIssueKey obj)
+        {
+            return obj.ProjectKey.GetHashCode();
+        }
     }
 }

@@ -1,9 +1,8 @@
-﻿namespace jwl.Jira;
+namespace jwl.Jira;
 
 using System.Net.Http.Json;
 
 using jwl.Infra;
-using jwl.jira.Exceptions;
 using jwl.Jira.Exceptions;
 using jwl.Jira.Flavours;
 
@@ -18,7 +17,7 @@ public class JiraWithTempoPluginApi
     private readonly VanillaJiraClient _vanillaJiraApi;
 
     public string UserName { get; }
-    public Contract.Rest.Common.JiraUserInfo UserInfo => _vanillaJiraApi.UserInfo;
+    public Contract.Rest.Common.JiraUserInfo CurrentUser => _vanillaJiraApi.CurrentUser;
 
     public JiraWithTempoPluginApi(HttpClient httpClient, string userName, VanillaJiraClient vanillaJiraClient, FlavourTempoTimesheetsOptions? flavourOptions)
     {
@@ -77,8 +76,8 @@ public class JiraWithTempoPluginApi
 
     public async Task<WorkLog[]> GetIssueWorkLogs(DateOnly from, DateOnly to, IEnumerable<string>? issueKeys)
     {
-        string userKey = UserInfo.Key
-            ?? throw new JiraClientException($"Undefined {nameof(UserInfo)}.{nameof(UserInfo.Key)}");
+        string userKey = CurrentUser.Key
+            ?? throw new JiraClientException($"{nameof(CurrentUser)}.{nameof(CurrentUser.Key)} is NULL");
 
         var request = new Contract.Rest.Request.TempoFindWorklogs(from, to)
         {
@@ -95,6 +94,7 @@ public class JiraWithTempoPluginApi
                 .Select(wl => new WorkLog(
                     Id: wl.Id ?? -1,
                     IssueId: wl.IssueId ?? -1,
+                    AuthorAccountId: null,
                     AuthorName: wl.WorkerKey == userKey ? UserName : null,
                     AuthorKey: wl.WorkerKey,
                     Created: wl.Created?.Value ?? DateTime.MinValue,
@@ -122,8 +122,8 @@ public class JiraWithTempoPluginApi
 
     public async Task AddWorkLogPeriod(string issueKey, DateOnly dayFrom, DateOnly dayTo, int timeSpentSeconds, string? activity, string? comment, bool includeNonWorkingDays = false)
     {
-        string userKey = UserInfo.Key
-            ?? throw new JiraClientException($"Undefined {nameof(UserInfo)}.{nameof(UserInfo.Key)}");
+        string userKey = CurrentUser.Key
+            ?? throw new JiraClientException($"NULL {nameof(CurrentUser)}.{nameof(CurrentUser.Key)}");
 
         var request = new Contract.Rest.Request.TempoAddWorklogByIssueKey()
         {
@@ -180,18 +180,16 @@ public class JiraWithTempoPluginApi
 
     public async Task UpdateWorkLog(string issueKey, long worklogId, DateOnly day, int timeSpentSeconds, string? activity, string? comment)
     {
-        await UpdateWorklogPeriod(issueKey, worklogId, day, day, timeSpentSeconds, comment, activity);
+        await UpdateWorklogPeriod(worklogId, day, day, timeSpentSeconds, comment, activity);
     }
 
-    // 2do! Either the issueKey or the worklogId is not necessary here!
-    private async Task UpdateWorklogPeriod(string issueKey, long worklogId, DateOnly dayFrom, DateOnly dayTo, int timeSpentSeconds, string? comment, string? activity, bool includeNonWorkingDays = false)
+    private async Task UpdateWorklogPeriod(long worklogId, DateOnly dayFrom, DateOnly dayTo, int timeSpentSeconds, string? comment, string? activity, bool includeNonWorkingDays = false)
     {
         UriBuilder uriBuilder = new UriBuilder()
         {
             Path = new UriPathBuilder($"{_flavourOptions.PluginBaseUri}/worklogs")
                 .Add(worklogId.ToString())
         };
-
         var request = new Contract.Rest.Request.TempoUpdateWorklog()
         {
             Started = new Contract.Rest.Common.TempoDate(dayFrom),
@@ -220,7 +218,7 @@ public class JiraWithTempoPluginApi
         }
         catch (Exception ex)
         {
-            throw new JiraUpdateWorklogsPeriodException(issueKey, worklogId, dayFrom.ToDateTime(TimeOnly.MinValue), dayTo.ToDateTime(TimeOnly.MaxValue), timeSpentSeconds, ex);
+            throw new JiraUpdateWorklogsPeriodException("[undefined]", worklogId, dayFrom.ToDateTime(TimeOnly.MinValue), dayTo.ToDateTime(TimeOnly.MaxValue), timeSpentSeconds, ex);
         }
     }
 }

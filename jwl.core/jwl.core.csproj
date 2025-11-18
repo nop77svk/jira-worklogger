@@ -1,24 +1,27 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
+        <Product>Jira Worklogger</Product>
+        <ProductVersion>2025.11.2</ProductVersion>
+        <InformationalVersion>2025.11.2</InformationalVersion>
+        <Authors>Peter Hraško</Authors>
+        <Company>Open source community</Company>
+        <Copyright>Practically copyleft</Copyright>
+
         <OutputType>Library</OutputType>
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-
-        <Product>Jira Worklogger</Product>
-        <Authors>Peter Hraško</Authors>
-        <Company>Open source community</Company>
-        <Copyright>Practically copyleft</Copyright>
-        <NoWarn>1701;1702;AD0001;NETSDK1182</NoWarn>
         <RootNamespace>jwl.Core</RootNamespace>
+
         <AssemblyName>jwl.core</AssemblyName>
+
         <PackageId>NoP77svk.Jwl.Core</PackageId>
         <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+        <NoWarn>1701;1702;AD0001;NETSDK1182</NoWarn>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <RepositoryUrl>https://github.com/nop77svk/jira-worklogger.git</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
-        <AssemblyVersion>2025.9.1</AssemblyVersion>
-        <PackageLicenseFile>LICENSE</PackageLicenseFile>
     </PropertyGroup>
 
     <ItemGroup>

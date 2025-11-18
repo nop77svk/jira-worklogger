@@ -14,8 +14,14 @@ using jwl.Wadl;
 public class JiraWithICTimePluginApi
     : IJiraClient
 {
+    public const string CreateWorkLogMethodName = "createWorklog";
+    public const string GetActivityTypesForProjectMethodName = "getActivityTypesForProject";
+    private readonly HttpClient _httpClient;
+    private readonly FlavourICTimeOptions _flavourOptions;
+    private readonly FlavourICTimeOptions _defaultFlavourOptions = new FlavourICTimeOptions();
+    private readonly VanillaJiraClient _vanillaJiraApi;
     public string UserName { get; }
-    public Contract.Rest.Common.JiraUserInfo UserInfo => _vanillaJiraApi.UserInfo;
+    public Contract.Rest.Common.JiraUserInfo CurrentUser => _vanillaJiraApi.CurrentUser;
 
     public Lazy<Dictionary<string, Wadl.ComposedWadlMethodDefinition>> Endpoints =>
         new Lazy<Dictionary<string, Wadl.ComposedWadlMethodDefinition>>(() => GetWADL().Result
@@ -26,16 +32,8 @@ public class JiraWithICTimePluginApi
             .ToDictionary(res => res.Id ?? string.Empty)
         );
 
-    public const string CreateWorkLogMethodName = "createWorklog";
     public Wadl.ComposedWadlMethodDefinition CreateWorkLogMethodDefinition => Endpoints.Value[CreateWorkLogMethodName];
-
-    public const string GetActivityTypesForProjectMethodName = "getActivityTypesForProject";
     public Wadl.ComposedWadlMethodDefinition GetActivityTypesForProjectMethodDefinition => Endpoints.Value[GetActivityTypesForProjectMethodName];
-
-    private readonly HttpClient _httpClient;
-    private readonly FlavourICTimeOptions _flavourOptions;
-    private readonly FlavourICTimeOptions _defaultFlavourOptions = new FlavourICTimeOptions();
-    private readonly VanillaJiraClient _vanillaJiraApi;
 
     public JiraWithICTimePluginApi(HttpClient httpClient, string userName, VanillaJiraClient vanillaJiraClient, FlavourICTimeOptions? flavourOptions)
     {
@@ -150,15 +148,16 @@ public class JiraWithICTimePluginApi
         Wadl.ComposedWadlMethodDefinition endPoint = CreateWorkLogMethodDefinition;
 
         HashSet<string> missingParameters = endPoint.Parameters
-            .Concat(endPoint.Request?.Representations?[0].Parameters ?? Array.Empty<WadlParameter>()) // 2do! not just the first representation, but the correct representation
+            .Concat(endPoint.Request?.Representations?[0]?.Parameters ?? Enumerable.Empty<WadlParameter>()) // 2do! not just the first representation, but the correct representation
             .Where(par => !string.IsNullOrEmpty(par.Name))
             .Select(par => par.Name ?? string.Empty)
             .ToHashSet();
 
         // define
-        string uri = this._flavourOptions.PluginBaseUri.Trim('/') + "/" + endPoint.ResourcePath
-            .Replace("{issueKey}", issueKey)
-            .Trim('/');
+        UriPathBuilder uriPathBuilder = new UriPathBuilder(_flavourOptions.PluginBaseUri)
+            .Add(endPoint.ResourcePath)
+            .Add(issueKey);
+
         missingParameters.Remove("issueKey");
 
         string activityArg;
@@ -226,7 +225,7 @@ public class JiraWithICTimePluginApi
         }
 
         // execute
-        using HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, uri)
+        using HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, uriPathBuilder.ToString())
         {
             Content = new FormUrlEncodedContent(args),
         };
@@ -290,7 +289,7 @@ public class JiraWithICTimePluginApi
         XmlSerializer serializer = new XmlSerializer(typeof(Wadl.WadlApplication));
         object resultObj = serializer.Deserialize(response) ?? throw new InvalidDataException($"Empty/null content deserialization result");
 
-        Wadl.WadlApplication result = (Wadl.WadlApplication)resultObj;
+        var result = (WadlApplication)resultObj;
         return result;
     }
 }

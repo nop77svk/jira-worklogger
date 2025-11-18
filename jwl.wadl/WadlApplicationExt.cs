@@ -1,4 +1,4 @@
-#pragma warning disable S1075
+﻿#pragma warning disable S1075
 namespace jwl.Wadl
 {
     using System.Collections.Generic;

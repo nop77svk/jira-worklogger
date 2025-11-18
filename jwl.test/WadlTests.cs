@@ -1,4 +1,4 @@
-namespace jwl.Jira.test;
+﻿namespace jwl.Test;
 
 using System.Xml.Serialization;
 
@@ -26,7 +26,7 @@ public class WadlTests
     [Test]
     public void CanDeserializeWadl()
     {
-        Assert.IsNotNull(_wadlResponseStream);
+        Assert.That(_wadlResponseStream, Is.Not.Null);
 
         var wadlObj = _wadlSerializer.Deserialize(_wadlResponseStream);
         Assert.IsNotNull(wadlObj);
@@ -41,11 +41,11 @@ public class WadlTests
     [Test]
     public void CanFlattenWadl()
     {
-        Assert.IsNotNull(_wadlResponseStream);
+        Assert.That(_wadlResponseStream, Is.Not.Null);
         var wadl = (WadlApplication?)_wadlSerializer.Deserialize(_wadlResponseStream);
 
         var flatWadl = wadl?.AsComposedWadlMethodDefinitionEnumerable().ToArray();
-        Assert.IsNotNull(flatWadl);
+        Assert.That(flatWadl, Is.Not.Null);
         Assert.That(flatWadl?.Any() ?? false);
     }
 

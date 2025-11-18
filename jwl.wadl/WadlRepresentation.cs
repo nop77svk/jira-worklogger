@@ -11,6 +11,12 @@
         public const string MediaTypeJson = @"application/json";
         public const string MediaTypeFormUrlEncoded = @"application/x-www-form-urlencoded";
 
+        [XmlAttribute("mediaType")]
+        public MediaTypes MediaType { get; set; }
+
+        [XmlElement("param")]
+        public WadlParameter[]? Parameters { get; set; }
+
         public enum MediaTypes
         {
             [XmlEnum(MediaTypePlainText)]
@@ -28,11 +34,5 @@
             [XmlEnum(MediaTypeFormUrlEncoded)]
             WwwFormUrlEncoded
         }
-
-        [XmlAttribute("mediaType")]
-        public MediaTypes MediaType { get; set; }
-
-        [XmlElement("param")]
-        public WadlParameter[]? Parameters { get; set; }
     }
 }
