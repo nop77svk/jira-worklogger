@@ -14,7 +14,7 @@
         <Company>Open source community</Company>
         <Copyright>Practically copyleft</Copyright>
         <NoWarn>1701;1702;AD0001;NETSDK1182</NoWarn>
-        <RootNamespace>jwl.Tnputs</RootNamespace>
+        <RootNamespace>jwl.Inputs</RootNamespace>
         <AssemblyName>jwl.inputs</AssemblyName>
         <PackageId>NoP77svk.Jwl.Test</PackageId>
         <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
