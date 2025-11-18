@@ -1,6 +1,4 @@
-﻿namespace jwl.core;
-using jwl.Infra;
-
+﻿namespace jwl.Core;
 public class MultiTaskStats
 {
     public int Total { get; private set; }

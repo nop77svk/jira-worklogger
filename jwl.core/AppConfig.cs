@@ -1,12 +1,13 @@
-﻿namespace jwl.core;
+﻿namespace jwl.Core;
+
 using AutoMapper;
 
 public class AppConfig
 {
     public bool? UseVerboseFeedback { get; init; }
     public jwl.Jira.ServerConfig? JiraServer { get; init; }
-    public jwl.core.UserConfig? User { get; init; }
-    public jwl.inputs.CsvFormatConfig? CsvOptions { get; init; }
+    public jwl.Core.UserConfig? User { get; init; }
+    public jwl.Inputs.CsvFormatConfig? CsvOptions { get; init; }
 
     private static Lazy<MapperConfiguration> overridingMapperConfiguration = new (() => new MapperConfiguration(cfg =>
     {
@@ -14,9 +15,9 @@ public class AppConfig
             .ForAllMembers(m => m.Condition((src, dest, member) => member != null));
         cfg.CreateMap<Jira.ServerConfig, Jira.ServerConfig>()
             .ForAllMembers(m => m.Condition((src, dest, member) => member != null));
-        cfg.CreateMap<inputs.CsvFormatConfig, inputs.CsvFormatConfig>()
+        cfg.CreateMap<Inputs.CsvFormatConfig, Inputs.CsvFormatConfig>()
             .ForAllMembers(m => m.Condition((src, dest, member) => member != null));
-        cfg.CreateMap<core.UserConfig, core.UserConfig>()
+        cfg.CreateMap<Core.UserConfig, Core.UserConfig>()
             .ForAllMembers(m => m.Condition((src, dest, member) => member != null));
 
         cfg.AddGlobalIgnore(nameof(AppConfig.JiraServer.FlavourOptions));

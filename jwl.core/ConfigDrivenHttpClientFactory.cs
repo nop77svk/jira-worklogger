@@ -1,4 +1,5 @@
-﻿namespace jwl.core;
+﻿namespace jwl.Core;
+
 using System;
 
 internal class ConfigDrivenHttpClientFactory

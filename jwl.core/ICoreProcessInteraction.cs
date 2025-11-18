@@ -1,4 +1,4 @@
-namespace jwl.core;
+﻿namespace jwl.Core;
 
 public interface ICoreProcessInteraction
     : IDisposable

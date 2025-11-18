@@ -1,5 +1,6 @@
 ﻿namespace jwl.Jira;
 using System.Text.Json.Serialization;
+
 using jwl.Jira.Flavours;
 
 public class ServerConfig

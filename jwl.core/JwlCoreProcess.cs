@@ -1,12 +1,13 @@
-﻿namespace jwl.core;
+﻿namespace jwl.Core;
+
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+
 using jwl.Infra;
-using jwl.inputs;
+using jwl.Inputs;
 using jwl.Jira;
 using jwl.Jira.Flavours;
-using NoP77svk.Linq;
 
 public class JwlCoreProcess : IDisposable
 {

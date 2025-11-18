@@ -1,9 +1,10 @@
-﻿namespace jwl.core;
-using jwl.inputs;
+﻿namespace jwl.Core;
+
+using Microsoft.Extensions.Configuration;
+
+using jwl.Inputs;
 using jwl.Jira;
 using jwl.Jira.Flavours;
-using Microsoft.Extensions.Configuration;
-using System.Xml.XPath;
 
 public static class AppConfigFactory
 {
