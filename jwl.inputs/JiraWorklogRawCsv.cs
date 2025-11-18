@@ -1,5 +1,5 @@
 #pragma warning disable SA1313
-namespace Jwl.Inputs;
+namespace jwl.Inputs;
 
 public record JiraWorklogRawCsv
 (

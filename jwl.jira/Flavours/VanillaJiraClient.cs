@@ -1,4 +1,4 @@
-namespace Jwl.Jira;
+namespace jwl.Jira;
 
 using System.Collections.Generic;
 using System.Net.Http;
@@ -7,17 +7,17 @@ using System.Text;
 using System.Text.Json;
 using System.Xml;
 
-using Jwl.Infra;
-using Jwl.Jira.api.rest.common;
-using Jwl.Jira.api.rest.response;
-using Jwl.Jira.Exceptions;
-using Jwl.Jira.Flavours;
+using jwl.Infra;
+using jwl.Jira.api.rest.common;
+using jwl.Jira.api.rest.response;
+using jwl.Jira.Exceptions;
+using jwl.Jira.Flavours;
 
 public class VanillaJiraClient
     : IJiraClient
 {
     private readonly HttpClient _httpClient;
-    private readonly Lazy<Jwl.Jira.api.rest.common.JiraUserInfo> _lazyUserInfo;
+    private readonly Lazy<jwl.Jira.api.rest.common.JiraUserInfo> _lazyUserInfo;
     private readonly FlavourVanillaJiraOptions _flavourOptions;
 
     public string UserName { get; }

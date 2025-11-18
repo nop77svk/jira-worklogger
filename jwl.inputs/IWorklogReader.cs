@@ -1,4 +1,4 @@
-namespace Jwl.Inputs;
+namespace jwl.Inputs;
 
 public interface IWorklogReader : IDisposable
 {

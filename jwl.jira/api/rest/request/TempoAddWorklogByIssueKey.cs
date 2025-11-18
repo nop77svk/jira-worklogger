@@ -1,6 +1,6 @@
-namespace Jwl.Jira.api.rest.request;
+namespace jwl.Jira.api.rest.request;
 using System.Text.Json.Serialization;
-using Jwl.Jira.api.rest.common;
+using jwl.Jira.api.rest.common;
 
 public class TempoAddWorklogByIssueKey
 {

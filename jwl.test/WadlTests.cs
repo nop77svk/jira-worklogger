@@ -1,8 +1,8 @@
-namespace Jwl.Test;
+namespace jwl.Test;
 
 using System.Xml.Serialization;
 
-using Jwl.Wadl;
+using jwl.Wadl;
 
 public class WadlTests
     : IDisposable

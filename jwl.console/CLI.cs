@@ -1,4 +1,4 @@
-namespace Jwl.Console;
+namespace jwl.Console;
 
 using CommandLine;
 

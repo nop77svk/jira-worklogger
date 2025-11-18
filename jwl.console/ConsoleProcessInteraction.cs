@@ -1,6 +1,6 @@
-namespace Jwl.Console;
+namespace jwl.Console;
 
-using Jwl.Core;
+using jwl.Core;
 
 using NoP77svk.Console;
 

@@ -1,5 +1,5 @@
-namespace Jwl.Jira.api.rest.request;
-using Jwl.Jira.api.rest.common;
+namespace jwl.Jira.api.rest.request;
+using jwl.Jira.api.rest.common;
 
 public class TempoUpdateWorklog
 {

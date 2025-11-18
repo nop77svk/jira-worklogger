@@ -1,4 +1,4 @@
-namespace Jwl.Infra.Deprecated;
+namespace jwl.Infra.Deprecated;
 
 internal class MultiTask
 {

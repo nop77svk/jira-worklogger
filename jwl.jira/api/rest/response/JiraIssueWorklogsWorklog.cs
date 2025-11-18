@@ -1,5 +1,5 @@
-namespace Jwl.Jira.api.rest.response;
-using Jwl.Jira.api.rest.common;
+namespace jwl.Jira.api.rest.response;
+using jwl.Jira.api.rest.common;
 
 public class JiraIssueWorklogsWorklog
 {

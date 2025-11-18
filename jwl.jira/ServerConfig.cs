@@ -1,8 +1,8 @@
-namespace Jwl.Jira;
+namespace jwl.Jira;
 
 using System.Text.Json.Serialization;
 
-using Jwl.Jira.Flavours;
+using jwl.Jira.Flavours;
 
 public class ServerConfig
 {

@@ -1,10 +1,10 @@
-namespace Jwl.Core;
+namespace jwl.Core;
 
 using Microsoft.Extensions.Configuration;
 
-using Jwl.Inputs;
-using Jwl.Jira;
-using Jwl.Jira.Flavours;
+using jwl.Inputs;
+using jwl.Jira;
+using jwl.Jira.Flavours;
 
 public static class AppConfigFactory
 {

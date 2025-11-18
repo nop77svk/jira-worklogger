@@ -1,4 +1,4 @@
-namespace Jwl.Jira;
+namespace jwl.Jira;
 
 using System;
 using System.Collections.Generic;

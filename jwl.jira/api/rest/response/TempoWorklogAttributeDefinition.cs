@@ -1,6 +1,6 @@
-namespace Jwl.Jira.api.rest.response;
+namespace jwl.Jira.api.rest.response;
 using System.Text.Json.Serialization;
-using Jwl.Jira.api.rest.common;
+using jwl.Jira.api.rest.common;
 
 public class TempoWorklogAttributeDefinition
 {

@@ -1,11 +1,11 @@
-namespace Jwl.Inputs;
+namespace jwl.Inputs;
 
 using System.Globalization;
 
 using CsvHelper;
 using CsvHelper.Configuration;
 
-using Jwl.Infra;
+using jwl.Infra;
 
 public class WorklogCsvReader : IWorklogReader
 {

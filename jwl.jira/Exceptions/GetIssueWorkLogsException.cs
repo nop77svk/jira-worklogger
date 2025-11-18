@@ -1,4 +1,4 @@
-namespace Jwl.Jira.Exceptions;
+namespace jwl.Jira.Exceptions;
 
 using System;
 

@@ -1,11 +1,11 @@
-namespace Jwl.Jira;
+namespace jwl.Jira;
 
 using System.Net.Http.Json;
 
-using Jwl.Infra;
-using Jwl.Jira.api.rest.common;
-using Jwl.Jira.Exceptions;
-using Jwl.Jira.Flavours;
+using jwl.Infra;
+using jwl.Jira.api.rest.common;
+using jwl.Jira.Exceptions;
+using jwl.Jira.Flavours;
 
 // https://www.tempo.io/server-api-documentation/timesheets
 public class JiraWithTempoPluginApi

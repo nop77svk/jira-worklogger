@@ -1,4 +1,4 @@
-namespace Jwl.Jira.Exceptions;
+namespace jwl.Jira.Exceptions;
 
 internal class DeleteWorklogException
     : JiraIssueSpecificException

@@ -1,14 +1,14 @@
-namespace Jwl.Jira;
+namespace jwl.Jira;
 
 using System.Globalization;
 using System.Net.Http.Headers;
 using System.Xml.Serialization;
 
-using Jwl.Infra;
-using Jwl.Jira.api.rest.request;
-using Jwl.Jira.Exceptions;
-using Jwl.Jira.Flavours;
-using Jwl.Wadl;
+using jwl.Infra;
+using jwl.Jira.api.rest.request;
+using jwl.Jira.Exceptions;
+using jwl.Jira.Flavours;
+using jwl.Wadl;
 
 // https://interconcept.atlassian.net/wiki/spaces/ICTIME/pages/31686672/API
 public class JiraWithICTimePluginApi

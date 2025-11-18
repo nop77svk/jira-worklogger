@@ -1,4 +1,4 @@
-namespace Jwl.Jira.Flavours;
+namespace jwl.Jira.Flavours;
 
 public static class ServerApiFactory
 {
