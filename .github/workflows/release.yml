@@ -1,7 +1,9 @@
-name: Release upon version tag
+name: Release upon version tag in main branch
 
 on:
   push:
+    branches:
+    - main
     tags:
     - "[0-9]+\\.[0-9]+\\.[0-9]+"
 
@@ -39,41 +41,53 @@ jobs:
           --password ${{ secrets.GITHUB_TOKEN }} \
           --store-password-in-clear-text \
           --source 'https://nuget.pkg.github.com/nop77svk/index.json'
-    - name: Pre-Build Phase
-      run: |
-        dotnet clean -c Release
-        dotnet restore
+    - name: Solution clean
+      run: dotnet clean -c Release
+    - name: NuGet restore
+      run: dotnet restore
     - name: Build
       run: dotnet build -c Release --no-restore
     - name: Test
       run: dotnet test -c Release --no-build
-#    - name: Pack
-#      run: |
-#        dotnet pack -c Release /p:Version=${VERSION} --no-build --output .
-#    - name: Push
-#      run: dotnet nuget push NoP77svk.*.${VERSION}.nupkg --source https://nuget.pkg.github.com/nop77svk/index.json --api-key ${GITHUB_TOKEN}
-#      env:
-#        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Prepare releases
       run: |
         mkdir _publish.all
     - name: Windows x64 Build
       run: |
-        dotnet publish ./jwl.console -c Release -o ./_publish.win-x64 -r win-x64 --self-contained --no-restore
+        dotnet publish ./jwl.console/jwl.console.csproj \
+            -c Release \
+            -o ./_publish.win-x64 \
+            -r win-x64 \
+            --self-contained \
+            --no-restore \
+            -p:UseAppHost=true
         cd ./_publish.win-x64
         cp ../LICENSE .
         zip -r9v ../_publish.all/jira-worklogger.${VERSION}.win.x64.zip .
         cd ..
     - name: Linux x64 Build
       run: |
-        dotnet publish ./jwl.console -c Release -o ./_publish.linux-x64 -r linux-x64 --self-contained
+        dotnet publish ./jwl.console/jwl.console.csproj \
+            -c Release \
+            -o ./_publish.linux-x64 \
+            -r linux-x64 \
+            --self-contained \
+            --no-restore \
+            -p:UseAppHost=true
         cd ./_publish.linux-x64
         cp ../LICENSE .
         zip -r9v ../_publish.all/jira-worklogger.${VERSION}.linux.x64.zip .
         cd ..
     - name: Portable Build
       run: |
-        dotnet publish ./jwl.console -c Release -o ./_publish.portable --no-self-contained -p:PublishTrimmed=false --no-restore
+        dotnet publish ./jwl.console/jwl.console.csproj \
+            -c Release \
+            -o ./_publish.portable \
+            -r win-x64 \
+            --no-self-contained \
+            -p:PublishTrimmed=false \
+            --no-restore \
+            -p:UseAppHost=true
         cd ./_publish.portable
         cp ../LICENSE .
         zip -r9v ../_publish.all/jira-worklogger.${VERSION}.portable.zip .
