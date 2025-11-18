@@ -1,7 +1,7 @@
-namespace Jwl.Core;
+namespace jwl.Core;
 
-using Jwl.Inputs;
-using Jwl.Jira;
+using jwl.Inputs;
+using jwl.Jira;
 
 public static class AppConfigConversionExtensions
 {
