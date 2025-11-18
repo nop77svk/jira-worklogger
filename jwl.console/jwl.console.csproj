@@ -5,6 +5,7 @@
         <RuntimeIdentifiers>win-x86;win-x64;linux-x64;linux-arm</RuntimeIdentifiers>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+
         <Product>Jira Worklogger</Product>
         <AssemblyTitle>Jira Worklogger CLI</AssemblyTitle>
         <AssemblyVersion>2003.8.1</AssemblyVersion>
@@ -12,9 +13,9 @@
         <Company>Open source community</Company>
         <Copyright>Practically copyleft</Copyright>
         <NoWarn>1701;1702;AD0001;NETSDK1182</NoWarn>
-        <RootNamespace>jwl.console</RootNamespace>
+        <RootNamespace>jwl.Console</RootNamespace>
         <AssemblyName>jwlc</AssemblyName>
-        <PackageId>NoP77svk.jwl.console</PackageId>
+        <PackageId>NoP77svk.Jwl.Console</PackageId>
         <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
 
         <BeautyLibsDir>./bin</BeautyLibsDir>

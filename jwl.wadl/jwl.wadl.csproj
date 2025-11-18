@@ -4,6 +4,16 @@
         <TargetFramework>netstandard2.1</TargetFramework>
         <Nullable>enable</Nullable>
         <OutputType>Library</OutputType>
+
+        <Product>...</Product>
+        <Authors>Peter Hraško</Authors>
+        <Company>Open source community</Company>
+        <Copyright>Practically copyleft</Copyright>
+        <NoWarn>1701;1702;AD0001;NETSDK1182</NoWarn>
+        <RootNamespace>jwl.Wadl</RootNamespace>
+        <AssemblyName>jwl.wadl</AssemblyName>
+        <PackageId>NoP77svk.Jwl.Wadl</PackageId>
+        <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

@@ -8,6 +8,16 @@
         <IsPackable>false</IsPackable>
         <IsTestProject>true</IsTestProject>
         <UserSecretsId>780b51e1-1850-43fb-a282-c16f8265968a</UserSecretsId>
+
+        <Product>...</Product>
+        <Authors>Peter Hraško</Authors>
+        <Company>Open source community</Company>
+        <Copyright>Practically copyleft</Copyright>
+        <NoWarn>1701;1702;AD0001;NETSDK1182</NoWarn>
+        <RootNamespace>jwl.Tnputs</RootNamespace>
+        <AssemblyName>jwl.inputs</AssemblyName>
+        <PackageId>NoP77svk.Jwl.Test</PackageId>
+        <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     </PropertyGroup>
 
     <ItemGroup>

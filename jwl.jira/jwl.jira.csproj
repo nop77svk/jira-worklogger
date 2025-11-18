@@ -4,14 +4,15 @@
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+
         <Product>...</Product>
         <Authors>Peter Hraško</Authors>
         <Company>Open source community</Company>
         <Copyright>Practically copyleft</Copyright>
         <NoWarn>1701;1702;AD0001;NETSDK1182</NoWarn>
-        <RootNamespace>jwl.jira</RootNamespace>
+        <RootNamespace>jwl.Jira</RootNamespace>
         <AssemblyName>jwl.jira</AssemblyName>
-        <PackageId>NoP77svk.jwl.jira</PackageId>
+        <PackageId>NoP77svk.Jwl.Jira</PackageId>
         <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     </PropertyGroup>
 

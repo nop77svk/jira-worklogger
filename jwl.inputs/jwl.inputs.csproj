@@ -4,14 +4,15 @@
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+
         <Product>...</Product>
         <Authors>Peter Hraško</Authors>
         <Company>Open source community</Company>
         <Copyright>Practically copyleft</Copyright>
         <NoWarn>1701;1702;AD0001;NETSDK1182</NoWarn>
-        <RootNamespace>jwl.inputs</RootNamespace>
+        <RootNamespace>jwl.Inputs</RootNamespace>
         <AssemblyName>jwl.inputs</AssemblyName>
-        <PackageId>NoP77svk.jwl.inputs</PackageId>
+        <PackageId>NoP77svk.Jwl.Inputs</PackageId>
         <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     </PropertyGroup>
 
