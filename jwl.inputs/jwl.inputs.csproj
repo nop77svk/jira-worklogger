@@ -1,44 +1,50 @@
 <Project Sdk="Microsoft.NET.Sdk" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <PropertyGroup>
-    <OutputType>Library</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <Product>...</Product>
-    <Authors>Peter Hraško</Authors>
-    <Company>Open source community</Company>
-    <Copyright>Practically copyleft</Copyright>
-    <NoWarn>1701;1702;AD0001;NETSDK1182</NoWarn>
-    <RootNamespace>jwl.inputs</RootNamespace>
-    <AssemblyName>jwl.inputs</AssemblyName>
-    <PackageId>NoP77svk.jwl.inputs</PackageId>
-    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DebugType>none</DebugType>
-    <DebugSymbols>false</DebugSymbols>
-  </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="CsvHelper" Version="30.0.1" />
-    <PackageReference Include="ExcelDataReader" Version="3.6.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="*">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="StyleCop.Analyzers" Version="*">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <Compile Include="..\GlobalSuppressions.cs" Link="GlobalSuppressions.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\jwl.jira\jwl.jira.csproj" />
-    <ProjectReference Include="..\jwl.infra\jwl.infra.csproj" />
-  </ItemGroup>
-  <Target Name="PostClean" AfterTargets="Clean">
-    <RemoveDir Directories="$(BaseIntermediateOutputPath)" />
-    <!-- obj -->
-    <RemoveDir Directories="$(BaseOutputPath)" />
-    <!-- bin -->
-  </Target>
+    <PropertyGroup>
+        <OutputType>Library</OutputType>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <Product>...</Product>
+        <Authors>Peter Hraško</Authors>
+        <Company>Open source community</Company>
+        <Copyright>Practically copyleft</Copyright>
+        <NoWarn>1701;1702;AD0001;NETSDK1182</NoWarn>
+        <RootNamespace>jwl.inputs</RootNamespace>
+        <AssemblyName>jwl.inputs</AssemblyName>
+        <PackageId>NoP77svk.jwl.inputs</PackageId>
+        <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="CsvHelper" Version="30.0.1" />
+        <PackageReference Include="ExcelDataReader" Version="3.6.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\jwl.jira\jwl.jira.csproj" />
+        <ProjectReference Include="..\jwl.infra\jwl.infra.csproj" />
+    </ItemGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+        <DebugType>none</DebugType>
+        <DebugSymbols>false</DebugSymbols>
+    </PropertyGroup>
+
+    <ItemGroup Label="analyzers">
+        <PackageReference Include="StyleCop.Analyzers" Version="*">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="SonarAnalyzer.CSharp" Version="*">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <Target Name="PostClean" AfterTargets="Clean">
+        <RemoveDir Directories="$(BaseIntermediateOutputPath)" />
+        <!-- obj -->
+        <RemoveDir Directories="$(BaseOutputPath)" />
+        <!-- bin -->
+    </Target>
 </Project>
