@@ -12,9 +12,9 @@ Meet the scripted Jira worklogging! Give it your worklogs in a CSV file (and you
 
 ## Prerequisites
 
-- .NET 6 run-time installed (for simple, cross-platform build) or no .NET runtime necessary (for self-contained, single-exe, Windows-only build); You choose!
+- .NET 9 run-time installed (for simple, cross-platform build) or no .NET runtime necessary (for self-contained, single-exe, Windows-only build); You choose!
 - Jira server
-  - "vanilla" Jira server support: ✔️ (version 2 REST API)
+  - "vanilla" Jira server support (the Cloud one, too): ✔️ (version 2 REST API)
   - "Tempo Timesheets" plugin support: ✔️ (version 4 REST API)
   - "ICTime" plugin support: ✔️ (version 1.0 REST API)
 
@@ -40,6 +40,6 @@ Available values are:
 Five columns, data delimited (by default) by a colon:
  - <code>Date</code> (string) - worklog day date (valid formats: <code>YYYY-MM-DD</code>, <code>YYYY/MM/DD</code>, <code>DD.MM.YYYY</code>, all with optional <code> HH:MI:SS</code> part)
  - <code>IssueKey</code> (string) - Jira issue key (<code>SOMEPROJECT-1234</code> and the likes)
- - <code>Activity</code> (string) - Tempo Timesheets worklog type or ICTime activity; values are remapped 
+ - <code>WorkLogActivity</code> (string) - Tempo Timesheets worklog type or ICTime activity; values are remapped based on a supplied configuration file (2do!)
  - <code>TimeSpent</code> (string) - time to be logged for the Jira issue and the date (valid formats: <code>HH:MI</code>, <code>MI</code>, <code>HH h MI</code>, <code>HH h MI m</code>)
- - <code>Comment</code> (string) - optional worklog comment
+ - <code>WorkLogComment</code> (string) - optional worklog comment
