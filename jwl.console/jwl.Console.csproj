@@ -1,22 +1,25 @@
 <Project Sdk="Microsoft.NET.Sdk" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
-        <OutputType>Exe</OutputType>
-        <TargetFramework>net9.0</TargetFramework>
-        <RuntimeIdentifiers>win-x86;win-x64;linux-x64;linux-arm</RuntimeIdentifiers>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-
         <Product>Jira Worklogger</Product>
-        <AssemblyTitle>Jira Worklogger CLI</AssemblyTitle>
-        <AssemblyVersion>2003.8.1</AssemblyVersion>
+        <ProductVersion>2025.11.2</ProductVersion>
         <Authors>Peter Hraško</Authors>
         <Company>Open source community</Company>
         <Copyright>Practically copyleft</Copyright>
-        <NoWarn>1701;1702;AD0001;NETSDK1182</NoWarn>
+
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
         <RootNamespace>jwl.Console</RootNamespace>
+
+        <AssemblyTitle>Jira Worklogger CLI</AssemblyTitle>
+        <AssemblyVersion>2003.8.1</AssemblyVersion>
         <AssemblyName>jwlc</AssemblyName>
+
         <PackageId>NoP77svk.Jwl.Console</PackageId>
         <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+        <NoWarn>1701;1702;AD0001;NETSDK1182</NoWarn>
+        <RuntimeIdentifiers>win-x86;win-x64;linux-x64;linux-arm</RuntimeIdentifiers>
 
         <BeautyLibsDir>./bin</BeautyLibsDir>
         <BeautyHiddens>hostfxr;hostpolicy;*.deps.json;*.runtimeconfig*.json;clrjit;coreclr;System.*.dll</BeautyHiddens>

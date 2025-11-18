@@ -1,19 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
     <PropertyGroup>
-        <TargetFramework>netstandard2.1</TargetFramework>
-        <Nullable>enable</Nullable>
-        <OutputType>Library</OutputType>
-
-        <Product>...</Product>
+        <Product>Jira Worklogger</Product>
+        <ProductVersion>2025.11.2</ProductVersion>
         <Authors>Peter Hraško</Authors>
         <Company>Open source community</Company>
         <Copyright>Practically copyleft</Copyright>
-        <NoWarn>1701;1702;AD0001;NETSDK1182</NoWarn>
+
+        <OutputType>Library</OutputType>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
         <RootNamespace>jwl.Wadl</RootNamespace>
+
         <AssemblyName>jwl.wadl</AssemblyName>
+
         <PackageId>NoP77svk.Jwl.Wadl</PackageId>
         <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+        <NoWarn>1701;1702;AD0001;NETSDK1182</NoWarn>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

@@ -1,23 +1,26 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
     <PropertyGroup>
+        <Product>Jira Worklogger</Product>
+        <ProductVersion>2025.11.2</ProductVersion>
+        <Authors>Peter Hraško</Authors>
+        <Company>Open source community</Company>
+        <Copyright>Practically copyleft</Copyright>
+
+        <OutputType>Library</OutputType>
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <RootNamespace>jwl.Inputs</RootNamespace>
+
+        <AssemblyName>jwl.inputs</AssemblyName>
+
+        <PackageId>NoP77svk.Jwl.Test</PackageId>
+        <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+        <NoWarn>1701;1702;AD0001;NETSDK1182</NoWarn>
 
         <IsPackable>false</IsPackable>
         <IsTestProject>true</IsTestProject>
         <UserSecretsId>780b51e1-1850-43fb-a282-c16f8265968a</UserSecretsId>
-
-        <Product>...</Product>
-        <Authors>Peter Hraško</Authors>
-        <Company>Open source community</Company>
-        <Copyright>Practically copyleft</Copyright>
-        <NoWarn>1701;1702;AD0001;NETSDK1182</NoWarn>
-        <RootNamespace>jwl.Inputs</RootNamespace>
-        <AssemblyName>jwl.inputs</AssemblyName>
-        <PackageId>NoP77svk.Jwl.Test</PackageId>
-        <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     </PropertyGroup>
 
     <ItemGroup>
