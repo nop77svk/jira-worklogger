@@ -1,4 +1,4 @@
-namespace jwl.Jira.api.rest.response;
+namespace jwl.Jira.Contract.Rest.Response;
 
 public class ICTimeActivityDefinition
 {

@@ -5,7 +5,7 @@ using System.Net.Http.Headers;
 using System.Xml.Serialization;
 
 using jwl.Infra;
-using jwl.Jira.api.rest.request;
+using jwl.Jira.Contract.Rest.Request;
 using jwl.Jira.Exceptions;
 using jwl.Jira.Flavours;
 using jwl.Wadl;
@@ -21,7 +21,7 @@ public class JiraWithICTimePluginApi
     private readonly FlavourICTimeOptions _defaultFlavourOptions = new FlavourICTimeOptions();
     private readonly VanillaJiraClient _vanillaJiraApi;
     public string UserName { get; }
-    public api.rest.common.JiraUserInfo CurrentUser => _vanillaJiraApi.CurrentUser;
+    public Contract.Rest.Common.JiraUserInfo CurrentUser => _vanillaJiraApi.CurrentUser;
 
     public Lazy<Dictionary<string, Wadl.ComposedWadlMethodDefinition>> Endpoints =>
         new Lazy<Dictionary<string, ComposedWadlMethodDefinition>>(() => this.GetWADL().Result
@@ -96,8 +96,8 @@ public class JiraWithICTimePluginApi
             throw new InvalidOperationException($"Method {endPoint.Id} at resource path {endPoint.ResourcePath} does not respond in JSON");
 
         // execute
-        KeyValuePair<JiraIssueKey, Task<api.rest.response.ICTimeActivityDefinition[]>>[] responseTaks = uris
-            .Select(uri => new KeyValuePair<JiraIssueKey, Task<api.rest.response.ICTimeActivityDefinition[]>>(uri.Key, _httpClient.GetAsJsonAsync<api.rest.response.ICTimeActivityDefinition[]>(uri.Value)))
+        KeyValuePair<JiraIssueKey, Task<Contract.Rest.Response.ICTimeActivityDefinition[]>>[] responseTaks = uris
+            .Select(uri => new KeyValuePair<JiraIssueKey, Task<Contract.Rest.Response.ICTimeActivityDefinition[]>>(uri.Key, _httpClient.GetAsJsonAsync<Contract.Rest.Response.ICTimeActivityDefinition[]>(uri.Value)))
             .ToArray();
 
         await Task.WhenAll(responseTaks.Select(x => x.Value));

@@ -8,8 +8,8 @@ using System.Text.Json;
 using System.Xml;
 
 using jwl.Infra;
-using jwl.Jira.api.rest.common;
-using jwl.Jira.api.rest.response;
+using jwl.Jira.Contract.Rest.Common;
+using jwl.Jira.Contract.Rest.Response;
 using jwl.Jira.Exceptions;
 using jwl.Jira.Flavours;
 
@@ -17,11 +17,11 @@ public class VanillaJiraClient
     : IJiraClient
 {
     private readonly HttpClient _httpClient;
-    private readonly Lazy<jwl.Jira.api.rest.common.JiraUserInfo> _lazyUserInfo;
+    private readonly Lazy<jwl.Jira.Contract.Rest.Common.JiraUserInfo> _lazyUserInfo;
     private readonly FlavourVanillaJiraOptions _flavourOptions;
 
     public string UserName { get; }
-    public api.rest.common.JiraUserInfo CurrentUser => _lazyUserInfo.Value;
+    public Contract.Rest.Common.JiraUserInfo CurrentUser => _lazyUserInfo.Value;
 
     public VanillaJiraClient(HttpClient httpClient, string userName, FlavourVanillaJiraOptions? flavourOptions)
     {
@@ -103,7 +103,7 @@ public class VanillaJiraClient
             .Replace(":", string.Empty)
             .Replace(';', ':');
 
-        var request = new api.rest.request.JiraAddWorklogByIssueKey(
+        var request = new Contract.Rest.Request.JiraAddWorklogByIssueKey(
             Started: dayFormatted,
             TimeSpentSeconds: timeSpentSeconds,
             Comment: commentBuilder.ToString()
@@ -276,7 +276,7 @@ public class VanillaJiraClient
                 .Add(@"worklog")
                 .Add(worklogId.ToString())
         };
-        var request = new api.rest.request.JiraAddWorklogByIssueKey(
+        var request = new Contract.Rest.Request.JiraAddWorklogByIssueKey(
             Started: day
                 .ToDateTime(TimeOnly.MinValue)
                 .ToString(@"yyyy-MM-dd""T""hh"";""mm"";""ss.fffzzzz")
