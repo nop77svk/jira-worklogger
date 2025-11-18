@@ -1,4 +1,4 @@
-namespace jwl.Jira;
+﻿namespace jwl.Jira;
 
 using System.Net.Http.Json;
 
@@ -40,7 +40,7 @@ public class JiraWithTempoPluginApi
         WorkLogType[] result = attrEnumDefs
             .Where(attrDef => attrDef.Key?.Equals(WorklogTypeAttributeKey) ?? false)
             .Where(attrDef => attrDef.Type != null
-                && attrDef.Type?.Value == TempoWorklogAttributeTypeIdentifier.StaticList
+                && attrDef.Type?.Value == Contract.Rest.Common.TempoWorklogAttributeTypeIdentifier.StaticList
             )
             .SelectMany(attrDef => attrDef.StaticListValues)
             .Where(staticListItem => !string.IsNullOrEmpty(staticListItem.Name) && !string.IsNullOrEmpty(staticListItem.Value))
@@ -68,9 +68,11 @@ public class JiraWithTempoPluginApi
         return result;
     }
 
+#pragma warning disable SA1010
+
     public async Task<WorkLog[]> GetIssueWorkLogs(DateOnly from, DateOnly to, string issueKey)
     {
-        return await GetIssueWorkLogs(from, to, new string[] { issueKey });
+        return await GetIssueWorkLogs(from, to, [issueKey]);
     }
 
     public async Task<WorkLog[]> GetIssueWorkLogs(DateOnly from, DateOnly to, IEnumerable<string>? issueKeys)
@@ -83,26 +85,35 @@ public class JiraWithTempoPluginApi
             IssueKey = issueKeys?.ToArray(),
             UserKey = [userKey]
         };
-        var response = await _httpClient.PostAsJsonAsync($"{_flavourOptions.PluginBaseUri}/worklogs/search", request);
-        var tempoWorkLogs = await HttpClientExt.DeserializeJsonStreamAsync<Contract.Rest.Response.TempoWorklog[]>(await response.Content.ReadAsStreamAsync());
 
-        var result = tempoWorkLogs
-            .Select(wl => new WorkLog(
-                Id: wl.Id ?? -1,
-                IssueId: wl.IssueId ?? -1,
-                AuthorAccountId: null,
-                AuthorKey: wl.WorkerKey,
-                AuthorName: wl.WorkerKey == userKey ? UserName : null,
-                Created: wl.Created?.Value ?? DateTime.MinValue,
-                Started: wl.Started?.Value ?? DateTime.MinValue,
-                TimeSpentSeconds: wl.TimeSpentSeconds ?? -1,
-                Activity: wl.Attributes?[WorklogTypeAttributeKey].Value,
-                Comment: wl.Comment ?? string.Empty
-            ))
-            .ToArray();
+        try
+        {
+            var response = await _httpClient.PostAsJsonAsync($"{_flavourOptions.PluginBaseUri}/worklogs/search", request);
+            var tempoWorkLogs = await HttpClientExt.DeserializeJsonStreamAsync<Contract.Rest.Response.TempoWorklog[]>(await response.Content.ReadAsStreamAsync());
 
-        return result;
+            var result = tempoWorkLogs
+                .Select(wl => new WorkLog(
+                    Id: wl.Id ?? -1,
+                    IssueId: wl.IssueId ?? -1,
+                    AuthorName: wl.WorkerKey == userKey ? UserName : null,
+                    AuthorKey: wl.WorkerKey,
+                    Created: wl.Created?.Value ?? DateTime.MinValue,
+                    Started: wl.Started?.Value ?? DateTime.MinValue,
+                    TimeSpentSeconds: wl.TimeSpentSeconds ?? -1,
+                    Activity: wl.Attributes?[WorklogTypeAttributeKey].Value,
+                    Comment: wl.Comment ?? string.Empty
+                ))
+                .ToArray();
+
+            return result;
+        }
+        catch (Exception ex)
+        {
+            throw new JiraGetIssueWorkLogsException("[multiple]", from.ToDateTime(TimeOnly.MinValue), to.ToDateTime(TimeOnly.MinValue), ex);
+        }
     }
+
+#pragma warning restore SA1010
 
     public async Task AddWorkLog(string issueKey, DateOnly day, int timeSpentSeconds, string? activity, string? comment)
     {
@@ -137,8 +148,15 @@ public class JiraWithTempoPluginApi
             }
         };
 
-        HttpResponseMessage response = await _httpClient.PostAsJsonAsync($"{_flavourOptions.PluginBaseUri}/worklogs", request);
-        await VanillaJiraClient.CheckHttpResponseForErrorMessages(response);
+        try
+        {
+            using HttpResponseMessage response = await _httpClient.PostAsJsonAsync($"{_flavourOptions.PluginBaseUri}/worklogs", request);
+            await VanillaJiraClient.CheckHttpResponseForErrorMessages(response);
+        }
+        catch (Exception ex)
+        {
+            throw new JiraAddWorklogsPeriodException(issueKey, dayFrom.ToDateTime(TimeOnly.MinValue), dayTo.ToDateTime(TimeOnly.MinValue), timeSpentSeconds, ex);
+        }
     }
 
     public async Task DeleteWorkLog(long issueId, long worklogId, bool notifyUsers = false)
@@ -149,8 +167,15 @@ public class JiraWithTempoPluginApi
                 .Add(worklogId.ToString())
         };
 
-        HttpResponseMessage response = await _httpClient.DeleteAsync(uriBuilder.Uri.PathAndQuery);
-        await VanillaJiraClient.CheckHttpResponseForErrorMessages(response);
+        try
+        {
+            HttpResponseMessage response = await _httpClient.DeleteAsync(uriBuilder.Uri.PathAndQuery);
+            await VanillaJiraClient.CheckHttpResponseForErrorMessages(response);
+        }
+        catch (Exception ex)
+        {
+            throw new JiraDeleteWorklogByIssueIdException(issueId, worklogId, ex);
+        }
     }
 
     public async Task UpdateWorkLog(string issueKey, long worklogId, DateOnly day, int timeSpentSeconds, string? activity, string? comment)
@@ -186,7 +211,14 @@ public class JiraWithTempoPluginApi
             }
         };
 
-        HttpResponseMessage response = await _httpClient.PutAsJsonAsync(uriBuilder.Uri.PathAndQuery, request);
-        await VanillaJiraClient.CheckHttpResponseForErrorMessages(response);
+        try
+        {
+            HttpResponseMessage response = await _httpClient.PutAsJsonAsync(uriBuilder.Uri.PathAndQuery, request);
+            await VanillaJiraClient.CheckHttpResponseForErrorMessages(response);
+        }
+        catch (Exception ex)
+        {
+            throw new JiraUpdateWorklogsPeriodException(issueKey, worklogId, dayFrom.ToDateTime(TimeOnly.MinValue), dayTo.ToDateTime(TimeOnly.MaxValue), timeSpentSeconds, ex);
+        }
     }
 }

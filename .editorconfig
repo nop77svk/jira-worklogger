@@ -26,7 +26,7 @@ dotnet_diagnostic.SA1021.severity = none # Negative sign should be preceded by a
 dotnet_diagnostic.SA1101.severity = none # Prefix local calls with this
 dotnet_diagnostic.SA1111.severity = none # Closing parenthesis should be on line of last parameter
 dotnet_diagnostic.SA1118.severity = none # Parameter spans multiple lines
-dotnet_diagnostic.SA1122.severity = none # Use string.Empty
+dotnet_diagnostic.SA1122.severity = error # Use string.Empty
 dotnet_diagnostic.SA1201.severity = none # Enum should not follow a class
 dotnet_diagnostic.SA1206.severity = none # The 'required' modifier should appear before 'public'
 dotnet_diagnostic.SA1300.severity = none # Element should begin with an uppercase letter
@@ -34,7 +34,7 @@ dotnet_diagnostic.SA1309.severity = none # Field should not begin with an unders
 dotnet_diagnostic.SA1407.severity = none # Arithmetic expressions should declare precedence
 dotnet_diagnostic.SA1408.severity = none # Conditional expressions should declare precedence
 dotnet_diagnostic.SA1413.severity = none # Use trailing comma in multi-line initializers
-dotnet_diagnostic.SA1503.severity = none # Braces should not be omitted
+dotnet_diagnostic.SA1503.severity = error # Braces should not be omitted
 dotnet_diagnostic.SA1515.severity = none # 1-line comments should be preceded by a blank line
 dotnet_diagnostic.SA1516.severity = none # Elements should be separated by a blank line
 dotnet_diagnostic.SA0001.severity = none # XML comment analysis disabled
@@ -52,8 +52,11 @@ dotnet_diagnostic.SA1633.severity = none # Missing file header
 # ================================================================================================
 # IDE stuff
 
+dotnet_diagnostic.IDE0007.severity = none # Use 'var' instead of explicit type
 dotnet_diagnostic.IDE0017.severity = none # Object properties initialization can be simplified
 dotnet_diagnostic.IDE0028.severity = none # Collection initialization can be simplified
+dotnet_diagnostic.IDE0301.severity = none # Collection initialization can be simplified
+dotnet_diagnostic.IDE0305.severity = none # Use collection expression for fluent
 dotnet_diagnostic.IDE0057.severity = none # Substring can be simplified
 dotnet_diagnostic.IDE0060.severity = none # Remove unused parameter
 dotnet_diagnostic.IDE0063.severity = none # Use simple 'using' statement

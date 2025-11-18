@@ -6,7 +6,7 @@ public static class DateOnlyUtils
     {
         if (from > to)
         {
-            throw new ArgumentOutOfRangeException(nameof(to), to, $"{nameof(to)} cannot be less than {nameof(from)}");
+            throw new ArgumentOutOfRangeException(nameof(to), to, $"{nameof(to)} ({to}) cannot be less than {nameof(from)} ({from})");
         }
 
         DateTime minDt = from.ToDateTime(TimeOnly.MinValue);

@@ -1,4 +1,4 @@
-namespace jwl.Wadl
+﻿namespace jwl.Wadl
 {
     using System.Xml.Serialization;
 

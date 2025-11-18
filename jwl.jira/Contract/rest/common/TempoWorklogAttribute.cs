@@ -1,4 +1,4 @@
-namespace jwl.Jira.Contract.Rest.Common;
+﻿namespace jwl.Jira.Contract.Rest.Common;
 
 public class TempoWorklogAttribute
 {

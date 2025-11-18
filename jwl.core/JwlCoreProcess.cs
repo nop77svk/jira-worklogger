@@ -1,4 +1,4 @@
-namespace jwl.Core;
+﻿namespace jwl.Core;
 
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -24,7 +24,9 @@ public class JwlCoreProcess : IDisposable
     public ICoreProcessFeedback? Feedback { get; init; }
     public ICoreProcessInteraction Interaction { get; }
 
-    private bool _isDisposed;
+    private readonly AppConfig _config;
+    private readonly IJiraClient _jiraClient;
+    private readonly ConfigDrivenHttpClientFactory _httpClientFactory;
 
     private HttpClient _httpClient => _httpClientFactory.HttpClient;
 
@@ -36,7 +38,7 @@ public class JwlCoreProcess : IDisposable
         _httpClientFactory = new ConfigDrivenHttpClientFactory(config);
 
         string userName = _config.User?.Name
-            ?? throw new JiraClientException($"NULL {nameof(_config)}.{nameof(_config.User)}.{nameof(_config.User.Name)})");
+            ?? throw new JwlConfigurationException($"Undefined {nameof(_config)}.{nameof(_config.User)}.{nameof(_config.User.Name)})");
 
         _jiraClient = ServerApiFactory.CreateApi(_httpClient, userName, _config.JiraServer);
 
@@ -53,14 +55,15 @@ public class JwlCoreProcess : IDisposable
         string? jiraUserName = _config.User?.Name;
         string? jiraUserPassword = _config.User?.Password;
 
-        if ((string.IsNullOrEmpty(jiraUserName) || string.IsNullOrEmpty(jiraUserPassword)) && Interaction != null)
+        if ((string.IsNullOrEmpty(jiraUserName) || string.IsNullOrEmpty(jiraUserPassword))
+            && Interaction != null)
         {
             (jiraUserName, jiraUserPassword) = Interaction.AskForCredentials(jiraUserName);
         }
 
         if (string.IsNullOrEmpty(jiraUserName) || string.IsNullOrEmpty(jiraUserPassword))
         {
-            throw new ArgumentException($"Jira credentials not supplied");
+            throw new JwlCoreException($"Jira credentials not supplied");
         }
 
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(@"Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes(jiraUserName + ":" + jiraUserPassword)));
@@ -181,6 +184,7 @@ public class JwlCoreProcess : IDisposable
         if (taskExceptions.Count > 0)
         {
             throw new AggregateException(taskExceptions);
+        }
         }
 
         InputWorkLog[] result = readerTasks

@@ -1,3 +1,4 @@
+﻿#pragma warning disable S1075
 namespace jwl.Wadl
 {
     using System.Collections.Generic;
@@ -7,16 +8,9 @@ namespace jwl.Wadl
     public static class WadlApplicationExt
     {
         public static IEnumerable<ComposedWadlMethodDefinition> AsComposedWadlMethodDefinitionEnumerable(this WadlApplication self)
-        {
-            if (self.Resources == null)
-            {
-                return Enumerable.Empty<ComposedWadlMethodDefinition>();
-            }
-            else
-            {
-                return FlattenWadlResources("/", Enumerable.Empty<WadlParameter>(), self.Resources);
-            }
-        }
+            => self.Resources == null
+            ? Enumerable.Empty<ComposedWadlMethodDefinition>()
+            : FlattenWadlResources("/", Enumerable.Empty<WadlParameter>(), self.Resources);
 
         private static IEnumerable<ComposedWadlMethodDefinition> FlattenWadlResources(string parentPath, IEnumerable<WadlParameter> parentParameters, IEnumerable<WadlResource> resources)
         {

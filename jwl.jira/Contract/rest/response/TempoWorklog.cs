@@ -1,4 +1,4 @@
-namespace jwl.Jira.Contract.Rest.Response;
+﻿namespace jwl.Jira.Contract.Rest.Response;
 
 using System.Text.Json.Serialization;
 

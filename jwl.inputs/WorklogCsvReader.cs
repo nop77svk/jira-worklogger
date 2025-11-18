@@ -15,7 +15,6 @@ public class WorklogCsvReader : IWorklogReader
 
     public WorklogCsvReader(TextReader inputFile, WorklogReaderAggregatedConfig readerConfig)
     {
-        _readerConfig = readerConfig;
         CsvConfiguration config = new(CultureInfo.InvariantCulture)
         {
             Delimiter = readerConfig.CsvFormatConfig?.FieldDelimiter ?? ","
@@ -92,6 +91,21 @@ public class WorklogCsvReader : IWorklogReader
 
     public void Dispose()
     {
-        _csvReader.Dispose();
+        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposedValue)
+        {
+            if (disposing)
+            {
+                _csvReader.Dispose();
+            }
+
+            _disposedValue = true;
+        }
     }
 }

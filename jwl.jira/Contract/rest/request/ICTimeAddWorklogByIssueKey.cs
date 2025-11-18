@@ -1,4 +1,4 @@
-namespace jwl.Jira.Contract.Rest.Request;
+﻿namespace jwl.Jira.Contract.Rest.Request;
 
 public class ICTimeAddWorklogByIssueKey
 {

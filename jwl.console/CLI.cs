@@ -1,4 +1,5 @@
-﻿namespace jwl.Console;
+﻿#pragma warning disable S101
+namespace jwl.Console;
 
 using CommandLine;
 
@@ -41,7 +42,9 @@ public class FillCLI
 
         string? jiraServerSpecification = connectionSpecifierSplit.Length > 1 ? connectionSpecifierSplit[1] : null;
         if (!jiraServerSpecification?.Contains(@"://") ?? false)
+        {
             jiraServerSpecification = @"https://" + jiraServerSpecification;
+        }
 
         string? jiraUserCredentials = connectionSpecifierSplit.Any() ? connectionSpecifierSplit[0] : null;
         string[] jiraUserCredentialsSplit = jiraUserCredentials?.Split('/', 2, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();

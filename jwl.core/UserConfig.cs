@@ -1,4 +1,4 @@
-namespace jwl.Core;
+﻿namespace jwl.Core;
 
 public class UserConfig
 {

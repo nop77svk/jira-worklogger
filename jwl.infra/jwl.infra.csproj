@@ -5,22 +5,18 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
 
-        <Product>Jira Worklogger</Product>
+        <Product>...</Product>
         <Authors>Peter Hraško</Authors>
         <Company>Open source community</Company>
         <Copyright>Practically copyleft</Copyright>
         <NoWarn>1701;1702;AD0001;NETSDK1182</NoWarn>
-        <RootNamespace>Jwl.Infra</RootNamespace>
-        <AssemblyName>Jwl.Infra</AssemblyName>
+        <RootNamespace>jwl.Infra</RootNamespace>
+        <AssemblyName>jwl.infra</AssemblyName>
         <PackageId>NoP77svk.Jwl.Infra</PackageId>
         <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     </PropertyGroup>
-
-    <ItemGroup Label="records backwards compatibility">
-        <Compile Include="..\IsExternalInit.cs" Link="IsExternalInit.cs" />
-    </ItemGroup>
-
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'" Label="no PDBs in Release mode">
+    
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
         <DebugType>none</DebugType>
         <DebugSymbols>false</DebugSymbols>
     </PropertyGroup>
@@ -31,15 +27,15 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="SonarAnalyzer.CSharp" Version="*">
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
     </ItemGroup>
 
     <Target Name="PostClean" AfterTargets="Clean">
-        <!-- obj -->
         <RemoveDir Directories="$(BaseIntermediateOutputPath)" />
-        <!-- bin -->
+        <!-- obj -->
         <RemoveDir Directories="$(BaseOutputPath)" />
+        <!-- bin -->
     </Target>
 </Project>

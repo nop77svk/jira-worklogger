@@ -1,3 +1,4 @@
+﻿#pragma warning disable S4830
 namespace jwl.Core;
 
 using System;
@@ -56,7 +57,9 @@ internal class ConfigDrivenHttpClientFactory
         };
 
         if (config.JiraServer?.SkipSslCertificateCheck ?? false)
-            HttpClientHandler.ServerCertificateCustomValidationCallback = (_, _, _, _) => true;
+        {
+            HttpClientHandler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+        }
 
         return result;
     }

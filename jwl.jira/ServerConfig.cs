@@ -1,4 +1,4 @@
-namespace jwl.Jira;
+﻿namespace jwl.Jira;
 
 using System.Text.Json.Serialization;
 
