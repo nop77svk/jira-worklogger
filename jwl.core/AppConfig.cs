@@ -1,7 +1,7 @@
-﻿namespace jwl.Core;
+namespace jwl.Core;
 
-using Jwl.Inputs;
-using Jwl.Jira;
+using jwl.Inputs;
+using jwl.Jira;
 
 public class AppConfig
 {
