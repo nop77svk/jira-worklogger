@@ -1,4 +1,5 @@
 namespace jwl.Jira.Contract.Rest.Common;
+
 using System.Globalization;
 using System.Text.Json.Serialization;
 

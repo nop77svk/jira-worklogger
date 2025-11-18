@@ -1,4 +1,4 @@
-namespace jwl.Infra;
+﻿namespace jwl.Infra;
 
 public class UriPathBuilder
     : List<string>

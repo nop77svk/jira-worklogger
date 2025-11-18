@@ -1,4 +1,4 @@
-namespace jwl.Infra;
+﻿namespace jwl.Infra;
 
 using System.Text.Json;
 using System.Xml.Serialization;

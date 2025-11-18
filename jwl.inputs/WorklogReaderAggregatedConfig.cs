@@ -1,4 +1,4 @@
-namespace jwl.Inputs;
+﻿namespace jwl.Inputs;
 
 public class WorklogReaderAggregatedConfig
 {

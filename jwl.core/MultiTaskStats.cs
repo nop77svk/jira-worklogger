@@ -2,7 +2,7 @@ namespace jwl.Core;
 
 public class MultiTaskStats
 {
-    private readonly Lock _locker = new ();
+    private readonly Lock _locker = new();
 
     public int Total { get; private set; }
     public int Succeeded { get; private set; }

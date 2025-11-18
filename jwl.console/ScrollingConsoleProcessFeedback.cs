@@ -1,4 +1,4 @@
-namespace jwl.Console;
+﻿namespace jwl.Console;
 
 using System.Reflection;
 
