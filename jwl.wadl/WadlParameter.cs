@@ -1,6 +1,5 @@
 ﻿namespace jwl.Wadl
 {
-    using System.Linq;
     using System.Xml.Serialization;
 
     [XmlRoot("param", Namespace = WadlApplication.XmlNamespace)]

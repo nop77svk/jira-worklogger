@@ -2,15 +2,12 @@
 
 [assembly: SuppressMessage("Style", "SA1404")] // Code analysis suppression should have a justification
 [assembly: SuppressMessage("Style", "AD0001")] // Exception within StyleCop.Analyzers
-
 [assembly: SuppressMessage("Style", "IDE0017")] // Object properties initialization can be simplified
 [assembly: SuppressMessage("Style", "IDE0057")] // Substring can be simplified
 [assembly: SuppressMessage("Style", "IDE0060")] // Remove unused parameter
 [assembly: SuppressMessage("Style", "IDE0063")] // Use simple 'using' statement
 [assembly: SuppressMessage("Style", "IDE0090")] // Use new (...)
-
 [assembly: SuppressMessage("Usage", "CA1816")] // Dispose methods should call SuppressFinalize
-
 [assembly: SuppressMessage("Style", "SA1009")] // Closing parenthesis should not be preceded by a space
 [assembly: SuppressMessage("Style", "SA1011")] // Closing square bracket should be followed by a space
 [assembly: SuppressMessage("Style", "SA1021")] // Negative sign should be preceded by a space
@@ -25,7 +22,6 @@
 [assembly: SuppressMessage("Style", "SA1503")] // Braces should not be ommitted
 [assembly: SuppressMessage("Style", "SA1515")] // 1-line comments should be preceded by a blank line
 [assembly: SuppressMessage("Style", "SA1516")] // Elements should be separated by a blank line
-
 [assembly: SuppressMessage("Style", "SA0001")] // XML comment analysis disabled
 [assembly: SuppressMessage("Style", "SA1600")] // Elements should be documented
 [assembly: SuppressMessage("Style", "SA1601")] // Partial elements should be documented

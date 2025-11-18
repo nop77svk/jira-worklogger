@@ -3,6 +3,7 @@
 using System.Globalization;
 using System.Net.Http.Headers;
 using System.Xml.Serialization;
+
 using jwl.Infra;
 using jwl.Jira.Exceptions;
 using jwl.Jira.Flavours;
@@ -180,7 +181,7 @@ public class JiraWithICTimePluginApi
             .ToString()
             .ToLowerInvariant();
 
-        Dictionary<string, string> args = new ()
+        Dictionary<string, string> args = new()
         {
             ["date"] = dateArg,
             ["logWorkOption"] = logWorkOptionArg,

@@ -1,4 +1,5 @@
 ﻿namespace jwl.Core;
+
 public class MultiTaskStats
 {
     public int Total { get; private set; }
@@ -39,17 +40,21 @@ public class MultiTaskStats
                 case TaskStatus.RanToCompletion:
                     Succeeded++;
                     break;
+
                 case TaskStatus.Canceled:
                     Cancelled++;
                     break;
+
                 case TaskStatus.Faulted:
                     Faulted++;
                     break;
+
                 case TaskStatus.Created:
                 case TaskStatus.WaitingForActivation:
                 case TaskStatus.WaitingToRun:
                 case TaskStatus.WaitingForChildrenToComplete:
                     break;
+
                 default:
                     Unknown++;
                     break;

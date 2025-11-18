@@ -1,6 +1,7 @@
 ﻿namespace jwl.Jira.test;
 
 using System.Xml.Serialization;
+
 using jwl.Wadl;
 
 public class WadlTests

@@ -65,12 +65,14 @@ public class VanillaJiraClient
         }
     }
 
-    #pragma warning disable CS1998
+#pragma warning disable CS1998
+
     public async Task<WorkLogType[]> GetAvailableActivities(string issueKey)
     {
         return Array.Empty<WorkLogType>();
     }
-    #pragma warning restore
+
+#pragma warning restore
 
     public async Task<Dictionary<string, WorkLogType[]>> GetAvailableActivities(IEnumerable<string> issueKeys)
     {

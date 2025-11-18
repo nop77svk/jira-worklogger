@@ -9,7 +9,7 @@ public class AppConfig
     public jwl.Core.UserConfig? User { get; init; }
     public jwl.Inputs.CsvFormatConfig? CsvOptions { get; init; }
 
-    private static Lazy<MapperConfiguration> overridingMapperConfiguration = new (() => new MapperConfiguration(cfg =>
+    private static Lazy<MapperConfiguration> overridingMapperConfiguration = new(() => new MapperConfiguration(cfg =>
     {
         cfg.CreateMap<AppConfig, AppConfig>()
             .ForAllMembers(m => m.Condition((src, dest, member) => member != null));
@@ -24,7 +24,7 @@ public class AppConfig
         cfg.AddGlobalIgnore(nameof(AppConfig.JiraServer.VanillaJiraFlavourOptions));
     }));
 
-    private static Lazy<IMapper> overridingMapper = new (() => overridingMapperConfiguration.Value.CreateMapper());
+    private static Lazy<IMapper> overridingMapper = new(() => overridingMapperConfiguration.Value.CreateMapper());
 
     public AppConfig OverrideWith(AppConfig? other)
     {

@@ -1,6 +1,7 @@
 ﻿namespace jwl.jira.Exceptions;
 
 using System;
+
 using jwl.Jira.Exceptions;
 
 public class JiraAddWorklogsPeriodException : JiraIssueSpecificException

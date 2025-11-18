@@ -1,7 +1,8 @@
 ﻿namespace jwl.Console;
 
-using jwl.Core;
 using System.Reflection;
+
+using jwl.Core;
 
 public class ScrollingConsoleProcessFeedback
     : ICoreProcessFeedback, IDisposable

@@ -1,4 +1,5 @@
 ﻿namespace jwl.Jira;
+
 using System.Net.Http.Json;
 
 using jwl.Infra;
@@ -68,6 +69,7 @@ public class JiraWithTempoPluginApi
     }
 
 #pragma warning disable SA1010
+
     public async Task<WorkLog[]> GetIssueWorkLogs(DateOnly from, DateOnly to, string issueKey)
     {
         return await GetIssueWorkLogs(from, to, [issueKey]);
@@ -109,6 +111,7 @@ public class JiraWithTempoPluginApi
             throw new JiraGetIssueWorkLogsException("[multiple]", from.ToDateTime(TimeOnly.MinValue), to.ToDateTime(TimeOnly.MinValue), ex);
         }
     }
+
 #pragma warning restore SA1010
 
     public async Task AddWorkLog(string issueKey, DateOnly day, int timeSpentSeconds, string? activity, string? comment)
@@ -133,13 +136,13 @@ public class JiraWithTempoPluginApi
             Attributes = new Dictionary<string, Contract.Rest.Common.TempoWorklogAttribute>()
             {
                 [WorklogTypeAttributeKey] = new Contract.Rest.Common.TempoWorklogAttribute()
-                    {
-                        WorkAttributeId = 1,
-                        Key = WorklogTypeAttributeKey,
-                        Name = @"Worklog Type",
-                        Type = Contract.Rest.Common.TempoWorklogAttributeTypeIdentifier.StaticList,
-                        Value = tempoWorklogType
-                    }
+                {
+                    WorkAttributeId = 1,
+                    Key = WorklogTypeAttributeKey,
+                    Name = @"Worklog Type",
+                    Type = Contract.Rest.Common.TempoWorklogAttributeTypeIdentifier.StaticList,
+                    Value = tempoWorklogType
+                }
             }
         };
 

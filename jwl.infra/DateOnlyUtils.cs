@@ -19,7 +19,7 @@ public static class DateOnlyUtils
         return (int)(supDt - minDt).TotalDays;
     }
 
-    public static int NumberOfDaysTo(this DateOnly from,  DateOnly to)
+    public static int NumberOfDaysTo(this DateOnly from, DateOnly to)
     {
         return NumberOfDaysInRange(from, to) - 1;
     }

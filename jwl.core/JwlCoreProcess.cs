@@ -41,7 +41,8 @@ public class JwlCoreProcess : IDisposable
         // 2do! optional trace-logging the HTTP responses
     }
 
-    #pragma warning disable CS1998
+#pragma warning disable CS1998
+
     public async Task PreProcess()
     {
         Feedback?.OverallProcessStart();
@@ -60,7 +61,8 @@ public class JwlCoreProcess : IDisposable
 
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(@"Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes(jiraUserName + ":" + jiraUserPassword)));
     }
-    #pragma warning restore
+
+#pragma warning restore
 
     public async Task Process(IEnumerable<string> inputFiles)
     {

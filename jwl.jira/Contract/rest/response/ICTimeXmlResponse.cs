@@ -1,4 +1,5 @@
 ﻿namespace jwl.Jira.Contract.Rest.Response;
+
 using System.Xml.Serialization;
 
 [XmlRoot("result")]

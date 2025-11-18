@@ -1,4 +1,5 @@
 ﻿namespace jwl.Infra;
+
 using System.Diagnostics.CodeAnalysis;
 
 public struct JiraIssueKey
