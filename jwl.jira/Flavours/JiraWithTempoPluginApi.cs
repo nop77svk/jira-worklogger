@@ -1,4 +1,5 @@
 ﻿namespace jwl.Jira;
+
 using System.Net.Http.Json;
 
 using jwl.Infra;
@@ -68,6 +69,7 @@ public class JiraWithTempoPluginApi
     }
 
 #pragma warning disable SA1010
+
     public async Task<WorkLog[]> GetIssueWorkLogs(DateOnly from, DateOnly to, string issueKey)
     {
         return await GetIssueWorkLogs(from, to, [issueKey]);
@@ -75,7 +77,8 @@ public class JiraWithTempoPluginApi
 
     public async Task<WorkLog[]> GetIssueWorkLogs(DateOnly from, DateOnly to, IEnumerable<string>? issueKeys)
     {
-        string userKey = UserInfo.Key ?? throw new ArgumentNullException($"{nameof(UserInfo)}.{nameof(UserInfo.Key)}");
+        string userKey = UserInfo.Key
+            ?? throw new JiraClientException($"Undefined {nameof(UserInfo)}.{nameof(UserInfo.Key)}");
 
         var request = new Contract.Rest.Request.TempoFindWorklogs(from, to)
         {
@@ -109,6 +112,7 @@ public class JiraWithTempoPluginApi
             throw new JiraGetIssueWorkLogsException("[multiple]", from.ToDateTime(TimeOnly.MinValue), to.ToDateTime(TimeOnly.MinValue), ex);
         }
     }
+
 #pragma warning restore SA1010
 
     public async Task AddWorkLog(string issueKey, DateOnly day, int timeSpentSeconds, string? activity, string? comment)
@@ -116,9 +120,10 @@ public class JiraWithTempoPluginApi
         await AddWorkLogPeriod(issueKey, day, day, timeSpentSeconds, activity, comment);
     }
 
-    public async Task AddWorkLogPeriod(string issueKey, DateOnly dayFrom, DateOnly dayTo, int timeSpentSeconds, string? tempoWorklogType, string? comment, bool includeNonWorkingDays = false)
+    public async Task AddWorkLogPeriod(string issueKey, DateOnly dayFrom, DateOnly dayTo, int timeSpentSeconds, string? activity, string? comment, bool includeNonWorkingDays = false)
     {
-        string userKey = UserInfo.Key ?? throw new ArgumentNullException($"{nameof(UserInfo)}.{nameof(UserInfo.Key)}");
+        string userKey = UserInfo.Key
+            ?? throw new JiraClientException($"Undefined {nameof(UserInfo)}.{nameof(UserInfo.Key)}");
 
         var request = new Contract.Rest.Request.TempoAddWorklogByIssueKey()
         {
@@ -133,13 +138,13 @@ public class JiraWithTempoPluginApi
             Attributes = new Dictionary<string, Contract.Rest.Common.TempoWorklogAttribute>()
             {
                 [WorklogTypeAttributeKey] = new Contract.Rest.Common.TempoWorklogAttribute()
-                    {
-                        WorkAttributeId = 1,
-                        Key = WorklogTypeAttributeKey,
-                        Name = @"Worklog Type",
-                        Type = Contract.Rest.Common.TempoWorklogAttributeTypeIdentifier.StaticList,
-                        Value = tempoWorklogType
-                    }
+                {
+                    WorkAttributeId = 1,
+                    Key = WorklogTypeAttributeKey,
+                    Name = @"Worklog Type",
+                    Type = Contract.Rest.Common.TempoWorklogAttributeTypeIdentifier.StaticList,
+                    Value = activity
+                }
             }
         };
 

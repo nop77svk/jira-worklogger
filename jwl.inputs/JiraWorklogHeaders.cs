@@ -1,4 +1,4 @@
-namespace jwl.inputs;
+﻿namespace jwl.Inputs;
 
 public enum JiraWorklogHeaders
 {

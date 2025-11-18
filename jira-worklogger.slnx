@@ -1,0 +1,12 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+  </Configurations>
+  <Project Path="jwl.console/jwl.console.csproj" />
+  <Project Path="jwl.core/jwl.core.csproj" />
+  <Project Path="jwl.infra/jwl.infra.csproj" />
+  <Project Path="jwl.inputs/jwl.inputs.csproj" />
+  <Project Path="jwl.jira/jwl.jira.csproj" />
+  <Project Path="jwl.test/jwl.test.csproj" />
+  <Project Path="jwl.wadl/jwl.wadl.csproj" />
+</Solution>

@@ -65,12 +65,14 @@ public class VanillaJiraClient
         }
     }
 
-    #pragma warning disable CS1998
+#pragma warning disable CS1998
+
     public async Task<WorkLogType[]> GetAvailableActivities(string issueKey)
     {
         return Array.Empty<WorkLogType>();
     }
-    #pragma warning restore
+
+#pragma warning restore
 
     public async Task<Dictionary<string, WorkLogType[]>> GetAvailableActivities(IEnumerable<string> issueKeys)
     {
@@ -131,7 +133,9 @@ public class VanillaJiraClient
     public async Task<WorkLog[]> GetIssueWorkLogs(DateOnly from, DateOnly to, IEnumerable<string>? issueKeys)
     {
         if (issueKeys is null)
+        {
             return Array.Empty<WorkLog>();
+        }
 
         Task<WorkLog[]>[] responseTasks = issueKeys
             .Distinct()
@@ -159,7 +163,9 @@ public class VanillaJiraClient
         StringBuilder commentBuilder = new StringBuilder();
 
         if (activity != null)
+        {
             commentBuilder.Append($"({activity}){Environment.NewLine}");
+        }
 
         commentBuilder.Append(comment);
 
@@ -196,7 +202,9 @@ public class VanillaJiraClient
             .ToArray();
 
         if (!daysInPeriod.Any())
+        {
             return;
+        }
 
         int timeSpentSecondsPerSingleDay = timeSpentSeconds / daysInPeriod.Length;
 

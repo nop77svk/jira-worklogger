@@ -50,10 +50,9 @@ public class MultiTask
                     tasksToExecute.Remove(finishedTask);
                     throw finishedTask.Exception ?? new Exception($"Task ended in {finishedTask.Status} status without exception details");
                 }
-                else if (finishedTask.Status == TaskStatus.RanToCompletion)
+                else if (finishedTask.Status == TaskStatus.RanToCompletion && !tasksToExecute.Remove(finishedTask))
                 {
-                    if (!tasksToExecute.Remove(finishedTask))
-                        throw new InvalidOperationException("Task reported as finished... again!");
+                    throw new InvalidOperationException("Task reported as finished... again!");
                 }
             }
             catch (AggregateException ex)

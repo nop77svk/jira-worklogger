@@ -1,4 +1,5 @@
 ﻿namespace jwl.Jira.Contract.Rest.Request;
+
 using System.Text.Json.Serialization;
 
 public class TempoFindWorklogs
@@ -8,6 +9,7 @@ public class TempoFindWorklogs
 
     [JsonPropertyName("taskKey")]
     public string[]? IssueKey { get; init; }
+
     [JsonPropertyName("worker")]
     public string[]? UserKey { get; init; }
 

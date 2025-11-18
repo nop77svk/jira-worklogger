@@ -1,6 +1,7 @@
-﻿namespace jwl.Jira.test;
+namespace jwl.Jira.test;
 
 using System.Xml.Serialization;
+
 using jwl.Wadl;
 
 public class WadlTests
@@ -8,6 +9,7 @@ public class WadlTests
 {
     private readonly XmlSerializer _wadlSerializer;
     private readonly Stream _wadlResponseStream;
+    private bool _disposedValue;
 
     public WadlTests()
     {
@@ -29,10 +31,11 @@ public class WadlTests
         var wadlObj = _wadlSerializer.Deserialize(_wadlResponseStream);
         Assert.IsNotNull(wadlObj);
         Assert.IsInstanceOf(typeof(WadlApplication), wadlObj);
-        var wadl = (WadlApplication)wadlObj;
+
+        var wadl = (WadlApplication?)wadlObj;
         Assert.IsNotNull(wadl);
 
-        Assert.IsNotNull(wadl.Resources);
+        Assert.IsNotNull(wadl!.Resources);
     }
 
     [Test]
@@ -43,11 +46,26 @@ public class WadlTests
 
         var flatWadl = wadl?.AsComposedWadlMethodDefinitionEnumerable().ToArray();
         Assert.IsNotNull(flatWadl);
-        Assert.That(flatWadl.Any());
+        Assert.That(flatWadl?.Any() ?? false);
     }
 
     public void Dispose()
     {
-        _wadlResponseStream.Dispose();
+        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposedValue)
+        {
+            if (disposing)
+            {
+                _wadlResponseStream.Dispose();
+            }
+
+            _disposedValue = true;
+        }
     }
 }

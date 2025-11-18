@@ -1,4 +1,5 @@
 ﻿namespace jwl.Infra;
+
 using System.Web;
 
 public class UriQueryBuilder

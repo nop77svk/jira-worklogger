@@ -1,5 +1,7 @@
-namespace jwl.console;
-using jwl.core;
+﻿namespace jwl.Console;
+
+using jwl.Core;
+
 using NoP77svk.Console;
 
 public class ConsoleProcessInteraction
@@ -16,11 +18,11 @@ public class ConsoleProcessInteraction
         string userNameNN = userName ?? string.Empty;
         if (string.IsNullOrEmpty(userNameNN))
         {
-            Console.Error.Write(@"Enter Jira user name: ");
-            userNameNN = Console.ReadLine() ?? string.Empty;
+            System.Console.Error.Write(@"Enter Jira user name: ");
+            userNameNN = System.Console.ReadLine() ?? string.Empty;
         }
 
-        Console.Error.Write($"Enter password for Jira user {userNameNN}: ");
+        System.Console.Error.Write($"Enter password for Jira user {userNameNN}: ");
         string userPasswordNN = SecretConsoleExt.ReadLineInSecret(_ => '*', true);
 
         return (userNameNN, userPasswordNN);
@@ -39,11 +41,9 @@ public class ConsoleProcessInteraction
         {
             if (disposing)
             {
-                // TODO: dispose managed state (managed objects)
+                // nothing as of yet
             }
 
-            // TODO: free unmanaged resources (unmanaged objects) and override finalizer
-            // TODO: set large fields to null
             _isDisposed = true;
         }
     }

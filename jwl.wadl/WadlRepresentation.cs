@@ -1,6 +1,5 @@
 ﻿namespace jwl.Wadl
 {
-    using System.Threading;
     using System.Xml.Serialization;
 
     [XmlRoot("representation")]
@@ -16,12 +15,16 @@
         {
             [XmlEnum(MediaTypePlainText)]
             PlainText,
+
             [XmlEnum(MediaTypeXml)]
             Xml,
+
             [XmlEnum(MediaTypeJson)]
             Json,
+
             [XmlEnum(MediaTypeAtomXml)]
             AtomXml,
+
             [XmlEnum(MediaTypeFormUrlEncoded)]
             WwwFormUrlEncoded
         }

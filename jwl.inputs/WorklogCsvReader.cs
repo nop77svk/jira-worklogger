@@ -1,21 +1,22 @@
-﻿namespace jwl.inputs;
+﻿namespace jwl.Inputs;
+
 using System.Globalization;
+
 using CsvHelper;
 using CsvHelper.Configuration;
+
 using jwl.Infra;
-using jwl.Jira;
 
 public class WorklogCsvReader : IWorklogReader
 {
     public bool ErrorOnEmptyRow { get; init; } = true;
 
-    private CsvReader _csvReader;
-    private WorklogReaderAggregatedConfig _readerConfig;
+    private readonly CsvReader _csvReader;
+    private bool _disposedValue;
 
     public WorklogCsvReader(TextReader inputFile, WorklogReaderAggregatedConfig readerConfig)
     {
-        _readerConfig = readerConfig;
-        CsvConfiguration config = new (CultureInfo.InvariantCulture)
+        CsvConfiguration config = new(CultureInfo.InvariantCulture)
         {
             Delimiter = readerConfig.CsvFormatConfig?.FieldDelimiter ?? ","
         };
@@ -23,7 +24,7 @@ public class WorklogCsvReader : IWorklogReader
         _csvReader = new CsvReader(inputFile, config);
     }
 
-    public IEnumerable<InputWorkLog> Read(Action<InputWorkLog>? postProcessResult = null)
+    public IEnumerable<InputWorkLog> Read(Action<InputWorkLog>? validateResult = null)
     {
         string[] dateFormats =
         {
@@ -49,9 +50,13 @@ public class WorklogCsvReader : IWorklogReader
             if (row == null)
             {
                 if (ErrorOnEmptyRow)
+                {
                     throw new InvalidDataException("Empty row on input");
+                }
                 else
+                {
                     continue;
+                }
             }
 
             InputWorkLog result;
@@ -61,7 +66,9 @@ public class WorklogCsvReader : IWorklogReader
                 JiraIssueKey worklogIssueKey = new JiraIssueKey(row.IssueKey);
 
                 if (!DateTime.TryParseExact(row.Date, dateFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime worklogDate))
+                {
                     throw new FormatException($"Invalid date/datetime value \"{row.Date}\"");
+                }
 
                 TimeSpan worklogTimeSpent = HumanReadableTimeSpan.Parse(row.TimeSpent, timespanTimeFormats);
 
@@ -74,7 +81,7 @@ public class WorklogCsvReader : IWorklogReader
                     WorkLogComment = row.WorkLogComment
                 };
 
-                postProcessResult?.Invoke(result);
+                validateResult?.Invoke(result);
             }
             catch (Exception e)
             {
@@ -87,6 +94,21 @@ public class WorklogCsvReader : IWorklogReader
 
     public void Dispose()
     {
-        _csvReader.Dispose();
+        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposedValue)
+        {
+            if (disposing)
+            {
+                _csvReader.Dispose();
+            }
+
+            _disposedValue = true;
+        }
     }
 }

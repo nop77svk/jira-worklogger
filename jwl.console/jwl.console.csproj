@@ -1,10 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net9.0</TargetFramework>
         <RuntimeIdentifiers>win-x86;win-x64;linux-x64;linux-arm</RuntimeIdentifiers>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+
         <Product>Jira Worklogger</Product>
         <AssemblyTitle>Jira Worklogger CLI</AssemblyTitle>
         <AssemblyVersion>2003.8.1</AssemblyVersion>
@@ -12,20 +13,15 @@
         <Company>Open source community</Company>
         <Copyright>Practically copyleft</Copyright>
         <NoWarn>1701;1702;AD0001;NETSDK1182</NoWarn>
-        <RootNamespace>jwl.console</RootNamespace>
+        <RootNamespace>jwl.Console</RootNamespace>
         <AssemblyName>jwlc</AssemblyName>
-        <PackageId>NoP77svk.jwl.console</PackageId>
+        <PackageId>NoP77svk.Jwl.Console</PackageId>
         <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
 
         <BeautyLibsDir>./bin</BeautyLibsDir>
         <BeautyHiddens>hostfxr;hostpolicy;*.deps.json;*.runtimeconfig*.json;clrjit;coreclr;System.*.dll</BeautyHiddens>
         <BeautyOnPublishOnly>True</BeautyOnPublishOnly>
         <BeautyEnableDebugging>False</BeautyEnableDebugging>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-        <DebugType>none</DebugType>
-        <DebugSymbols>false</DebugSymbols>
     </PropertyGroup>
 
     <ItemGroup>
@@ -38,19 +34,20 @@
         <!--    <PackageReference Include="nulastudio.NetBeauty" Version="2.1.2.1" />	-->
     </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="*">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+        <DebugType>none</DebugType>
+        <DebugSymbols>false</DebugSymbols>
+    </PropertyGroup>
+
+    <ItemGroup Label="analyzers">
         <PackageReference Include="StyleCop.Analyzers" Version="*">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-    </ItemGroup>
-
-    <ItemGroup>
-        <Compile Include="..\GlobalSuppressions.cs" Link="GlobalSuppressions.cs" />
+        <PackageReference Include="SonarAnalyzer.CSharp" Version="*">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
     </ItemGroup>
 
     <Target Name="PostClean" AfterTargets="Clean">
@@ -60,7 +57,7 @@
         <!-- bin -->
     </Target>
 
-    <ItemGroup>
+    <ItemGroup Label="assets">
         <CommonAssetFiles Include="../_assets/**/*" CopyToOutputDirectory="PreserveNewest" />
         <CommonAssetFiles Include="../*.md" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>

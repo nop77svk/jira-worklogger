@@ -3,7 +3,7 @@
 using System;
 
 public class JiraClientException
-    : ApplicationException
+    : Exception
 {
     public JiraClientException()
     {

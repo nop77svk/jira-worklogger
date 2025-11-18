@@ -1,5 +1,4 @@
-﻿namespace jwl.core;
-using jwl.Infra;
+namespace jwl.Core;
 
 public class MultiTaskStats
 {
@@ -27,12 +26,14 @@ public class MultiTaskStats
         Unknown = 0;
     }
 
-    private object _locker = new object();
+    private readonly object _locker = new object();
 
     public MultiTaskStats ApplyTaskStatus(TaskStatus? taskStatus)
     {
         if (taskStatus == null)
+        {
             return this;
+        }
 
         lock (_locker)
         {
@@ -41,17 +42,21 @@ public class MultiTaskStats
                 case TaskStatus.RanToCompletion:
                     Succeeded++;
                     break;
+
                 case TaskStatus.Canceled:
                     Cancelled++;
                     break;
+
                 case TaskStatus.Faulted:
                     Faulted++;
                     break;
+
                 case TaskStatus.Created:
                 case TaskStatus.WaitingForActivation:
                 case TaskStatus.WaitingToRun:
                 case TaskStatus.WaitingForChildrenToComplete:
                     break;
+
                 default:
                     Unknown++;
                     break;

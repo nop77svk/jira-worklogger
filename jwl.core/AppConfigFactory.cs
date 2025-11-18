@@ -1,9 +1,11 @@
-﻿namespace jwl.core;
-using jwl.inputs;
+#pragma warning disable S1075
+namespace jwl.Core;
+
+using jwl.Inputs;
 using jwl.Jira;
 using jwl.Jira.Flavours;
+
 using Microsoft.Extensions.Configuration;
-using System.Xml.XPath;
 
 public static class AppConfigFactory
 {
@@ -70,7 +72,7 @@ public static class AppConfigFactory
                     (int)JiraServerFlavour.Vanilla => cfg.Value.Get<FlavourVanillaJiraOptions>(binderOptions) ?? new FlavourVanillaJiraOptions(),
                     (int)JiraServerFlavour.TempoTimeSheets => cfg.Value.Get<FlavourTempoTimesheetsOptions>(binderOptions) ?? new FlavourTempoTimesheetsOptions(),
                     (int)JiraServerFlavour.ICTime => cfg.Value.Get<FlavourICTimeOptions>(binderOptions) ?? new FlavourICTimeOptions(),
-                    _ => throw new IndexOutOfRangeException($"Unrecognized server flavour ID {cfg.Key}")
+                    _ => throw new ArgumentOutOfRangeException($"Unrecognized server flavour ID {cfg.Key}")
                 }
             ))
             .ToDictionary(cfg => cfg.Key, cfg => cfg.Value);

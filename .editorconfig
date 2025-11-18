@@ -1,0 +1,70 @@
+﻿root = true
+
+[*]
+charset = utf-8
+end_of_line = crlf
+insert_final_newline = true
+
+[*.cs]
+
+# ================================================================================================
+# .NET Analyzer
+
+dotnet_diagnostic.CA2000.severity = error # IDisposables must be properly disposed
+dotnet_diagnostic.CA1816.severity = none # Dispose methods should call SuppressFinalize
+dotnet_diagnostic.CA2208.severity = none # Wrong paramName to Argument...Exception
+
+# ================================================================================================
+# StyleCop
+
+dotnet_diagnostic.AD0001.severity = none # Exception within StyleCop.Analyzers
+
+dotnet_diagnostic.SA1000.severity = none # The keyword 'new' should be followed by a space
+dotnet_diagnostic.SA1009.severity = none # Closing parenthesis should not be preceded by a space
+dotnet_diagnostic.SA1011.severity = none # Closing square bracket should be followed by a space
+dotnet_diagnostic.SA1021.severity = none # Negative sign should be preceded by a space
+dotnet_diagnostic.SA1101.severity = none # Prefix local calls with this
+dotnet_diagnostic.SA1111.severity = none # Closing parenthesis should be on line of last parameter
+dotnet_diagnostic.SA1118.severity = none # Parameter spans multiple lines
+dotnet_diagnostic.SA1122.severity = error # Use string.Empty
+dotnet_diagnostic.SA1201.severity = none # Enum should not follow a class
+dotnet_diagnostic.SA1206.severity = none # The 'required' modifier should appear before 'public'
+dotnet_diagnostic.SA1300.severity = none # Element should begin with an uppercase letter
+dotnet_diagnostic.SA1309.severity = none # Field should not begin with an underscore
+dotnet_diagnostic.SA1407.severity = none # Arithmetic expressions should declare precedence
+dotnet_diagnostic.SA1408.severity = none # Conditional expressions should declare precedence
+dotnet_diagnostic.SA1413.severity = none # Use trailing comma in multi-line initializers
+dotnet_diagnostic.SA1503.severity = error # Braces should not be omitted
+dotnet_diagnostic.SA1515.severity = none # 1-line comments should be preceded by a blank line
+dotnet_diagnostic.SA1516.severity = none # Elements should be separated by a blank line
+dotnet_diagnostic.SA0001.severity = none # XML comment analysis disabled
+dotnet_diagnostic.SA1010.severity = none # Opening square brackets should not be preceded by a whitespace
+dotnet_diagnostic.SA1404.severity = none # Code analysis suppression should have a justification
+dotnet_diagnostic.SA1600.severity = none # Elements should be documented
+dotnet_diagnostic.SA1601.severity = none # Partial elements should be documented
+dotnet_diagnostic.SA1602.severity = none # Enumeration items should be documented
+dotnet_diagnostic.SA1604.severity = none # Element doc should have summary
+dotnet_diagnostic.SA1611.severity = none # Missing parameter doc
+dotnet_diagnostic.SA1615.severity = none # Missing return value doc
+dotnet_diagnostic.SA1629.severity = none # Documentation text should end with a period
+dotnet_diagnostic.SA1633.severity = none # Missing file header
+
+# ================================================================================================
+# IDE stuff
+
+dotnet_diagnostic.IDE0007.severity = none # Use 'var' instead of explicit type
+dotnet_diagnostic.IDE0017.severity = none # Object properties initialization can be simplified
+dotnet_diagnostic.IDE0028.severity = none # Collection initialization can be simplified
+dotnet_diagnostic.IDE0301.severity = none # Collection initialization can be simplified
+dotnet_diagnostic.IDE0305.severity = none # Use collection expression for fluent
+dotnet_diagnostic.IDE0057.severity = none # Substring can be simplified
+dotnet_diagnostic.IDE0060.severity = none # Remove unused parameter
+dotnet_diagnostic.IDE0063.severity = none # Use simple 'using' statement
+dotnet_diagnostic.IDE0090.severity = none # Use new (...)
+
+# ================================================================================================
+# SonarQube
+
+dotnet_diagnostic.S2368.severity = none # Make this constructor private or simplify its parameters
+dotnet_diagnostic.S2955.severity = none # Use a comparison to 'default(TCell)'
+dotnet_diagnostic.S3358.severity = none # Extract this ternary operation into an independent statement
