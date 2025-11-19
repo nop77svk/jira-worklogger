@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <Product>Jira Worklogger</Product>
+        <ProductVersion>2025.11.2</ProductVersion>
+        <InformationalVersion>2025.11.2</InformationalVersion>
+        <Authors>Peter Hraško</Authors>
+        <Company>Open source community</Company>
+        <Copyright>Practically copyleft</Copyright>
+
+        <OutputType>Library</OutputType>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <Nullable>enable</Nullable>
+        <RootNamespace>jwl.Wadl</RootNamespace>
+
+        <AssemblyName>jwl.wadl</AssemblyName>
+
+        <PackageId>NoP77svk.Jwl.Wadl</PackageId>
+        <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+        <NoWarn>1701;1702;AD0001;NETSDK1182</NoWarn>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+        <DebugType>none</DebugType>
+        <DebugSymbols>false</DebugSymbols>
+    </PropertyGroup>
+
+    <ItemGroup Label="analyzers">
+        <PackageReference Include="StyleCop.Analyzers" Version="*">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="SonarAnalyzer.CSharp" Version="*">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <Target Name="PostClean" AfterTargets="Clean">
+        <RemoveDir Directories="$(BaseIntermediateOutputPath)" />
+        <!-- obj -->
+        <RemoveDir Directories="$(BaseOutputPath)" />
+        <!-- bin -->
+    </Target>
+
+</Project>

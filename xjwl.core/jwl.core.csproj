@@ -1,0 +1,101 @@
+﻿<Project Sdk="Microsoft.NET.Sdk" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <Product>Jira Worklogger</Product>
+        <ProductVersion>2025.11.2</ProductVersion>
+        <InformationalVersion>2025.11.2</InformationalVersion>
+        <Authors>Peter Hraško</Authors>
+        <Company>Open source community</Company>
+        <Copyright>Practically copyleft</Copyright>
+
+        <OutputType>Library</OutputType>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>jwl.Core</RootNamespace>
+
+        <AssemblyName>jwl.core</AssemblyName>
+
+        <PackageId>NoP77svk.Jwl.Core</PackageId>
+        <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+        <NoWarn>1701;1702;AD0001;NETSDK1182</NoWarn>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <RepositoryUrl>https://github.com/nop77svk/jira-worklogger.git</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.9" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.9" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.9" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.9" />
+        <PackageReference Include="NoP77svk.Commons" Version="2024.1.1" />
+        <PackageReference Include="NoP77svk.Linq" Version="2024.1.1" />
+        <PackageReference Include="NoP77svk.Linq.OuterJoins" Version="2024.1.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\jwl.infra\jwl.infra.csproj" />
+        <ProjectReference Include="..\jwl.jira\jwl.jira.csproj" />
+        <ProjectReference Include="..\jwl.inputs\jwl.inputs.csproj" />
+    </ItemGroup>
+    
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+        <DebugType>none</DebugType>
+        <DebugSymbols>false</DebugSymbols>
+    </PropertyGroup>
+
+    <ItemGroup Label="analyzers">
+        <PackageReference Include="StyleCop.Analyzers" Version="*">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="SonarAnalyzer.CSharp" Version="*">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <Target Name="PostClean" AfterTargets="Clean">
+        <RemoveDir Directories="$(BaseIntermediateOutputPath)" />
+        <!-- obj -->
+        <RemoveDir Directories="$(BaseOutputPath)" />
+        <!-- bin -->
+    </Target>
+
+    <ItemGroup>
+        <CommonAssetFiles Include="./_assets/**/*" CopyToOutputDirectory="PreserveNewest" />
+        <CommonAssetFiles Include="../_assets/**/*" CopyToOutputDirectory="PreserveNewest" />
+        <CommonAssetFiles Include="../*.md" CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <CommonAssetFiles Remove="..\README.md" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="..\README.md" Link="_assets\README.md" />
+        <None Include="D:\work.private\jira-worklogger\LICENSE">
+            <Pack>True</Pack>
+            <PackagePath>\</PackagePath>
+        </None>
+        <None Include="D:\work.private\jira-worklogger\README.md">
+            <Pack>True</Pack>
+            <PackagePath>\</PackagePath>
+        </None>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Update="_assets/**/*">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+
+    <Target Name="CopyCustomContent" AfterTargets="AfterBuild">
+        <Copy SourceFiles="@(CommonAssetFiles)" DestinationFolder="$(OutDir)/%(RecursiveDir)" SkipUnchangedFiles="true" />
+    </Target>
+
+    <Target Name="CopyCustomContentOnPublish" AfterTargets="Publish">
+        <Copy SourceFiles="@(CommonAssetFiles)" DestinationFolder="$(PublishDir)/%(RecursiveDir)" SkipUnchangedFiles="true" />
+    </Target>
+</Project>
