@@ -1,4 +1,4 @@
-﻿namespace jwl.Jira.Exceptions;
+namespace jwl.Jira.Exceptions;
 
 internal class JiraAddWorkLogException
     : JiraIssueSpecificException
@@ -33,5 +33,5 @@ internal class JiraAddWorkLogException
     }
 
     private static string FormatMessage(DateTime moment, int timeSpentSeconds, string? optionalMessage)
-        => DefaultMessageFormatter($"Error adding worklog with {timeSpentSeconds} on {moment} to the issue", optionalMessage);
+        => DefaultMessageFormatter($"Error adding worklog with {timeSpentSeconds} seconds spent on {moment} to the issue", optionalMessage);
 }
