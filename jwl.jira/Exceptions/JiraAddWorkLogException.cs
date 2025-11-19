@@ -1,6 +1,6 @@
 namespace jwl.Jira.Exceptions;
 
-internal class JiraAddWorkLogException
+public class JiraAddWorkLogException
     : JiraIssueSpecificException
 {
     public DateTime Moment { get; }

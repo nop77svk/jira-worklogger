@@ -1,6 +1,6 @@
 namespace jwl.Jira.Exceptions;
 
-internal class JiraDeleteWorklogException
+public class JiraDeleteWorklogException
     : JiraIssueSpecificException
 {
     public long IssueId { get; }

@@ -1,7 +1,5 @@
 namespace jwl.Jira.Exceptions;
 
-using System;
-
 public class JiraUpdateWorklogsPeriodException : JiraIssueSpecificException
 {
     public long WorklogId { get; }
