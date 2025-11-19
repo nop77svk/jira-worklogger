@@ -1,6 +1,4 @@
-﻿namespace jwl.Jira.Exceptions;
-
-using System;
+namespace jwl.Jira.Exceptions;
 
 public class JiraGetIssueWorkLogsException
     : JiraIssueSpecificException

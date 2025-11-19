@@ -1,7 +1,5 @@
 namespace jwl.Jira.Exceptions;
 
-using System;
-
 public class JiraAddWorklogsPeriodException : JiraIssueSpecificException
 {
     public DateTime FromMoment { get; }
