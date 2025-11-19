@@ -41,7 +41,7 @@ public class VanillaJiraClient
 
                 if (jsonResponseContent.ErrorMessages?.Any() ?? false)
                 {
-                    throw new InvalidOperationException(string.Join(Environment.NewLine, jsonResponseContent.ErrorMessages));
+                    throw new JiraClientException(string.Join(Environment.NewLine, jsonResponseContent.ErrorMessages));
                 }
             }
             catch (JsonException jsonEx)
@@ -53,12 +53,12 @@ public class VanillaJiraClient
 
                     if (xmlResponseContent.Success == null)
                     {
-                        throw new InvalidOperationException(await responseMessage.Content.ReadAsStringAsync());
+                        throw new InvalidDataException(await responseMessage.Content.ReadAsStringAsync());
                     }
                 }
                 catch (XmlException xmlEx)
                 {
-                    throw new InvalidOperationException("Cannot deserialize HTTP response to any of the recognized structures", new AggregateException(jsonEx, xmlEx));
+                    throw new InvalidDataException("Cannot deserialize HTTP response to any of the recognized structures", new AggregateException(jsonEx, xmlEx));
                 }
             }
         }
@@ -317,7 +317,7 @@ public class VanillaJiraClient
         }
         catch (Exception ex)
         {
-            throw new JiraClientException($"Error retrieving user {userName} info", ex);
+            throw new JiraGetUserInfoException(userName, $"Error retrieving user {userName} info", ex);
         }
     }
 
