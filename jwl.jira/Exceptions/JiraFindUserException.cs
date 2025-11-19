@@ -1,26 +1,26 @@
 namespace jwl.Jira.Exceptions;
 
-public class JiraGetUserInfoException : JiraClientException
+public class JiraFindUserException : JiraClientException
 {
     public string UserName { get; }
 
-    public JiraGetUserInfoException(string userName)
+    public JiraFindUserException(string userName)
         : this(userName, (string?)null)
     {
     }
 
-    public JiraGetUserInfoException(string userName, string? message)
+    public JiraFindUserException(string userName, string? message)
         : base(FormatMessage(userName, message))
     {
         UserName = userName;
     }
 
-    public JiraGetUserInfoException(string userName, Exception inner)
+    public JiraFindUserException(string userName, Exception inner)
         : this(userName, (string?)null, inner)
     {
     }
 
-    public JiraGetUserInfoException(string userName, string? message, Exception inner)
+    public JiraFindUserException(string userName, string? message, Exception inner)
         : base(FormatMessage(userName, message), inner)
     {
         UserName = userName;

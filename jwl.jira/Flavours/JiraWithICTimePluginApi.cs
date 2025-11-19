@@ -1,4 +1,4 @@
-﻿#pragma warning disable S1075
+#pragma warning disable S1075
 namespace jwl.Jira;
 
 using System.Globalization;
@@ -85,12 +85,12 @@ public class JiraWithICTimePluginApi
         bool isCorrectHttpMethod = endPoint.HttpMethod == expectedMethod;
         if (!isCorrectHttpMethod)
         {
-            throw new InvalidOperationException($"Method {endPoint.Id} at resource path {endPoint.ResourcePath} executes via ${endPoint.HttpMethod} method (${expectedMethod.ToString().ToUpperInvariant()} expected)");
+            throw new JiraClientException($"Method {endPoint.Id} at resource path {endPoint.ResourcePath} executes via ${endPoint.HttpMethod} method (${expectedMethod.ToString().ToUpperInvariant()} expected)");
         }
 
         if (missingParameters.Any())
         {
-            throw new ArgumentException($"Missing assignment of {string.Join(',', missingParameters)} in the call of {endPoint.Id} at resource path {endPoint.ResourcePath}");
+            throw new JiraClientException($"Missing assignment of {string.Join(',', missingParameters)} in the call of {endPoint.Id} at resource path {endPoint.ResourcePath}");
         }
 
         bool providesJsonResponses = endPoint.Response?.Representations?
@@ -98,7 +98,7 @@ public class JiraWithICTimePluginApi
 
         if (!providesJsonResponses)
         {
-            throw new InvalidOperationException($"Method {endPoint.Id} at resource path {endPoint.ResourcePath} does not respond in JSON");
+            throw new JiraClientException($"Method {endPoint.Id} at resource path {endPoint.ResourcePath} does not respond in JSON");
         }
 
         // execute
@@ -216,12 +216,12 @@ public class JiraWithICTimePluginApi
         bool isCorrectHttpMethod = endPoint.HttpMethod == expectedMethod;
         if (!isCorrectHttpMethod)
         {
-            throw new InvalidOperationException($"Method {endPoint.Id} at resource path {endPoint.ResourcePath} executes via ${endPoint.HttpMethod} method (${expectedMethod.ToString().ToUpperInvariant()} expected)");
+            throw new JiraClientException($"Method {endPoint.Id} at resource path {endPoint.ResourcePath} executes via ${endPoint.HttpMethod} method (${expectedMethod.ToString().ToUpperInvariant()} expected)");
         }
 
         if (missingParameters.Any())
         {
-            throw new ArgumentException($"Missing assignment of {string.Join(',', missingParameters)} in the call of {endPoint.Id} at resource path {endPoint.ResourcePath}");
+            throw new JiraClientException($"Missing assignment of {string.Join(',', missingParameters)} in the call of {endPoint.Id} at resource path {endPoint.ResourcePath}");
         }
 
         // execute
@@ -238,7 +238,7 @@ public class JiraWithICTimePluginApi
 
             if (response.Content.Headers.ContentType?.MediaType != Wadl.WadlRepresentation.MediaTypeJson)
             {
-                throw new InvalidDataException($"Invalid media type returned ({response.Content.Headers.ContentType?.MediaType ?? string.Empty})");
+                throw new JiraClientException($"Invalid media type returned ({response.Content.Headers.ContentType?.MediaType ?? string.Empty})");
             }
 
             await VanillaJiraClient.CheckHttpResponseForErrorMessages(response);

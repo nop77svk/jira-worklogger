@@ -4,12 +4,12 @@ on:
   push:
     branches:
     - '**'
-    tags-ignore:
+    ignore-tags:
     - '**'
   pull_request:
     branches:
     - main
-    tags-ignore:
+    ignore-tags:
     - '**'
 
 jobs:
@@ -18,17 +18,19 @@ jobs:
     timeout-minutes: 15
     steps:
     - name: Setup .NET
-      uses: xt0rted/setup-dotnet@v1
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     - name: Update private NuGet source
       run: |
         dotnet nuget add source --name NoP77svk --username anyone --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text "https://nuget.pkg.github.com/nop77svk/index.json" \
         || dotnet nuget update source NoP77svk --username anyone --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --source "https://nuget.pkg.github.com/nop77svk/index.json"
     - name: Solution clean
-      run: dotnet clean -c Release
+      run: |
+        dotnet clean -c Release
+        dotnet clean -c Debug
     - name: NuGet restore
       run: dotnet restore
     - name: Build

@@ -7,7 +7,6 @@ using System.Text;
 using jwl.Infra;
 using jwl.Inputs;
 using jwl.Jira;
-using jwl.Jira.Exceptions;
 using jwl.Jira.Flavours;
 
 public class JwlCoreProcess : IDisposable
