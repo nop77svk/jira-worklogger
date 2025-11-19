@@ -5,19 +5,23 @@ public class JiraGetUserInfoException : JiraClientException
     public string UserName { get; }
 
     public JiraGetUserInfoException(string userName)
-        : base(FormatMessage(userName, null))
+        : this(userName, (string?)null)
     {
-        UserName = userName;
     }
 
-    public JiraGetUserInfoException(string userName, string message)
+    public JiraGetUserInfoException(string userName, string? message)
         : base(FormatMessage(userName, message))
     {
         UserName = userName;
     }
 
     public JiraGetUserInfoException(string userName, Exception inner)
-        : base(FormatMessage(userName, null), inner)
+        : this(userName, (string?)null, inner)
+    {
+    }
+
+    public JiraGetUserInfoException(string userName, string? message, Exception inner)
+        : base(FormatMessage(userName, message), inner)
     {
         UserName = userName;
     }
