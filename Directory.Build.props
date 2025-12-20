@@ -1,0 +1,38 @@
+﻿<Project>
+	<PropertyGroup Label="Global Project Settings">
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+
+		<Product>Work-Time Watch-Dog</Product>
+		<Authors>Peter Hraško</Authors>
+		<Company>Open source community</Company>
+		<Copyright>Practically copyleft</Copyright>
+		<NoWarn>1701;1702;AD0001;NETSDK1182</NoWarn>
+
+		<PackageId></PackageId>
+		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+	</PropertyGroup>
+
+	<ItemGroup Label="Code Analyzers">
+		<PackageReference Include="SonarAnalyzer.CSharp" Version="*">
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+		<PackageReference Include="StyleCop.Analyzers" Version="*">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<PropertyGroup Label="Remove Debug Symbols in Release Mode" Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<DebugType>none</DebugType>
+		<DebugSymbols>false</DebugSymbols>
+	</PropertyGroup>
+
+	<Target Name="PostClean" AfterTargets="Clean">
+		<RemoveDir Directories="$(BaseIntermediateOutputPath)" />
+		<!-- obj -->
+		<RemoveDir Directories="$(BaseOutputPath)" />
+		<!-- bin -->
+	</Target>
+</Project>
