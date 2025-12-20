@@ -1,4 +1,4 @@
-﻿namespace jwl.Test;
+namespace jwl.Test;
 
 using System.Xml.Serialization;
 
@@ -29,13 +29,13 @@ public class WadlTests
         Assert.That(_wadlResponseStream, Is.Not.Null);
 
         var wadlObj = _wadlSerializer.Deserialize(_wadlResponseStream);
-        Assert.IsNotNull(wadlObj);
-        Assert.IsInstanceOf(typeof(WadlApplication), wadlObj);
+        Assert.That(wadlObj, Is.Not.Null);
+        Assert.That(wadlObj, Is.InstanceOf<WadlApplication>());
 
         var wadl = (WadlApplication?)wadlObj;
-        Assert.IsNotNull(wadl);
+        Assert.That(wadl, Is.Not.Null);
 
-        Assert.IsNotNull(wadl!.Resources);
+        Assert.That(wadl?.Resources, Is.Not.Null);
     }
 
     [Test]
